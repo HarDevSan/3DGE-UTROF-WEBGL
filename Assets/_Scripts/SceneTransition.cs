@@ -26,9 +26,8 @@ public class SceneTransition : MonoBehaviour
     [Header("FreeLookCam Ref")]
     public CinemachineFreeLook cam;
 
-    [Header("OverlapSphereRadius")]
-    public float overlapSphereRadius;
 
+    //---Events
     public delegate void PlayerPressedEnterOnSight(string name);
     public static event PlayerPressedEnterOnSight OnPlayerPressedEnterOnSight;
 
@@ -37,8 +36,8 @@ public class SceneTransition : MonoBehaviour
 
     private void Awake()
     {
-        //SceneLoader.OnScene_Has_Loaded += SpawnPlayerInNewScene;
-        //InputReceiver.On_E_Input += SwitchTransitionActivity;
+        InputReceiver.On_E_Input += SpawnPlayerInNewScene;
+        InputReceiver.On_E_Input += SwitchTransitionActivity;
     }
 
     private void Update()
@@ -47,6 +46,7 @@ public class SceneTransition : MonoBehaviour
         //When the player raycast hits something interactable and the player has pressed the use key 
         if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth && InputReceiver.CheckIf_Use_Pressed())
         {
+            Debug.Log("Reached");
             OnPlayerPressedEnterOnSight.Invoke(nextSceneName);
             SpawnPlayerInNewScene();
             SwitchTransitionActivity();

@@ -117,7 +117,7 @@ public class SceneLoader : MonoBehaviour
         }
         // Debug.Log("finishedUnloading ");
        // OnScene_Has_UnLoaded.Invoke();
-       Debug.Log("OnSceneHasUnloaded was invoked");
+       //Debug.Log("OnSceneHasUnloaded was invoked");
         yield break;
     }
 }
