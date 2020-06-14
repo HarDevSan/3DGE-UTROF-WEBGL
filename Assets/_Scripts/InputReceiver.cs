@@ -46,7 +46,7 @@ public class InputReceiver : MonoBehaviour
     void ReceiveMovementInputWASD()
     {
         //Debug.Log(movementInput);
-        if(isMovementInput)
+        //if(isMovementInput)
         movementInput = new Vector2(Input.GetAxis("Horizontal"), (Input.GetAxis("Vertical")));
 
     }
@@ -95,8 +95,7 @@ public class InputReceiver : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-           // On_E_Input.Invoke(); No Subs, yet
-
+            // On_E_Input.Invoke(); No Subs, yet
             return true;
         }
         else

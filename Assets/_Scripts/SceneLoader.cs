@@ -18,17 +18,17 @@ public class SceneLoader : MonoBehaviour
     public delegate void SceneIsLoading();
     public static event SceneIsLoading OnSceneIsLoading;
     public delegate void ScenehasLoaded();
-    public static event ScenehasLoaded OnSceneHasLoaded;
+    public static event ScenehasLoaded OnScene_Has_Loaded;
     public delegate void ScenehasUnLoaded();
-    public static event ScenehasUnLoaded OnSceneHasUnLoaded;
+    public static event ScenehasUnLoaded OnScene_Has_UnLoaded;
 
     [SerializeField]
     string lastSceneName;
 
     private void Awake()
     {
-        SceneTransition.OnPlayerPressedEnterInTrigger += LoadNextScene;
-        SceneTransition.OnPlayerPressedEnterInTrigger += UnloadLastScene;
+        SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
+        SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
     }
 
     private void Start()
@@ -51,20 +51,25 @@ public class SceneLoader : MonoBehaviour
     //-----------Loading
     public void LoadNextScene(string name)
     {
-
-
         //Start loading of next scene
+        if (SceneManager.GetSceneByName(name).isLoaded == false)
+        {
+            OnSceneStartedLoading.Invoke();
         StartCoroutine(WaitForSceneToFinishLoading(name));
-        OnSceneStartedLoading.Invoke();
-
-        //check if the scene that needs to unloaded is loaded alread, if not, spare this step               
+            //check if the scene that needs to unloaded is loaded alread, if not, spare this step  
+        }
     }
 
     //---------Unloading
-    void UnloadLastScene(string name)
+    void UnloadLastScene(string notNeeded)
     {
-        //start unloading of last scene
-        StartCoroutine(WaitForSceneToFinishUnloading());
+
+        //Only unload a scene if it's loaded. Otherwise spare the operation
+        if (SceneManager.GetSceneByName(lastSceneName).isLoaded == true)
+        {
+            //start unloading of last scene
+            StartCoroutine(WaitForSceneToFinishUnloading());
+        }
     }
 
     //----------CoRoutines, managing loading progress and finish 
@@ -72,20 +77,26 @@ public class SceneLoader : MonoBehaviour
     {
         //Loading the nextScene and thereby create an async operation
         AsyncOperation operation = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
-
+        OnSceneStartedLoading.Invoke();
         //Check if the Async Operation has already been created before doing anything, prevents nullref 
-        while (operation.isDone == false)
+        if (operation != null)
         {
-            //Debug.Log("LoadingInProgress");
-            OnSceneIsLoading.Invoke();
-            loadingprogress = operation.progress;
-            yield return null;
+
+            while (operation.isDone == false)
+            {
+                //Debug.Log("LoadingInProgress");
+                OnSceneIsLoading.Invoke();
+                loadingprogress = operation.progress;
+                yield return null;
+            }
         }
         //Debug.Log("Loading Finished");
         loadingprogress = 0;
-        OnSceneHasLoaded.Invoke();
         lastSceneName = name;
-        Debug.Log("Scene that will unload next is : " + lastSceneName);
+
+        OnScene_Has_Loaded.Invoke();
+        Debug.Log("OnScene_Has_Loaded.Invoke");
+        // Debug.Log("Scene that will unload next is : " + lastSceneName);
         yield break;
     }
 
@@ -94,15 +105,20 @@ public class SceneLoader : MonoBehaviour
         //unLoading the thisScene and thereby create an async operation
         AsyncOperation op = SceneManager.UnloadSceneAsync(lastSceneName);
         //Debug.Log("Name Of the LAst Scene : " + lastSceneName);
-
-        while (op.isDone == false)
+        if (op != null)
         {
-            //Debug.Log("IsUnloading");
-            yield return null;
+            while (op.isDone == false)
+            {
+                //Debug.Log("IsUnloading");
+                yield return null;
+            }
+
+
         }
         // Debug.Log("finishedUnloading ");
+       // OnScene_Has_UnLoaded.Invoke();
+       Debug.Log("OnSceneHasUnloaded was invoked");
         yield break;
-
     }
 }
 

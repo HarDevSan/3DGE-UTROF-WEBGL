@@ -19,10 +19,7 @@ public class GameManager : MonoBehaviour
         InputReceiver.On_P_Input += StopGame;
     }
 
-    private void Update()
-    {
-    }
-
+    
 
     //Functions that should appear in the Unity Event List of a Toggle must take a booleanvalue as parameter
     public void ToggleCharacterController(bool isToggle)

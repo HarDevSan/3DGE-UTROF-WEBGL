@@ -79,15 +79,13 @@ public class PlayerController : MonoBehaviour
 
         //Poll movemenVector from InputReceiver
         inputVectorWASD = InputReceiver.movementInput.normalized; //Normalize to disable speed advantage
-    }
 
-    private void FixedUpdate()
-    {
+
         //RayCasting
         CastRayFromFront();
-
     }
 
+  
     void ApplyGravity()
     {
         //Check if the player is grounded and turn off the gravity in that case

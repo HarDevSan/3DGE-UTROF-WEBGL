@@ -10,90 +10,66 @@ using Cinemachine;
 
 public class SceneTransition : MonoBehaviour
 {
+    [Header("SceneTRansition Couple")]
+    public Transform thisSceneTransition;
+    public Transform nextSceneTransition;
 
-    public Transform thisTrigger;
-    public Transform nextTrigger;
+    [Header("SceneTransition Time")]
     public int sceneTransitionSeconds;
-    public Transform player;
 
-    [Header("SceneCouple")]
+    [Header("Char Controller Ref")]
+    public CharacterController charController;
+
+    [Header("Scene Name to transition to")]
     public string nextSceneName;
 
-    [Header("Transforms")]
-    public Transform playerTransform;
-
-    public bool isInsideTrigger;
-
-    public delegate void PlayerPressedEnterInTrigger(string name);
-    public static event PlayerPressedEnterInTrigger OnPlayerPressedEnterInTrigger;
-
+    [Header("FreeLookCam Ref")]
     public CinemachineFreeLook cam;
+
+    [Header("OverlapSphereRadius")]
+    public float overlapSphereRadius;
+
+    public delegate void PlayerPressedEnterOnSight(string name);
+    public static event PlayerPressedEnterOnSight OnPlayerPressedEnterOnSight;
+
+    [SerializeField]
+    bool isPlayerCanEnterScene;
 
     private void Awake()
     {
-        SceneLoader.OnSceneHasLoaded += SpawnPlayerInNewScene;
-        SceneLoader.OnSceneHasLoaded += SwitchTriggerActivity;
+        //SceneLoader.OnScene_Has_Loaded += SpawnPlayerInNewScene;
+        //InputReceiver.On_E_Input += SwitchTransitionActivity;
     }
 
-    private void Start()
+    private void Update()
     {
-        //   cam = GetComponent<CinemachineFreeLook>();
 
-    }
-
-    void SpawnPlayerInNewScene()
-    {
-        //Debug.Log("SpawningPlayerToNewScene");
-        //Debug.Log("Name of the next Tigger: " + nextTrigger.name);
-        player.position = nextTrigger.position;
-        player.forward = -nextTrigger.forward;
-        //Make the cam look forward when player enters room
-        // isCameraRecentering = true;
-    }
-
-
-    //---Trigger Callbacks -- 
-    void SwitchTriggerActivity()
-    {
-      
-            thisTrigger.gameObject.SetActive(false);
-        
-       
-            nextTrigger.gameObject.SetActive(true);
-        
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        isInsideTrigger = true;
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
+        //When the player raycast hits something interactable and the player has pressed the use key 
         if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth && InputReceiver.CheckIf_Use_Pressed())
         {
-            //Debug.Log("Player Pressed Enter inside Trigger");
-            OnPlayerPressedEnterInTrigger.Invoke(nextSceneName);
-
+            OnPlayerPressedEnterOnSight.Invoke(nextSceneName);
+            SpawnPlayerInNewScene();
+            SwitchTransitionActivity();
         }
-        isInsideTrigger = true;
-
     }
 
-    private void OnTriggerExit(Collider other)
+    //---Spawning
+    void SpawnPlayerInNewScene()
     {
+        charController.enabled = false;
+        charController.transform.position = nextSceneTransition.position;
+        charController.enabled = true;
+    }
 
-        isInsideTrigger = false;
+    void SwitchTransitionActivity()
+    {
+        Debug.Log("SwitchTriggerCalled");
+        thisSceneTransition.gameObject.SetActive(false);
+        nextSceneTransition.gameObject.SetActive(true);
+
     }
 
     //---Getter/Setters
-
-    public string GetTriggerName()
-    {
-        return gameObject.name;
-    }
-
-
     public int GetSceneTransitionSeconds()
     {
         return sceneTransitionSeconds;

@@ -39,7 +39,7 @@ public class UIManager : MonoBehaviour
         PlayerController.OnPlayerSeesSoPlayerDoesNotSeeSomehtingInteractable += HideEnterRoomInteraction;
         SceneLoader.OnSceneStartedLoading += ShowLoadingScreen;
         SceneLoader.OnSceneIsLoading += UpdateLoadingBar;
-        SceneLoader.OnSceneHasLoaded += HideLoadingBar;
+        SceneLoader.OnScene_Has_Loaded += HideLoadingBar;
     }
 
     private void Start()

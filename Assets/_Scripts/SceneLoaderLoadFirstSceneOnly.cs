@@ -16,7 +16,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
     private void Start()
     {
         UIManager.OnPlayButtonClicked += LoadFirstScene;
-        //SceneLoader.OnSceneHasLoaded += UnloadTheFirstEverScene;
+        //SceneLoader.OnScene_Has_Loaded += UnloadTheFirstEverScene;
 
     }
 
