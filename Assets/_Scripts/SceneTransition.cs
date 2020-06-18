@@ -36,8 +36,14 @@ public class SceneTransition : MonoBehaviour
 
     private void Awake()
     {
+        /*Need to UNSUBSCRIBE the event , otherwise it wil lfire again even if the object is disabled
+        It's also ok to hanlde scenetransition on playerInput instead of "OnSceneHasLoaed", OnsceneHasLoaded 
+        can be used to determin when the playercontrols should be unlocked in the new scene and the blen out of UI loding sceen*/ 
         InputReceiver.On_E_Input += SpawnPlayerInNewScene;
         InputReceiver.On_E_Input += SwitchTransitionActivity;
+
+        //SceneLoader.OnScene_Has_Loaded += SpawnPlayerInNewScene;
+        //SceneLoader.OnScene_Has_Loaded += SwitchTransitionActivity;
     }
 
     private void Update()
@@ -46,7 +52,7 @@ public class SceneTransition : MonoBehaviour
         //When the player raycast hits something interactable and the player has pressed the use key 
         if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth && InputReceiver.CheckIf_Use_Pressed())
         {
-            Debug.Log("Reached");
+            //Debug.Log("Reached");
             OnPlayerPressedEnterOnSight.Invoke(nextSceneName);
             SpawnPlayerInNewScene();
             SwitchTransitionActivity();
@@ -56,6 +62,7 @@ public class SceneTransition : MonoBehaviour
     //---Spawning
     void SpawnPlayerInNewScene()
     {
+        //Debug.Log("SpawnPlayerInNewScene");
         charController.enabled = false;
         charController.transform.position = nextSceneTransition.position;
         charController.enabled = true;
@@ -63,7 +70,7 @@ public class SceneTransition : MonoBehaviour
 
     void SwitchTransitionActivity()
     {
-        Debug.Log("SwitchTriggerCalled");
+        //Debug.Log("SwitchTriggerCalled");
         thisSceneTransition.gameObject.SetActive(false);
         nextSceneTransition.gameObject.SetActive(true);
 
@@ -73,6 +80,17 @@ public class SceneTransition : MonoBehaviour
     public int GetSceneTransitionSeconds()
     {
         return sceneTransitionSeconds;
+    }
+
+    //--- Unsubscribe events on deactivation
+    private void OnDisable()
+    {
+        InputReceiver.On_E_Input -= SpawnPlayerInNewScene;
+        InputReceiver.On_E_Input -= SwitchTransitionActivity;
+
+        //SceneLoader.OnScene_Has_Loaded -= SpawnPlayerInNewScene;
+        //SceneLoader.OnScene_Has_Loaded -= SwitchTransitionActivity;
+
     }
 
 }

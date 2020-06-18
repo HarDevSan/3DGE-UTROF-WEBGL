@@ -27,6 +27,7 @@ public class SceneLoader : MonoBehaviour
 
     private void Awake()
     {
+        //-- Dont forget to UNSUBSCRIBE
         SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
         SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
     }
@@ -95,7 +96,7 @@ public class SceneLoader : MonoBehaviour
         lastSceneName = name;
 
         OnScene_Has_Loaded.Invoke();
-        Debug.Log("OnScene_Has_Loaded.Invoke");
+        //Debug.Log("OnScene_Has_Loaded.Invoke");
         // Debug.Log("Scene that will unload next is : " + lastSceneName);
         yield break;
     }
@@ -119,6 +120,11 @@ public class SceneLoader : MonoBehaviour
        // OnScene_Has_UnLoaded.Invoke();
        //Debug.Log("OnSceneHasUnloaded was invoked");
         yield break;
+    }
+    private void OnDisable()
+    {
+        SceneTransition.OnPlayerPressedEnterOnSight -= LoadNextScene;
+        SceneTransition.OnPlayerPressedEnterOnSight -= UnloadLastScene;
     }
 }
 
