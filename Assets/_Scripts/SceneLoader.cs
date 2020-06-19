@@ -11,6 +11,7 @@ using UnityEngine.UI;
 public class SceneLoader : MonoBehaviour
 {
     public static float loadingprogress;
+    public int loadDelay;
 
     //-------------Events
     public delegate void SceneStartedLoading();
@@ -78,7 +79,6 @@ public class SceneLoader : MonoBehaviour
     {
         //Loading the nextScene and thereby create an async operation
         AsyncOperation operation = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
-        OnSceneStartedLoading.Invoke();
         //Check if the Async Operation has already been created before doing anything, prevents nullref 
         if (operation != null)
         {
@@ -98,7 +98,7 @@ public class SceneLoader : MonoBehaviour
         OnScene_Has_Loaded.Invoke();
         //Debug.Log("OnScene_Has_Loaded.Invoke");
         // Debug.Log("Scene that will unload next is : " + lastSceneName);
-        yield break;
+        yield return new WaitForSeconds(loadDelay);
     }
 
     IEnumerator WaitForSceneToFinishUnloading()
