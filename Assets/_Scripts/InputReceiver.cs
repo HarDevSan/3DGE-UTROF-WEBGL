@@ -39,6 +39,7 @@ public class InputReceiver : MonoBehaviour
         {
             ReceiveMovementInputWASD();
         }
+        //Debug.Log("isMovementInput : " + isMovementInput);
 
     }
 
