@@ -10,10 +10,7 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("MainCanvas")]
-    public CanvasGroup canvasMain;
-    [Header("MainMenuCanvasGroup")]
-    public CanvasGroup mainMenuGroup;
+  
     [Header("InteractionCanvasGroup")]
     public CanvasGroup interactionGroup;
 
@@ -26,18 +23,17 @@ public class UIManager : MonoBehaviour
     public CanvasGroup loadingScreenGroup;
     public Image loadingBar;
 
-    public delegate void PlayButtonClicked();
-    public static event PlayButtonClicked OnPlayButtonClicked;
+
 
     public Transform playerTransform;
     public Transform triggerTransform;
 
     private void Awake()
     {
-        InputReceiver.BlockMovementInput();
         PlayerController.OnPlayerSeesSomethingInteractable += ShowEnterRoomInteraction;
         PlayerController.OnPlayerSeesSoPlayerDoesNotSeeSomehtingInteractable += HideEnterRoomInteraction;
         SceneLoader.OnSceneStartedLoading += ShowLoadingScreen;
+        SceneLoader.OnSceneIsLoading += ShowLoadingScreen;
         SceneLoader.OnSceneIsLoading += UpdateLoadingBar;
         SceneLoader.OnScene_Has_Loaded += HideLoadingBar;
     }
@@ -68,14 +64,6 @@ public class UIManager : MonoBehaviour
         InputReceiver.UnBlockMovementInputs();
     }
 
-    public void OnPlayClicked()
-    {
-        Debug.Log("Ply button was clicked");
-        canvasMain.alpha = 0;
-        OnPlayButtonClicked.Invoke();
-        InputReceiver.UnBlockMovementInputs();
-        PlayerController.isApplyGravity = false;
-    }
 
     public void ShowEnterRoomInteraction()
     {
@@ -89,6 +77,15 @@ public class UIManager : MonoBehaviour
 
         interactionGroup.alpha = 0;
 
+    }
+    private void OnDisable()
+    {
+        PlayerController.OnPlayerSeesSomethingInteractable -= ShowEnterRoomInteraction;
+        PlayerController.OnPlayerSeesSoPlayerDoesNotSeeSomehtingInteractable -= HideEnterRoomInteraction;
+        SceneLoader.OnSceneStartedLoading += ShowLoadingScreen;
+        SceneLoader.OnSceneIsLoading -= ShowLoadingScreen;
+        SceneLoader.OnSceneIsLoading -= UpdateLoadingBar;
+        SceneLoader.OnScene_Has_Loaded -= HideLoadingBar;
     }
 
 }
