@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        SceneLoader.OnSceneIsLoading+= SetIsCharControllerEnabledToDisabled;
+        SceneLoader.OnSceneIsLoading += SetIsCharControllerEnabledToDisabled;
         SceneLoader.OnScene_Has_Loaded += SetIsCharControllerEnabledToEnabled;
     }
 
