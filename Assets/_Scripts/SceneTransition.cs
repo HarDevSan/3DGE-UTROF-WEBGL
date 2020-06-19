@@ -38,7 +38,7 @@ public class SceneTransition : MonoBehaviour
     {
         /*Need to UNSUBSCRIBE the event , otherwise it wil lfire again even if the object is disabled
         It's also ok to hanlde scenetransition on playerInput instead of "OnSceneHasLoaed", OnsceneHasLoaded 
-        can be used to determin when the playercontrols should be unlocked in the new scene and the blen out of UI loding sceen*/ 
+        can be used to determin when the playercontrols should be unlocked in the new scene and the blen out of UI loding sceen*/
         InputReceiver.On_E_Input += SpawnPlayerInNewScene;
         InputReceiver.On_E_Input += SwitchTransitionActivity;
 
@@ -63,8 +63,13 @@ public class SceneTransition : MonoBehaviour
     void SpawnPlayerInNewScene()
     {
         //Debug.Log("SpawnPlayerInNewScene");
+
+        //Disable charController for the time the it gets offset
         charController.enabled = false;
+        //Position the char at the next scenetranstion position  (e.g. behind the door , or a ladder)
         charController.transform.position = nextSceneTransition.position;
+
+        //Finally enable the charcontroller again
         charController.enabled = true;
     }
 
