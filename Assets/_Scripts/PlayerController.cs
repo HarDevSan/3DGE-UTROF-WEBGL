@@ -106,8 +106,8 @@ public class PlayerController : MonoBehaviour
     {
 
         //Zero-ed out y of camera forward and right vectors, preventing slow down through y-axis taken into account
-        Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.x, 0f, _mainCamera.transform.forward.z);
-        Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.x, 0f, _mainCamera.transform.right.z);
+        Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.normalized.x, 0f, _mainCamera.transform.forward.z);
+        Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.normalized.x, 0f, _mainCamera.transform.right.z);
 
         if (InputManager.CheckIfVerticalInput() == false)
         {
@@ -132,9 +132,9 @@ public class PlayerController : MonoBehaviour
             }
         }
         //Forwards Backwards Movements
-        _characterController.Move(camForwardZeroY * inputVectorWASD.y * playerstats._walkSpeed * Time.deltaTime);
+        _characterController.Move(camForwardZeroY * inputVectorWASD.normalized.y * playerstats._walkSpeed * Time.deltaTime);
         //Strafing
-        _characterController.Move(camRightZeroY * inputVectorWASD.x * playerstats._strafeSpeed * Time.deltaTime);
+        _characterController.Move(camRightZeroY * inputVectorWASD.normalized.x * playerstats._strafeSpeed * Time.deltaTime);
         //FUNNY we could simply swap x and y here to make a classical "spellbound" like effect on the player when he is hit by some kind of poison or spell
 
     }
