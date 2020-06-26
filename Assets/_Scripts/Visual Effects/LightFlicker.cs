@@ -6,23 +6,33 @@ public class LightFlicker : MonoBehaviour
 {
     public List<Light> lightsToFLickerlist = new List<Light>();
 
+    public List<float>
+
 
     //Toggles
     public bool isFlickerPingPong;
 
+    private void Start()
+    {
+        fo
+    }
 
-    public void FlickerPingPong()
+    public void Update()
     {
         if (isFlickerPingPong)
         {
-            FLickerLightPingPong();
+            FlickerLightPingPong();
         }
     }
 
-    public void FLickerLightPingPong()
+    public void FlickerLightPingPong()
     {
-        light.intensity = Mathf.PingPong(light.intensity, 1f);
-
+        foreach (Light light in lightsToFLickerlist)
+        {
+            {
+                light.intensity = Mathf.PingPong(0, 1f);
+            }
+        }
     }
 
     //IEnumerator FlickerPingPongRoutine()

@@ -15,7 +15,7 @@ public class FearEmitter : MonoBehaviour
 
     public UnityEvent playerEntersEmitter;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         Debug.Log("Player entered Emitter");
         playerEntersEmitter.Invoke();
