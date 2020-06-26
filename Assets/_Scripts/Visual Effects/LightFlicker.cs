@@ -4,30 +4,39 @@ using UnityEngine;
 
 public class LightFlicker : MonoBehaviour
 {
-    public List<Light> lightsToFLickerlist = new  List<Light>();
+    public List<Light> lightsToFLickerlist = new List<Light>();
 
 
     //Toggles
     public bool isFlickerPingPong;
 
-    
+
     public void FlickerPingPong()
     {
-        StartCoroutine(FlickerPingPongRoutine());
-    }
-
-    IEnumerator FlickerPingPongRoutine()
-    {
-        while (isFlickerPingPong)
+        if (isFlickerPingPong)
         {
-            foreach (Light light in lightsToFLickerlist)
-            {
-                light.intensity = Mathf.PingPong(light.intensity, 1f);
-            }
-            yield return null;
-
+            FLickerLightPingPong();
         }
-        yield break;
     }
+
+    public void FLickerLightPingPong()
+    {
+        light.intensity = Mathf.PingPong(light.intensity, 1f);
+
+    }
+
+    //IEnumerator FlickerPingPongRoutine()
+    //{
+    //    while (isFlickerPingPong)
+    //    {
+    //        foreach (Light light in lightsToFLickerlist)
+    //        {
+    //            light.intensity = Mathf.PingPong(light.intensity, 1f);
+    //        }
+    //        yield return null;
+
+    //    }
+    //    yield break;
+    //}
 
 }
