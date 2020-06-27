@@ -106,8 +106,8 @@ public class PlayerController : MonoBehaviour
     {
 
         //Zero-ed out y of camera forward and right vectors, preventing slow down through y-axis taken into account
-        Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.normalized.x, 0f, _mainCamera.transform.forward.z);
-        Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.normalized.x, 0f, _mainCamera.transform.right.z);
+        Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.x, 0f, _mainCamera.transform.forward.z).normalized;
+        Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.x, 0f, _mainCamera.transform.right.z).normalized;
 
         if (InputManager.CheckIfVerticalInput() == false)
         {
