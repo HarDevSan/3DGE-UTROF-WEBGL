@@ -457,7 +457,7 @@ GameObject:
   - component: {fileID: 817528143}
   - component: {fileID: 817528142}
   m_Layer: 0
-  m_Name: LightFlickerGroup
+  m_Name: LightBehaviour
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -475,8 +475,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14c19820cbc160a41ab1f3cdbd61fbc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lightsToFLickerlist: []
+  lightsToFLickerlist:
+  - {fileID: 1101214242}
+  - {fileID: 215053972}
   isFlickerPingPong: 0
+  isPhaseLightBySine: 0
+  isHueshiftBySine: 0
+  flickerInterval: 0
+  maxFLickerIntensity: 0
+  phaseLength: 0
+  maxPhasingIntensity: 0
+  colorShiftColor: {r: 0, g: 0, b: 0, a: 0}
+  red: 0
+  green: 0
+  blue: 0
+  redShiftIntensity: 0
+  redShiftlength: 0
+  blueShiftIntensity: 0
+  blueShiftlength: 0
+  greenShiftIntensity: 0
+  greenShiftlength: 0
 --- !u!4 &817528143
 Transform:
   m_ObjectHideFlags: 0
@@ -937,8 +955,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 3.3520126, y: 2.5669785, z: 4.77552}
-  m_Center: {x: -0.3489132, y: 0.34818843, z: 0.53044915}
+  m_Size: {x: 2.2062206, y: 2.5669785, z: 4.77552}
+  m_Center: {x: 0.7034464, y: 0.3481884, z: 0.53044915}
 --- !u!114 &1962612125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -951,15 +969,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86c60106159c5fe4884c3c834dc22653, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lightList:
-  - {fileID: 1101214242}
-  audioSourceList:
-  - {fileID: 2059100939}
   playerEntersEmitter:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 817528142}
-        m_MethodName: FLickerLightPingPong
+        m_MethodName: ToggleIsLFickerPingPong
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
