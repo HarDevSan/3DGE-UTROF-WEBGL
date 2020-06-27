@@ -6,16 +6,13 @@ public class LightFlicker : MonoBehaviour
 {
     public List<Light> lightsToFLickerlist = new List<Light>();
 
-    public List<float>
-
+    public float minIntensity;
+    public float maxIntensity;
 
     //Toggles
     public bool isFlickerPingPong;
 
-    private void Start()
-    {
-        fo
-    }
+   
 
     public void Update()
     {
@@ -30,7 +27,7 @@ public class LightFlicker : MonoBehaviour
         foreach (Light light in lightsToFLickerlist)
         {
             {
-                light.intensity = Mathf.PingPong(0, 1f);
+                light.intensity = Mathf.PingPong(minIntensity, maxIntensity);
             }
         }
     }
