@@ -53,7 +53,7 @@ public class SceneLoader : MonoBehaviour
     //-----------Loading
     public void LoadNextScene(string name)
     {
-        //Start loading of next scene
+        //Start loading of next scene if the next scene is not already loaded
         if (SceneManager.GetSceneByName(name).isLoaded == false)
         {
             OnSceneStartedLoading.Invoke();
@@ -66,7 +66,7 @@ public class SceneLoader : MonoBehaviour
     void UnloadLastScene(string notNeeded)
     {
 
-        //Only unload a scene if it's loaded. Otherwise spare the operation
+        //Only unload a scene if it's loaded. Otherwise spare the coroutine
         if (SceneManager.GetSceneByName(lastSceneName).isLoaded == true)
         {
             //start unloading of last scene
