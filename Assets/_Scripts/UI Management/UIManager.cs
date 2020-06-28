@@ -30,8 +30,8 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
-        PlayerController.OnPlayerSeesSomethingInteractable += ShowEnterRoomInteraction;
-        PlayerController.OnPlayerSeesSoPlayerDoesNotSeeSomehtingInteractable += HideEnterRoomInteraction;
+        PlayerController.OnPlayerSeesSomethingInteractable_Room += ShowEnterRoomInteraction;
+        PlayerController.OnPlayerDoesNotSeeSomehtingInteractable += HideEnterRoomInteraction;
         SceneLoader.OnSceneStartedLoading += ShowLoadingScreen;
         SceneLoader.OnSceneIsLoading += ShowLoadingScreen;
         SceneLoader.OnSceneIsLoading += UpdateLoadingBar;
@@ -80,8 +80,8 @@ public class UIManager : MonoBehaviour
     }
     private void OnDisable()
     {
-        PlayerController.OnPlayerSeesSomethingInteractable -= ShowEnterRoomInteraction;
-        PlayerController.OnPlayerSeesSoPlayerDoesNotSeeSomehtingInteractable -= HideEnterRoomInteraction;
+        PlayerController.OnPlayerSeesSomethingInteractable_Room -= ShowEnterRoomInteraction;
+        PlayerController.OnPlayerDoesNotSeeSomehtingInteractable -= HideEnterRoomInteraction;
         SceneLoader.OnSceneStartedLoading += ShowLoadingScreen;
         SceneLoader.OnSceneIsLoading -= ShowLoadingScreen;
         SceneLoader.OnSceneIsLoading -= UpdateLoadingBar;
