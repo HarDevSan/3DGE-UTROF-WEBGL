@@ -27,19 +27,23 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
 
     void LoadPersistentScene()
     {
-        StartCoroutine(LoadPersistentRoutine());
+        //for convienence, if the persistent scene is already loaded in editor
+        if (SceneManager.GetSceneByName(persistentSceneName).isLoaded == false)
+            StartCoroutine(LoadPersistentRoutine());
     }
 
     void LoadFirstScene()
     {
-        StartCoroutine(LoadFirstSceneRoutine());
+        //for convienence, if the first scene is already loaded in editor
+        if (SceneManager.GetSceneByName(firstSceneName).isLoaded == false)
+            StartCoroutine(LoadFirstSceneRoutine());
     }
 
 
     void UnloadStartMenuScene()
     {
-        //if (isPersistentSceneLoaded)
-
+        //only if startmenu scene is loaded the startmenu scene will be unloaded 
+        if (SceneManager.GetSceneByName(startMenuSceneName).isLoaded == true)
             StartCoroutine(UnloadStartMenuRoutine());
     }
 
