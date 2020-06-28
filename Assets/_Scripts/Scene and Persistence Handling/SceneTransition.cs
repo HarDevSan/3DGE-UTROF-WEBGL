@@ -50,7 +50,7 @@ public class SceneTransition : MonoBehaviour
     {
 
         //When the player raycast hits something interactable and the player has pressed the use key 
-        if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth && InputReceiver.CheckIf_Use_Pressed())
+        if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed())
         {
             //Debug.Log("Reached");
             OnPlayerPressedEnterOnSight.Invoke(nextSceneName);
