@@ -14,27 +14,33 @@ public class PlayerController : MonoBehaviour
     [Header("RayTarget")]
     public Transform castRayFrom;
 
- 
+
     public Camera _mainCamera;
     public Animator playerAnimator;
 
     public static bool isApplyGravity;
-    public static bool isPlayerCanInteractBecauseHeLooksAtSmth;
+    public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Room;
+    public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Prop;
+
 
     public float interactionDistance;
 
-    [Header("Interaction LayerMask")]
-    public LayerMask interactionMask;
+    [Header("Interaction LayerMasks")]
+    public LayerMask interactionMaskRoom;
+    public LayerMask interactionMaskItem;
+
 
     CharacterController _characterController;
 
     Vector3 _velocity;
     Vector3 inputVectorWASD;
 
-    public delegate void PlayerSeesSomehtingInteractable();
-    public static event PlayerSeesSomehtingInteractable OnPlayerSeesSomethingInteractable;
+    public delegate void PlayerSeesSomehtingInteractable_Room();
+    public static event PlayerSeesSomehtingInteractable_Room OnPlayerSeesSomethingInteractable_Room;
+    public delegate void PlayerSeesSomehtingInteractable_Item();
+    public static event PlayerSeesSomehtingInteractable_Item OnPlayerSeesSomethingInteractable_Item;
     public delegate void PlayerDoesNotSeeSomehtingInteractable();
-    public static event PlayerDoesNotSeeSomehtingInteractable OnPlayerSeesSoPlayerDoesNotSeeSomehtingInteractable;
+    public static event PlayerDoesNotSeeSomehtingInteractable OnPlayerDoesNotSeeSomehtingInteractable;
 
     //SO
     public PlayerStats playerstats;
@@ -56,8 +62,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         //Gravity needs to always be applied, even if we have no jumping but maybe some falling
-        if(isApplyGravity)
-        ApplyGravity();
+        if (isApplyGravity)
+            ApplyGravity();
 
         AnimatePlayer();
 
@@ -69,7 +75,7 @@ public class PlayerController : MonoBehaviour
 
             //Only call Run function if player is holding run key
             if (InputReceiver.CheckIf_Run_Pressed())
-            { 
+            {
                 Run();
 
             }
@@ -85,7 +91,7 @@ public class PlayerController : MonoBehaviour
         CastRayFromFront();
     }
 
-  
+
     void ApplyGravity()
     {
         //Check if the player is grounded and turn off the gravity in that case
@@ -186,23 +192,31 @@ public class PlayerController : MonoBehaviour
         zeroedOutEulers.z = 0;
         transform.eulerAngles = zeroedOutEulers;
 
-
     }
 
     void CastRayFromFront()
     {
         RaycastHit hit;
-        if(Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, interactionDistance, interactionMask)){
+        if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, interactionDistance, interactionMaskRoom))
+        {
 
             //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
-            OnPlayerSeesSomethingInteractable.Invoke();
-            isPlayerCanInteractBecauseHeLooksAtSmth = true;
+            OnPlayerSeesSomethingInteractable_Room.Invoke();
+            isPlayerCanInteractBecauseHeLooksAtSmth_Room = true;
+        }
+        else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, interactionDistance, interactionMaskItem))
+            {
+            //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
+            OnPlayerSeesSomethingInteractable_Item.Invoke();
+            isPlayerCanInteractBecauseHeLooksAtSmth_Prop = true;
+
         }
         else
         {
             //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
-            OnPlayerSeesSoPlayerDoesNotSeeSomehtingInteractable.Invoke();
-            isPlayerCanInteractBecauseHeLooksAtSmth = false;
+            OnPlayerDoesNotSeeSomehtingInteractable.Invoke();
+            isPlayerCanInteractBecauseHeLooksAtSmth_Room = false;
+            isPlayerCanInteractBecauseHeLooksAtSmth_Prop = false;
         }
         Debug.DrawRay(castRayFrom.position, castRayFrom.forward, Color.green);
 
