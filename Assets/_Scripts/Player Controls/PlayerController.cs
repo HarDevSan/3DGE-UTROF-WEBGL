@@ -207,7 +207,7 @@ public class PlayerController : MonoBehaviour
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, interactionDistance, interactionMaskItem))
             {
             //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
-            OnPlayerSeesSomethingInteractable_Item.Invoke();
+           // OnPlayerSeesSomethingInteractable_Item.Invoke();
             isPlayerCanInteractBecauseHeLooksAtSmth_Prop = true;
 
         }
