@@ -167,7 +167,7 @@ public class TextEvent : MonoBehaviour
             randomlySelectedText.maxVisibleCharacters = visibleCount;
             visibleCount++;
 
-            yield return new WaitForSeconds(timeBetweenCharPrint * Time.deltaTime);
+            yield return new WaitForSeconds(timeBetweenCharPrint);
         }
 
         isPrintingDone = true;
