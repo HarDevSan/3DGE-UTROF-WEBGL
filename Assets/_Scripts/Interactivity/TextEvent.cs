@@ -28,6 +28,8 @@ public class TextEvent : MonoBehaviour
     [SerializeField]
     TextMeshProUGUI randomlySelectedText;
 
+    int currentRandomInt;
+
     private void Awake()
     {
         //Events not fesable here
@@ -41,7 +43,37 @@ public class TextEvent : MonoBehaviour
         {
             textInList.maxVisibleCharacters = 0;
         }
+        //Init
         isPrintingDone = true;
+        currentRandomInt = 0;
+        randomlySelectedText = textListToDisplay[currentRandomInt];
+
+    }
+
+    private void Update()
+    {
+        if (playerIsInTrigger && InputReceiver.CheckIf_Use_Pressed())
+        {
+            //isUserInvestigating = !isUserInvestigating;
+
+            //if (isUserInvestigating == true)
+            //{
+            //    PauseTimeScale();
+            //if(isPrintingDone)
+            PrintText();
+
+
+            //    }
+            //    else
+            //    {
+            //        ResumeTimeScale();
+            //    }
+
+            //}
+            //else
+            //{
+
+        }
     }
 
     void ShowCurrentlySelectedTextViaAlpha()
@@ -90,8 +122,13 @@ public class TextEvent : MonoBehaviour
     {
         int randomTextRange = Random.Range(0, textListToDisplay.Count);
 
+        if (currentRandomInt == randomTextRange)
+        {
+            while (currentRandomInt == randomTextRange)
+                randomTextRange = Random.Range(0, textListToDisplay.Count);
+        }
+        currentRandomInt = randomTextRange;
         randomlySelectedText = textListToDisplay[randomTextRange];
-
     }
 
     void ResetCurrentTextMaxVisibleChar()
@@ -130,11 +167,11 @@ public class TextEvent : MonoBehaviour
             randomlySelectedText.maxVisibleCharacters = visibleCount;
             visibleCount++;
 
-            yield return new WaitForSeconds(timeBetweenCharPrint);
+            yield return new WaitForSeconds(timeBetweenCharPrint * Time.deltaTime);
         }
 
         isPrintingDone = true;
-       
+
 
         yield break;
     }
@@ -148,33 +185,6 @@ public class TextEvent : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         playerIsInTrigger = true;
-
-        if (InputReceiver.CheckIf_Use_Pressed())
-        {
-            //isUserInvestigating = !isUserInvestigating;
-
-            //if (isUserInvestigating == true)
-            //{
-            //    PauseTimeScale();
-            //if(isPrintingDone)
-            PrintText();
-
-
-            //    }
-            //    else
-            //    {
-            //        ResumeTimeScale();
-            //    }
-
-            //}
-            //else
-            //{
-
-        }
-
-
-
-
 
     }
 
