@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     {
 
         characterControllerRef.enabled = isCharControllerEnabled;
-        Debug.Log(characterControllerRef.enabled);
+        Debug.Log("Character Conroller is enabled : characterControllerRef.enabled");
     }
 
     public static void SetIsCharControllerEnabledToEnabled()
