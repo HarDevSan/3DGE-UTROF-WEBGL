@@ -69,7 +69,7 @@ public class UIManager : MonoBehaviour
     {
         interactionGroup.alpha = 1;
         
-       
+     
     }
 
     public void HideEnterRoomInteraction()
