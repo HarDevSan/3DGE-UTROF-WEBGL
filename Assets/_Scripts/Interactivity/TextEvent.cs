@@ -135,7 +135,7 @@ public class TextEvent : MonoBehaviour
     {
         randomlySelectedText.maxVisibleCharacters = 0;
     }
-
+     
     void ResetAllTextMaxVisibleChars()
     {
         foreach (TextMeshProUGUI textInList in textListToDisplay)
@@ -152,7 +152,6 @@ public class TextEvent : MonoBehaviour
         SelectRandomTextInList();
         //Show the current text's via alpha
         ShowCurrentlySelectedTextViaAlpha();
-
 
         int visibleCount = 0;
         int totalLength = randomlySelectedText.textInfo.characterCount;
