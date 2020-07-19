@@ -175,12 +175,11 @@ public class PlayerController : MonoBehaviour
 
         //Cast Ray from the middle of the screen
         Ray directionFromScreen = _mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
-        //Get the direction of the ray to slerp towards, so play will always believbly look forward
+
+        //Get the direction of the ray to slerp towards, so player will always believebly look forward
 
         //local varaible to hold the direction vector from screen center into world
         Vector3 direction = directionFromScreen.direction;
-
-        //Vector3 direction = _mainCamera.transform.position - transform.position;
 
         Quaternion lookRotation = Quaternion.LookRotation(direction);
 
