@@ -18,11 +18,13 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
     public string startMenuSceneName;
     bool isPersistentSceneLoaded;
 
+    public delegate void FirstSceneFinishedLoading();
+    public static event FirstSceneFinishedLoading OnFirstSceneFinishedLoading;
+
     private void Start()
     {
-        StartMenuManager.OnPlayButtonClicked += LoadPersistentScene;
         StartMenuManager.OnPlayButtonClicked += LoadFirstScene;
-        StartMenuManager.OnPlayButtonClicked += UnloadStartMenuScene;
+        OnFirstSceneFinishedLoading += UnloadStartMenuScene;
     }
 
     void LoadPersistentScene()
@@ -76,7 +78,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
                 yield return null;
             }
         }
-
+        OnFirstSceneFinishedLoading.Invoke();
 
         yield break;
     }
