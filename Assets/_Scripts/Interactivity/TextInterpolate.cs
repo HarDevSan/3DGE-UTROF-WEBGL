@@ -31,7 +31,8 @@ public class TextInterpolate : MonoBehaviour
     {
         while(textToBlendIn.alpha < 1)
         {
-            textToBlendIn.alpha = Mathf.Lerp(textToBlendIn.alpha , 1,  blendInAmount * Time.time);
+           
+            textToBlendIn.alpha = Mathf.Lerp(textToBlendIn.alpha , 1, blendInAmount * Time.deltaTime);
 
             yield return null;
         }
