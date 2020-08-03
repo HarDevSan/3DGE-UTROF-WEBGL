@@ -18,6 +18,8 @@ public class TextEvent_Sequential : MonoBehaviour
     bool isUserInvestigating;
     [SerializeField]
     bool isPrintingDone;
+    [SerializeField]
+    bool isTextLeft;
 
     //Time between each char that gets printed on the Canvas
     [Header("PrintTime")]
@@ -52,31 +54,31 @@ public class TextEvent_Sequential : MonoBehaviour
     private void Start()
     {
 
-        //isPrintingDone = true;
+        isPrintingDone = true;
+        isTextLeft = true;
+        ////Print the first block of text when scene starts
+        PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
 
-        //Print the first block of text when scene starts
-        PrintNextText();
-
-        //set default time interavls between printing each char
-        timeBetweenCharPrint = defaultTimeBetweenCharPrint;
+        ////set default time interavls between printing each char
+        //timeBetweenCharPrint = defaultTimeBetweenCharPrint;
     }
 
     private void Update()
     {
-        if (CheckIfThereIsTextLeft() == true)
+        CheckIfThereIsTextLeft();
+
+        Debug.Log(isTextLeft);
+        if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone)
         {
-            if (InputReceiver.CheckIf_Use_Pressed())
-            {
-                PrintNextText();
-                pressedUseCount++;
-            }
-            else
-            {
-                pressedUseCount = 0;
-
-            }
+            PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
+            //Should eable dynamic text blend speed, postponed
+            //pressedUseCount++;
         }
+        else
+        {
+            //pressedUseCount = 0;
 
+        }
 
 
     }
@@ -93,12 +95,18 @@ public class TextEvent_Sequential : MonoBehaviour
 
     }
 
-    void PrintNextText()
+    void PrintNextTextAndInvokeAllHasBeenPrintedIfNot()
     {
         Debug.Log("Reached PrintText");
         //Only call again if printing has ended
         // if (isPrintingDone == true)
-        StartCoroutine(PrintTextAndSelectNextTextWhenDoneRoutine());
+        if (isTextLeft)
+            StartCoroutine(PrintTextAndSelectNextTextWhenDoneRoutine());
+        else
+        {
+            OnAllTextHasBeenPrinted.Invoke();
+            ResetAllTextMaxVisibleChars();
+        }
     }
 
 
@@ -111,18 +119,17 @@ public class TextEvent_Sequential : MonoBehaviour
 
     }
 
-    bool CheckIfThereIsTextLeft()
+    void CheckIfThereIsTextLeft()
     {
         if (textIndex < textListToDisplay.Count)
         {
-            return true;
+            isTextLeft = true;
         }
         else
         {
 
-            Debug.Log("NoTextLeft");
+            isTextLeft = false;
 
-            return false;
         }
     }
 
@@ -141,25 +148,25 @@ public class TextEvent_Sequential : MonoBehaviour
 
     void InvokeFirstTextHasBeenPrinted()
     {
-
+        Debug.Log("INVOKEFIRSTTEXTHASbEENPRINTED");
         OnFirstTextHasBeenPrinted.Invoke();
 
     }
 
     void SelectNextTextInList()
     {
-        if (isPrintingDone && CheckIfThereIsTextLeft())
-        {
+
             selectedText = textListToDisplay[textIndex];
             textIndex++;
-        }
-        OnAllTextHasBeenPrinted.Invoke();
+      
+       
     }
 
     void ResetCurrentTextMaxVisibleChar()
     {
         selectedText.maxVisibleCharacters = 0;
     }
+
 
     void ResetAllTextMaxVisibleChars()
     {
@@ -171,12 +178,12 @@ public class TextEvent_Sequential : MonoBehaviour
 
     IEnumerator PrintTextAndSelectNextTextWhenDoneRoutine()
     {
-        if (textIndex == 1)
-            InvokeFirstTextHasBeenPrinted();
+
         //Reet the last randomly selected text
         ResetCurrentTextMaxVisibleChar();
         //Select a new randomly selected text
         SelectNextTextInList();
+
         //Show the current text's via alpha
         ShowCurrentlySelectedTextViaAlpha();
 
@@ -193,16 +200,19 @@ public class TextEvent_Sequential : MonoBehaviour
             selectedText.maxVisibleCharacters = visibleCount;
             visibleCount++;
 
-            if (pressedUseCount == 0)
-                yield return new WaitForSeconds(timeBetweenCharPrint);
-            else if (pressedUseCount > 0)
-            {
-                yield return new WaitForSeconds(timeBetweenCharPrintWhenPlayerPressedUse);
-            }
+            //if (pressedUseCount == 0)
+            yield return new WaitForSeconds(timeBetweenCharPrint);
+            //    else if (pressedUseCount > 0)
+            //    {
+            //        yield return new WaitForSeconds(timeBetweenCharPrintWhenPlayerPressedUse);
+            //    }
         }
 
         isPrintingDone = true;
-        OnEachTextHasBeenPrinted.Invoke();
+        //Invoke TextHasBeenPrinted after first selected text has finished printing
+        if (textIndex == 1)
+            InvokeFirstTextHasBeenPrinted();
+        //OnEachTextHasBeenPrinted.Invoke();
 
         yield break;
     }
