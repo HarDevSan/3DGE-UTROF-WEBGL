@@ -80,15 +80,13 @@ TEXTURE2D(_BentNormalMap);      SAMPLER(sampler_BentNormalMap);
         float2 uv                           : TEXCOORD0;
 
         #if defined(_ALPHATEST_ON)
-            //half3 viewDirTS               : TEXCOORD1;
         //  We have to use the same inputs...
-            float4 normalWS                 : TEXCOORD1;
+            float3 normalWS                 : TEXCOORD1;
             float4 tangentWS                : TEXCOORD2;
-            float4 bitangentWS              : TEXCOORD3;
-
-            float screenPos                 : TEXCOORD4; // was float4
+            float screenPos                 : TEXCOORD3; // was float4
 
         #endif
+        float3 viewDirWS                    : TEXCOORD5;
 
         UNITY_VERTEX_INPUT_INSTANCE_ID
         UNITY_VERTEX_OUTPUT_STEREO

@@ -11,7 +11,7 @@
 
         [Space(5)]
         [IntRange] _StencilRef ("Stencil Reference", Range (0, 255)) = 0
-        [IntRange] _ReadMask ("    Read Mask", Range (0, 255)) = 255
+        [IntRange] _ReadMask ("     Read Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)] _StencilCompare ("Stencil Comparison", Int) = 6
 
 

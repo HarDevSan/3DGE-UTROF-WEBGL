@@ -216,22 +216,21 @@ Shader "Lux URP/Cloth"
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
                 #if defined(_MASKMAP)
                     output.uv.zw = TRANSFORM_TEX(input.texcoord, _MaskMap);
-                #endif  
+                #endif
 
-                #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                // already normalized from normal transform to WS.
+                output.normalWS = normalInput.normalWS;
+                output.viewDirWS = viewDirWS;
+                #ifdef _NORMALMAP
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
                 #endif
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
@@ -303,12 +302,13 @@ Shader "Lux URP/Cloth"
                     inputData.positionWS = input.positionWS;
                 #endif
                 
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
                 #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
                     normalTS.z *= facing;
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS * facing;
                 #endif
 
@@ -351,6 +351,11 @@ Shader "Lux URP/Cloth"
                     surfaceData.emission += pow(rim, power) * _RimColor.rgb * _RimColor.a;
                 #endif
 
+                #if !defined(_COTTONWOOL)
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                #endif
+
             //  Apply lighting
                 half4 color = LuxLWRPClothFragmentPBR(
                         inputData, 
@@ -363,7 +368,7 @@ Shader "Lux URP/Cloth"
                         surfaceData.alpha,
                         #if !defined(_COTTONWOOL)
                             input.tangentWS.xyz,
-                            input.bitangentWS.xyz,
+                            bitangent,
                         #else
                             half3(0,0,0),
                             half3(0,0,0),

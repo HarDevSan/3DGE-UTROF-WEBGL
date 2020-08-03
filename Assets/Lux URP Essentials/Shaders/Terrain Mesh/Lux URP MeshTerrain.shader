@@ -15,17 +15,17 @@
         _ApplyNormal                ("Enable Normal Maps", Float) = 1.0
         [Toggle(_TOPDOWNPROJECTION)]
         _ApplyTopDownProjection     ("Enable Top Down Projection", Float) = 0.0
-        _TopDownTiling              ("    Tiling in World Space", Float) = 1.0
+        _TopDownTiling              ("     Tiling in World Space", Float) = 1.0
 
         [Space(10)]
         [NoScaleOffset] _DetailA0   ("Detail 0  Albedo (RGB) Smoothness (A)", 2D) = "gray" {}
-        [NoScaleOffset] _Normal0    ("    Normal 0", 2D) = "bump" {}
+        [NoScaleOffset] _Normal0    ("     Normal 0", 2D) = "bump" {}
         [NoScaleOffset] _DetailA1   ("Detail 1  Albedo (RGB) Smoothness (A)", 2D) = "gray" {}
-        [NoScaleOffset] _Normal1    ("    Normal 1", 2D) = "bump" {}
+        [NoScaleOffset] _Normal1    ("     Normal 1", 2D) = "bump" {}
         [NoScaleOffset] _DetailA2   ("Detail 2  Albedo (RGB) Smoothness (A)", 2D) = "gray" {}
-        [NoScaleOffset] _Normal2    ("    Normal 2", 2D) = "bump" {}
+        [NoScaleOffset] _Normal2    ("     Normal 2", 2D) = "bump" {}
         [NoScaleOffset] _DetailA3   ("Detail 3  Albedo (RGB) Smoothness (A)", 2D) = "gray" {}
-        [NoScaleOffset] _Normal3    ("    Normal 3", 2D) = "bump" {}
+        [NoScaleOffset] _Normal3    ("     Normal 3", 2D) = "bump" {}
         
         [Space(10)]
         [Toggle(_USEVERTEXCOLORS)] 
@@ -162,20 +162,13 @@
                     float4 shadowCoord            : TEXCOORD2;
                 #endif
 
+                float3 normalWS                 : TEXCOORD3;
+                float3 viewDirWS                : TEXCOORD4;
                 #ifdef _NORMALMAP
-                    half4 normalWS              : TEXCOORD3;    
-                    half4 tangentWS             : TEXCOORD4;    
-                    half4 bitangentWS           : TEXCOORD5;    
-                #else
-                    half3 normalWS              : TEXCOORD3;
-                    half3 viewDirWS             : TEXCOORD4;
+                    float4 tangentWS            : TEXCOORD5;    
                 #endif
-
                 float3 positionWS : TEXCOORD6;
-                
                 float2 uv0 : TEXCOORD7;
-                //float4 uv1 : TEXCOORD8;
-
                 #if defined(_USEVERTEXCOLORS)
                     half4 color     : COLOR;
                 #endif
@@ -194,20 +187,21 @@
 
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv0 = input.texcoord; //TRANSFORM_TEX(input.texcoord, _BaseMap);
                 output.positionWS = vertexInput.positionWS;
 
+                // already normalized from normal transform to WS.
+                output.normalWS = normalInput.normalWS;
+                //output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
+                output.viewDirWS = viewDirWS;
                 #ifdef _NORMALMAP
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
                 #endif
                 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
@@ -272,7 +266,9 @@
                 #endif
 
                 #if defined(_TOPDOWNPROJECTION) && defined(_NORMALMAP)
-                    normalTS = normalize(TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz)));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    normalTS = normalize(TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz)));
                 //  We use Reoriented Normal Mapping to bring the the top down normal into world space
                     half3 n1 = /*normalize*/(input.normalWS.xzy);
                     half3 n2 = topdownNormal.xyz;
@@ -311,33 +307,21 @@
                 InputData inputData;
                 inputData.positionWS = input.positionWS;
 
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
                 #ifdef _NORMALMAP
-                    #if defined(_TOPDOWNPROJECTION)
-                        inputData.normalWS = surfaceData.normalTS;
+                    #if !defined(_TOPDOWNPROJECTION)
+                        float sgn = input.tangentWS.w;      // should be either +1 or -1
+                        float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        inputData.normalWS = TransformTangentToWorld(surfaceData.normalTS, half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz));
                     #else
-                        inputData.normalWS = normalize(TransformTangentToWorld(surfaceData.normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz)));
+                        inputData.normalWS = surfaceData.normalTS;
                     #endif
                 #else
-                    #if !SHADER_HINT_NICE_QUALITY
-                        inputData.normalWS = input.normalWS;
-                    #else
-                        inputData.normalWS = normalize(input.normalWS);
-                    #endif
+                    inputData.normalWS = input.normalWS;
                 #endif
 
-                #if !SHADER_HINT_NICE_QUALITY
-                    #ifdef _NORMALMAP
-                        inputData.viewDirectionWS = float3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                    #else
-                        inputData.viewDirectionWS = input.viewDirWS;
-                    #endif
-                #else
-                    #ifdef _NORMALMAP
-                        inputData.viewDirectionWS = SafeNormalize( float3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w) );  
-                    #else
-                        inputData.viewDirectionWS = SafeNormalize(input.viewDirWS);
-                    #endif
-                #endif
+                inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
+                inputData.viewDirectionWS = viewDirWS;
 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                     inputData.shadowCoord = input.shadowCoord;

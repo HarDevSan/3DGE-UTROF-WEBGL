@@ -11,6 +11,7 @@ Shader "Lux URP/Vegetation/Foliage"
         [Space(5)]
         [Toggle(_ALPHATEST_ON)]
         _AlphaClip                  ("Alpha Clipping", Float) = 1.0
+        _Cutoff                     ("     Threshold", Range(0.0, 1.0)) = 0.5
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
 
@@ -20,7 +21,6 @@ Shader "Lux URP/Vegetation/Foliage"
         _BaseMap                    ("Albedo (RGB) Alpha (A)", 2D) = "white" {}
         [HideInInspector][MainColor]
         _BaseColor                  ("Color", Color) = (1,1,1,1)
-        _Cutoff                     ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
         [Space(5)]
         _Smoothness                 ("Smoothness", Range(0.0, 1.0)) = 0.5
@@ -30,8 +30,9 @@ Shader "Lux URP/Vegetation/Foliage"
         [Toggle(_NORMALMAP)]
         _ApplyNormal                ("Enable Normal Smoothness Trans Map", Float) = 0.0
         [NoScaleOffset] _BumpSpecMap
-                                    ("    Normal (AG) Smoothness (B) Trans (R)", 2D) = "white" {}
-        _GlossMapScale              ("    Smoothness Scale", Range(0.0, 1.0)) = 1.0
+                                    ("     Normal (AG) Smoothness (B) Trans (R)", 2D) = "white" {}
+        _BumpScale                  ("     Normal Scale", Range(0.0, 8.0)) = 1.0
+        _GlossMapScale              ("     Smoothness Scale", Range(0.0, 1.0)) = 1.0
 
         [Header(Transmission)]
         [Space(5)]
@@ -166,19 +167,18 @@ Shader "Lux URP/Vegetation/Foliage"
                 vertexInput.positionNDC.xy = float2(ndc.x, ndc.y * _ProjectionParams.x) + ndc.w;
                 vertexInput.positionNDC.zw = vertexInput.positionCS.zw;
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = input.texcoord;
+                // already normalized from normal transform to WS
+                output.normalWS = normalInput.normalWS;
+                output.viewDirWS = viewDirWS;
 
                 #ifdef _NORMALMAP
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS, sign);
                 #endif
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
@@ -227,7 +227,14 @@ Shader "Lux URP/Vegetation/Foliage"
                     float4 sampleNormal = SAMPLE_TEXTURE2D(_BumpSpecMap, sampler_BumpSpecMap, uv);
                     float3 tangentNormal;
                     tangentNormal.xy = sampleNormal.ag * 2 - 1;
-                    tangentNormal.z = sqrt(1.0 - dot(tangentNormal.xy, tangentNormal.xy));  
+                    tangentNormal.z = sqrt(1.0 - dot(tangentNormal.xy, tangentNormal.xy));
+
+                    // From Packing.hlsl:
+                    // must scale after reconstruction of normal.z which also
+                    // mirrors UnpackNormalRGB(). This does imply normal is not returned
+                    // as a unit length vector but doesn't need it since it will get normalized after TBN transformation.
+                    tangentNormal.xy *= _BumpScale;
+
                     outSurfaceData.normalTS = tangentNormal;
                     outSurfaceData.smoothness = sampleNormal.b * _GlossMapScale;
                     outSurfaceData.translucency = sampleNormal.r;
@@ -246,18 +253,17 @@ Shader "Lux URP/Vegetation/Foliage"
                 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
                     inputData.positionWS = input.positionWS;
                 #endif
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
                 #ifdef _NORMALMAP
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
                     normalTS.z *= facing;
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS * facing;
                 #endif
 
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-
                 inputData.viewDirectionWS = viewDirWS;
                 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)

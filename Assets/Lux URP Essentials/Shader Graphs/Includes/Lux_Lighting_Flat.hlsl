@@ -42,8 +42,6 @@ void Lighting_half(
     half metallic = 0;
 
     half3 tnormal = cross(ddy(positionWS), ddx(positionWS));
-    // tnormal = NormalizeNormalPerPixel(tnormal);
-    // tnormal = round(tnormal * 10.0h) / 10.0h;
     half3 normalWS = NormalizeNormalPerPixel(tnormal);
 
     viewDirectionWS = SafeNormalize(viewDirectionWS);

@@ -176,20 +176,19 @@ Shader "Lux URP/Projection/Top Down"
             {
                 inputData = (InputData)0;
                 inputData.positionWS = input.positionWS;
+
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
                 #ifdef _NORMALMAP
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
                 //  Here normalTS is already normalWS
                 //  inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
                     inputData.normalWS = normalTS;
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS;
                 #endif
 
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-
                 inputData.viewDirectionWS = viewDirWS;
+
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                     inputData.shadowCoord = input.shadowCoord;
                 #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
@@ -211,7 +210,8 @@ Shader "Lux URP/Projection/Top Down"
 
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
@@ -223,14 +223,15 @@ Shader "Lux URP/Projection/Top Down"
                     output.uv.xy *= scale;
                 #endif
 
+                // already normalized from normal transform to WS.
+                output.normalWS = normalInput.normalWS;
+                //output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
+                
                 #ifdef _NORMALMAP
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+    				output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
                 #endif
+                output.viewDirWS = viewDirWS;
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
@@ -303,7 +304,9 @@ Shader "Lux URP/Projection/Top Down"
                     float blendFactor = 0;
                     #ifdef _NORMALMAP
                     //  Get per pixel worldspace normal (needed by blending)
-                        float3 normalWS = TransformTangentToWorld(outSurfaceData.normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    	float sgn = input.tangentWS.w;      // should be either +1 or -1
+    					float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        float3 normalWS = TransformTangentToWorld(outSurfaceData.normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
                         blendFactor = lerp(input.normalWS.y, normalWS.y, _LowerNormalInfluence);
                     #else
                         blendFactor = input.normalWS.y;
@@ -357,7 +360,9 @@ Shader "Lux URP/Projection/Top Down"
                     #endif
                 #else
                     #ifdef _NORMALMAP
-                        outSurfaceData.normalTS = TransformTangentToWorld(outSurfaceData.normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    	float sgn = input.tangentWS.w;      // should be either +1 or -1
+    					float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        outSurfaceData.normalTS = TransformTangentToWorld(outSurfaceData.normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
                     #else
                         outSurfaceData.normalTS = input.normalWS.xyz;
                     #endif

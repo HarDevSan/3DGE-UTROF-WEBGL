@@ -27,6 +27,8 @@
 
         half    _OcclusionStrength;
 
+        half    _BumpScale;
+
         half4   _RimColor;
         half    _RimPower;
         half    _RimMinPower;
@@ -61,14 +63,11 @@
 
         #if !defined(UNITY_PASS_SHADOWCASTER) && !defined(DEPTHONLYPASS)
             DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
-            float3 positionWS           : TEXCOORD2;
-            #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
-                half4 normalWS              : TEXCOORD3;
-                half4 tangentWS             : TEXCOORD4;
-                half4 bitangentWS           : TEXCOORD5;
-            #else
-                half3 normalWS              : TEXCOORD3;
-                half3 viewDirWS             : TEXCOORD4;
+            float3 positionWS               : TEXCOORD2;
+            float3 viewDirWS                : TEXCOORD3;
+            #if defined(_NORMALMAP)
+                //float3 normalWS           : TEXCOORD4;
+                float4 tangentWS            : TEXCOORD5;
             #endif
 
             half4 fogFactorAndVertexLight   : TEXCOORD6;

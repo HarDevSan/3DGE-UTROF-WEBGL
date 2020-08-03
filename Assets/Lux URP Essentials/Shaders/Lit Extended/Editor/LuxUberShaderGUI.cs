@@ -40,6 +40,10 @@ namespace UnityEditor
             public static readonly string[] specularSmoothnessChannelNames = {"Specular Alpha", "Albedo Alpha"};
         }
 
+        static string url = "https://docs.google.com/document/d/1ck3hmPzKUdewHfwsvmPYwSPCP8azwtpzN7aOLJHvMqE/edit#heading=h.thxlhugei9is";
+		static Texture2D helpIcon = EditorGUIUtility.FindTexture("_Help");
+	    static GUIContent helpbuttonGUIContent = new GUIContent(helpIcon, "Open Online Documentation");
+
 		public bool openSurfaceOptions = false;
 		public bool openSurfaceInputs = false;
 		public bool openAdvancedSurfaceInputs = false;
@@ -59,6 +63,7 @@ namespace UnityEditor
 		private MaterialProperty blendModeProp;
 		private MaterialProperty workflowmodeProp;
 		private MaterialProperty ztestProp;
+
 		private MaterialProperty cullingProp;
 		private MaterialProperty alphaClipProp;
 		private MaterialProperty alphaCutoffProp;
@@ -150,11 +155,11 @@ namespace UnityEditor
 
 			advancedOptionsProps = FindProperty("_FoldAdvanced", properties);
 			
-
 			surfaceTypeProp = FindProperty("_Surface", properties);
         	blendModeProp = FindProperty("_Blend", properties);
         	workflowmodeProp = FindProperty("_WorkflowMode", properties);
         	ztestProp = FindProperty("_ZTest", properties);
+
         	cullingProp = FindProperty("_Cull", properties);
         	alphaClipProp = FindProperty("_AlphaClip", properties);
         	alphaCutoffProp = FindProperty("_Cutoff", properties);
@@ -247,6 +252,20 @@ namespace UnityEditor
 	    	bool alphaclipChanged = false;
 	    	var alphaclip = (alphaClipProp.floatValue == 1)? true : false;
 
+
+//	-----------------------
+//	Help
+	    	var txt = new GUIContent("Help");
+	    	var position = GUILayoutUtility.GetRect(txt, GUIStyle.none);
+	    	var headerPos = new Rect(position.x + 1, position.y, position.width - 20, 20);
+			var btnPos = new Rect(position.x + headerPos.width, position.y, 20, 20);
+	    	
+	    	GUI.Label(headerPos, new GUIContent("Help"), EditorStyles.boldLabel);
+	    	if (GUI.Button(btnPos, helpbuttonGUIContent, EditorStyles.boldLabel)) {
+				Help.BrowseURL(url);
+			}
+			GUILayout.Space(10);
+
 //	-----------------------
 //	Surface Options
 
@@ -291,7 +310,6 @@ namespace UnityEditor
 	        			material.SetShaderPassEnabled("ShadowCaster", true);
 	        		}
 	        		else {
-	        	
 	        			material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 50; // Make it match Standard Lit shader
 	        			material.SetOverrideTag("RenderType", "Transparent");
 	        			material.SetShaderPassEnabled("ShadowCaster", false);
@@ -310,7 +328,8 @@ namespace UnityEditor
 	            }
 	        
 	        //	Alpha Clipping
-	        	if (surface == SurfaceType.Opaque) { 
+//	Allow alpha clipping for transparents as well	            
+//	        	if (surface == SurfaceType.Opaque) { 
 	        		EditorGUI.BeginChangeCheck();
 	        		alphaclip = EditorGUILayout.Toggle(new GUIContent("Alpha Clipping"), alphaClipProp.floatValue == 1);
 	        	//	Make sure we set alpha clip if surface type has changed only as well
@@ -321,18 +340,37 @@ namespace UnityEditor
 	        				material.EnableKeyword("_ALPHATEST_ON");
 	        				material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest + 50;
                     		material.SetOverrideTag("RenderType", "TransparentCutout");
+
+                    	//	We may have to re eanble camera fading
+                    		if(cameraFadingEnabledProp.floatValue == 1) {
+	        					material.EnableKeyword("_FADING_ON");
+		        				if(cameraFadeShadowsProp.floatValue == 1) {
+		        					material.EnableKeyword("_FADING_SHADOWS_ON");
+		        				}
+		        				else {
+		        					material.DisableKeyword("_FADING_SHADOWS_ON");
+		        				}
+		        			}
+		        			else {
+		        				material.DisableKeyword("_FADING_ON");
+		        				material.DisableKeyword("_FADING_SHADOWS_ON");
+		        			}
+
 	        			}
 	        			else {
 	        				alphaClipProp.floatValue = 0;
 	        				material.DisableKeyword("_ALPHATEST_ON");
 	        				material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry + 50;
                     		material.SetOverrideTag("RenderType", "Opaque");
+
+	        				material.DisableKeyword("_FADING_ON");
+	        				material.DisableKeyword("_FADING_SHADOWS_ON");
 	        			}
 	        		}
 	        		if (alphaclip) {
 	        			materialEditor.ShaderProperty(alphaCutoffProp, "Threshold", 1);
 	        		}
-	        	}
+//	        	}
 
 	        //	Camera Fading
 	        	if (alphaclip) {
@@ -357,10 +395,6 @@ namespace UnityEditor
 	        				material.DisableKeyword("_FADING_SHADOWS_ON");
 	        			}
 	        		}
-	        		//var camFading = 
-
-	        		//cameraFadingEnabledProp = FindProperty("_CameraFadingEnable", properties);
-					//cameraFadeDistProp = FindProperty("_CameraFadeDist", properties);
 	        	}
 	        	else {
 	        		material.DisableKeyword("_FADING_ON");
@@ -428,6 +462,7 @@ namespace UnityEditor
 	                materialEditor.RegisterPropertyChangeUndo("ZTest");
 	                ztestProp.floatValue = (float)ztest;
 	            }
+
 	        //	Spacing
 	            EditorGUILayout.Space();
 	        }
@@ -495,10 +530,12 @@ namespace UnityEditor
 			    //	Chose Smoothness Cannel in case we have any GlossMap
 		            //if (hasGlossMap) {
 		                EditorGUI.indentLevel++;
-		                EditorGUI.BeginDisabledGroup(surface != SurfaceType.Opaque);
+
+						EditorGUI.BeginDisabledGroup(surface != SurfaceType.Opaque);
 		                EditorGUI.BeginChangeCheck();
 		                EditorGUI.showMixedValue = smoothnessMapChannelProp.hasMixedValue;
 		                var smoothnessSource = (int) smoothnessMapChannelProp.floatValue;
+		            //	This is correct, but it does not allow fading
 		                if (surface == SurfaceType.Opaque && !alphaclip) {
 		                	smoothnessSource = EditorGUILayout.Popup(new GUIContent("Source"), smoothnessSource, smoothnessChannelNames);
 		                }
@@ -519,7 +556,7 @@ namespace UnityEditor
 		                    }
 		                }
 		                EditorGUI.showMixedValue = false;
-		                EditorGUI.EndDisabledGroup();
+		            	EditorGUI.EndDisabledGroup();
 		                EditorGUI.indentLevel--;
 		            //}
 		        //	We may still sample from Albedo alpha
@@ -618,8 +655,11 @@ namespace UnityEditor
 
 //	-----------------------
 //	Advanced Surface Inputs
+
+GUIContent labeltooltip;
+
 			openAdvancedSurfaceInputs = (advancedSurfaceInputsProps.floatValue == 1.0f) ? true : false;
-	        EditorGUI.BeginChangeCheck();
+	        EditorGUI.BeginChangeCheck();	       
 	        openAdvancedSurfaceInputs = EditorGUILayout.BeginFoldoutHeaderGroup(openAdvancedSurfaceInputs, "Advanced Surface Inputs");
 	        if (EditorGUI.EndChangeCheck()) {
 	    		advancedSurfaceInputsProps.floatValue = openAdvancedSurfaceInputs? 1.0f : 0.0f;
@@ -629,6 +669,7 @@ namespace UnityEditor
 	        	
 	        //	Parallax
 	        	EditorGUI.BeginChangeCheck();
+labeltooltip = new GUIContent("Height Map (G)", "RGB texture which stores height in the green color channel used by parallax extrusion.");
 	        	materialEditor.TexturePropertySingleLine(new GUIContent("Height Map (G)"), heightMapProp, heightMapProp.textureValue != null ? parallaxProp : null);
                 if (EditorGUI.EndChangeCheck()) {
                 	if ( (heightMapProp.textureValue != null) && (parallaxProp.floatValue > 0) ) {
@@ -642,7 +683,8 @@ namespace UnityEditor
                 }
                 if ( alphaclip && (heightMapProp.textureValue != null) && (parallaxProp.floatValue > 0) ) {
 	                EditorGUI.BeginChangeCheck();
-	        		var pShadows = EditorGUILayout.Toggle(new GUIContent("Parallax Shadows"), enableParallaxShadowsProp.floatValue == 1);
+labeltooltip = new GUIContent("Parallax Shadows", "If checked the shader will apply parallax mapping even in the shadow caster pass. This is somehow correct for directional shadows where we can derive the view direction from the (shadow) camera’s forward vector but not in case we render spot lights. Furthermore even parallax directional shadow casters are quite unstable if you rotate the camera. So check if you really need this..."); 
+	        		var pShadows = EditorGUILayout.Toggle(labeltooltip, enableParallaxShadowsProp.floatValue == 1);
 	        		if (EditorGUI.EndChangeCheck() || surfaceModeChanged) {
 	        			if (pShadows) {
 	        				enableParallaxShadowsProp.floatValue = 1;
@@ -660,9 +702,13 @@ namespace UnityEditor
 	        		material.DisableKeyword("_PARALLAXSHADOWS");
 	        	}
 
+
+
+
 	        //	Bent Normals
 	        	EditorGUI.BeginChangeCheck();
-	        	materialEditor.TexturePropertySingleLine(new GUIContent("Bent Normal Map"), BentNormalMapProp);
+labeltooltip = new GUIContent("Bent Normal Map", "Cosine weighted Bent Normal Map in tangent space. If assigned the shader will tweak ambient diffuse lighting and ambient specular reflections.");
+	        	materialEditor.TexturePropertySingleLine(labeltooltip, BentNormalMapProp);
                 if (EditorGUI.EndChangeCheck()) {
 	        		if (BentNormalMapProp.textureValue != null) {
         				EnableBentNormalProp.floatValue = 1;
@@ -679,12 +725,15 @@ namespace UnityEditor
 	        	}
 
 	        //	Horizon Occlusion
-	        	materialEditor.ShaderProperty(HorizonOcclusionProp, "Horizon Occlusion", 0);
+labeltooltip = new GUIContent("Horizon Occlusion", "Terminates light leaking caused by normal mapped ambient specular reflections where the reflection vector might end up pointing behind the surface being rendered.");
+	        	materialEditor.ShaderProperty(HorizonOcclusionProp, labeltooltip, 0);
 	        	
 
 	        //	Specular AA
 	        	EditorGUI.BeginChangeCheck();
-	        	var specAA = EditorGUILayout.Toggle(new GUIContent("Geometric Specular AA"), GeometricSpecularAAProp.floatValue == 1);
+
+labeltooltip = new GUIContent("Geometric Specular AA", "When enabled the shader reduces specular aliasing on high density meshes by reducing smoothness at grazing angles.");
+	        	var specAA = EditorGUILayout.Toggle(labeltooltip, GeometricSpecularAAProp.floatValue == 1);
 	        	if (EditorGUI.EndChangeCheck()) {
 	        		if (specAA) {
         				GeometricSpecularAAProp.floatValue = 1;
@@ -696,13 +745,16 @@ namespace UnityEditor
         			}
 	        	}
 	        	if (specAA) {
-	        		materialEditor.ShaderProperty(ScreenSpaceVarianceProp, "Screen Space Variance", 1);
-	        		materialEditor.ShaderProperty(SAAThresholdProp, "Threshold", 1);
+labeltooltip = new GUIContent("Screen Space Variance", "Controls the amount of Specular AA. Higher values give a more blurry result.");
+	        		materialEditor.ShaderProperty(ScreenSpaceVarianceProp, labeltooltip, 1);
+labeltooltip = new GUIContent("Threshold", "Controls the amount of Specular AA. Higher values allow higher reduction.");
+	        		materialEditor.ShaderProperty(SAAThresholdProp, labeltooltip, 1);
 	        	}
 
 	        //	GI TO AO
         		EditorGUI.BeginChangeCheck();
-	        	var GIAO = EditorGUILayout.Toggle(new GUIContent("GI to Specular Occlusion"), AOfromGIProp.floatValue == 1);
+labeltooltip = new GUIContent("GI to Specular Occlusion", "In case you use lightmaps you may activate this feature to derive some kind of specular occlusion just from the lightmap and its baked ambient occlusion.");        		
+	        	var GIAO = EditorGUILayout.Toggle(labeltooltip, AOfromGIProp.floatValue == 1);
 	        	if (EditorGUI.EndChangeCheck()) {
 	        		if (GIAO) {
         				AOfromGIProp.floatValue = 1;
@@ -714,8 +766,10 @@ namespace UnityEditor
         			}
 	        	}
 	        	if (GIAO) {
-	        		materialEditor.ShaderProperty(GItoAOProp, "GI to AO Factor", 1);
-	        		materialEditor.ShaderProperty(GItoAOBiasProp, "Bias", 1);
+labeltooltip = new GUIContent("GI to AO Factor", "Controls the amount of specular occlusion. It acts as a factor to brighten the value sampled from the lightmap.");
+	        		materialEditor.ShaderProperty(GItoAOProp, labeltooltip, 1);
+labeltooltip = new GUIContent("Bias", "Adds a constant value to brighten the value sampled from the lightmap.");	        		
+	        		materialEditor.ShaderProperty(GItoAOBiasProp, labeltooltip, 1);
 	        	}
 
 

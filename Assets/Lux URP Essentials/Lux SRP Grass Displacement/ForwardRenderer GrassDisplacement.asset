@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RendererFeatures:
   - {fileID: 6453725153907803454}
+  m_RendererFeatureMap: 3e85ad8cd53c9059
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}
@@ -35,6 +36,7 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
+  m_ShadowTransparentReceive: 1
 --- !u!114 &6453725153907803454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,6 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38f9650d8a8634cb5928de456b7d5e8b, type: 3}
   m_Name: GrassDisplacementFeature
   m_EditorClassIdentifier: 
+  m_Active: 1
   settings:
     Resolution: 256
     Size: 30

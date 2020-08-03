@@ -24,15 +24,15 @@
 
         [Space(10)]
         [Toggle(_NORMALMAP)] _ApplyNormal               ("Enable Normal Map", Float) = 1.0
-        [NoScaleOffset] _BumpMap                        ("    Normal Map", 2D) = "bump" {}
-        _BumpScale                                      ("    Normal Scale", Float) = 1.0
+        [NoScaleOffset] _BumpMap                        ("     Normal Map", 2D) = "bump" {}
+        _BumpScale                                      ("     Normal Scale", Float) = 1.0
 
         [Header(Mask Map)]
         [Space(5)]
         [Toggle(_COMBINEDTEXTURE)] _CombinedTexture     ("Enable Mask Map", Float) = 0.0
-        [NoScaleOffset] _MaskMap                        ("    Metallness (R) Occlusion (G) Emission (B) Smoothness (A) ", 2D) = "bump" {}
-        [HDR]_EmissionColor                             ("    Emission Color", Color) = (0,0,0,0)
-        _Occlusion                                      ("    Occlusion", Range(0.0, 1.0)) = 1.0
+        [NoScaleOffset] _MaskMap                        ("     Metallness (R) Occlusion (G) Emission (B) Smoothness (A) ", 2D) = "bump" {}
+        [HDR]_EmissionColor                             ("     Emission Color", Color) = (0,0,0,0)
+        _Occlusion                                      ("     Occlusion", Range(0.0, 1.0)) = 1.0
 
         [Header(Distance Fading)]
         [Space(5)]
@@ -42,8 +42,8 @@
         [Header(Stencil)]
         [Space(5)]
         [IntRange] _StencilRef                          ("Stencil Reference", Range (0, 255)) = 0
-        [IntRange] _ReadMask                            ("    Read Mask", Range (0, 255)) = 255
-        [IntRange] _WriteMask                           ("    Write Mask", Range (0, 255)) = 255
+        [IntRange] _ReadMask                            ("     Read Mask", Range (0, 255)) = 255
+        [IntRange] _WriteMask                           ("     Write Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _StencilCompare                                 ("Stencil Comparison", Int) = 8 // always
 

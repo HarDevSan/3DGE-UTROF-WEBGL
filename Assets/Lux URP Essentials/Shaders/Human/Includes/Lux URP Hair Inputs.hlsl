@@ -78,10 +78,10 @@
                 float3 positionWS           : TEXCOORD2;
             #endif
         //  Hair lighting always needs tangent and bitangent
-            half4 normalWS                  : TEXCOORD3;
-            half4 tangentWS                 : TEXCOORD4;
-            half4 bitangentWS               : TEXCOORD5;
- 
+            float3 normalWS                 : TEXCOORD3;
+            float3 viewDirWS                : TEXCOORD4;
+            float4 tangentWS                : TEXCOORD5;
+            
             half4 fogFactorAndVertexLight   : TEXCOORD6;
             #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                 float4 shadowCoord          : TEXCOORD7;

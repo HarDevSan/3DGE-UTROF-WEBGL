@@ -36,7 +36,7 @@ Shader "Lux URP/Water"
         [Space(5)]
         [Toggle(_REFRACTION)]
         _EnableRefraction               ("Enable Refraction", Float) = 1
-        _Refraction                     ("    Refraction", Range(0, 1)) = .25
+        _Refraction                     ("     Refraction", Range(0, 1)) = .25
         
         _ReflectionBumpScale            ("Reflection Bump Scale", Range(0.1, 1.0)) = 0.3
 

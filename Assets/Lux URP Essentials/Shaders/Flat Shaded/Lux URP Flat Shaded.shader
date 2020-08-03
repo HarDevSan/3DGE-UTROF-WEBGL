@@ -10,17 +10,18 @@
         _Cull                       ("Culling", Float) = 2
         [Toggle(_ALPHATEST_ON)]
         _AlphaClip                  ("Alpha Clipping", Float) = 0.0
-        _Cutoff                     ("    Threshold", Range(0.0, 1.0)) = 0.5
+        _Cutoff                     ("     Threshold", Range(0.0, 1.0)) = 0.5
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
 
 
         [Header(Surface Inputs)]
+        [Space(5)]
         [MainColor]
         _BaseColor                  ("Color", Color) = (1,1,1,1)
 
         [Toggle(_ENABLEBASEMAP)]
-        _EnableBaseMap             ("Enable Base Map", Float) = 1
+        _EnableBaseMap              ("Enable Base Map", Float) = 1
         [LuxURPHelpDrawer]
         _Help ("If unchecked Alpha Clipping and Smoothness from Alpha will be disabled.", Float) = 0.0
         [MainTexture]
@@ -34,23 +35,29 @@
         _Smoothness                 ("Smoothness", Range(0.0, 1.0)) = 0.5
         _SpecColor                  ("Specular", Color) = (0.2, 0.2, 0.2)
 
+        [Space(5)]
+
+        [Toggle(_NORMALMAP)]
+        _ApplyNormal                ("Enable Normal Map", Float) = 0.0
+        [NoScaleOffset] _BumpMap    ("     Normal Map", 2D) = "bump" {}
+        _BumpScale                  ("     Normal Scale", Float) = 1.0
 
         [Header(Rim Lighting)]
         [Space(5)]
         [Toggle(_RIMLIGHTING)]
         _Rim                        ("Enable Rim Lighting", Float) = 0
-        [HDR] _RimColor                   ("Rim Color", Color) = (0.5,0.5,0.5,1)
+        [HDR] _RimColor             ("Rim Color", Color) = (0.5,0.5,0.5,1)
         _RimPower                   ("Rim Power", Float) = 2
         _RimFrequency               ("Rim Frequency", Float) = 0
-        _RimMinPower                ("    Rim Min Power", Float) = 1
-        _RimPerPositionFrequency    ("    Rim Per Position Frequency", Range(0.0, 1.0)) = 1
+        _RimMinPower                ("     Rim Min Power", Float) = 1
+        _RimPerPositionFrequency    ("     Rim Per Position Frequency", Range(0.0, 1.0)) = 1
 
 
         [Header(Stencil)]
         [Space(5)]
         [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
-        [IntRange] _ReadMask        ("    Read Mask", Range (0, 255)) = 255
-        [IntRange] _WriteMask       ("    Write Mask", Range (0, 255)) = 255
+        [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
+        [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _StencilComp                ("Stencil Comparison", Int) = 8     // always – terrain should be the first thing being rendered anyway
         [Enum(UnityEngine.Rendering.StencilOp)]
@@ -127,6 +134,7 @@
             #define _SPECULAR_SETUP 1
 
             #pragma shader_feature _ALPHATEST_ON
+            #pragma shader_feature _NORMALMAP
             #pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma shader_feature_local _RIMLIGHTING
 
@@ -198,23 +206,23 @@
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
+                output.viewDirWS = viewDirWS;
  
-                #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+            //  Just in case :)
+                #ifdef _NORMALMAP
+                    //output.normalWS = normalInput.normalWS; //NormalizeNormalPerVertex(normalInput.normalWS);
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
                 #endif
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
-                OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
+                //OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
+                OUTPUT_SH(normalInput.normalWS, output.vertexSH);
                 
                 output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 
@@ -265,23 +273,24 @@
                 outSurfaceData.emission = 0;
             }
 
-            void InitializeInputData(VertexOutput input, half3 normalTS, half occlusion, half facing, out InputData inputData)
+            void InitializeInputData(VertexOutput input, half3 normalTS, float3 normalWS, half occlusion, half facing, out InputData inputData)
             {
                 inputData = (InputData)0;
                 inputData.positionWS = input.positionWS;
                 
-                #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
+
+            //  We are using the passed vertexnormal normalWS here!
+                #if defined(_NORMALMAP)
                     normalTS.z *= facing;
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, normalWS));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
-                    inputData.normalWS = input.normalWS * facing;
+                    inputData.normalWS = normalWS * facing;
                 #endif
 
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-
                 inputData.viewDirectionWS = viewDirWS;
                 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
@@ -306,14 +315,17 @@
                 SurfaceDescription surfaceData;
                 InitializeSurfaceData(input.uv, surfaceData);
 
+            //  Create cutom per vertex normal
+                #if defined(_NORMALMAP)
+                //  Here the normal must be normalized!
+                    float3 tnormal = SafeNormalize( cross(ddy(input.positionWS), ddx(input.positionWS)) );
+                #else
+                    float3 tnormal = cross(ddy(input.positionWS), ddx(input.positionWS));
+                #endif
+
             //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
                 InputData inputData;
-                InitializeInputData(input, surfaceData.normalTS, surfaceData.occlusion, facing, inputData);
-
-            //  Now we overwrite the normal in WS – and let the shader compiler do the rest
-                half3 tnormal = cross(ddy(input.positionWS), ddx(input.positionWS));
-                inputData.normalWS = NormalizeNormalPerPixel(tnormal);
-
+                InitializeInputData(input, surfaceData.normalTS, tnormal, surfaceData.occlusion, facing, inputData);
 
                 #if defined(_RIMLIGHTING)
                     half rim = saturate(1.0h - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
@@ -330,7 +342,6 @@
     
             //  Add fog
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
-
                 return color;
             }
 
@@ -554,5 +565,4 @@
     }
     FallBack "Hidden/InternalErrorShader"
     CustomEditor "LuxURPUniversalCustomShaderGUI"
-
 }

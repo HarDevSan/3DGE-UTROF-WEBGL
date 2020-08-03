@@ -14,16 +14,17 @@
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = input.texcoord;
 
             //  Hair lighting always needs tangent and bitangent
-                output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
+                output.viewDirWS = viewDirWS;
+                output.normalWS = normalInput.normalWS;
+                float sign = input.tangentOS.w * GetOddNegativeScale();
+                output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
@@ -62,16 +63,16 @@
                 half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
                 outSurfaceData.alpha = Alpha(albedoAlpha.a, _BaseColor, _Cutoff);
                 
-                // a2c sharpened
-                // (col.a - _Cutoff) / max(fwidth(col.a), 0.0001) + 0.5;
-                /*
-                float2 ditherUV = screenPos.xy / screenPos.w;
-                ditherUV *= _ScreenParams.xy * _Dither_TexelSize.xy;
-                half BlueNoise = SAMPLE_TEXTURE2D(_Dither, sampler_Dither, ditherUV).a;
-                clip(albedoAlpha.a - clamp(BlueNoise, 0.1, _Cutoff));
-                outSurfaceData.alpha = 1;
-                */
-                //clip( albedoAlpha.a - Dither32( screenPos.xy / screenPos.w * _ScreenParams.xy, _FrameIndexMod4  ));
+                    // a2c sharpened
+                    // (col.a - _Cutoff) / max(fwidth(col.a), 0.0001) + 0.5;
+                    
+                    // float2 ditherUV = screenPos.xy / screenPos.w;
+                    // ditherUV *= _ScreenParams.xy * _Dither_TexelSize.xy;
+                    // half BlueNoise = SAMPLE_TEXTURE2D(_Dither, sampler_Dither, ditherUV).a;
+                    // clip(albedoAlpha.a - clamp(BlueNoise, 0.1, _Cutoff));
+                    // outSurfaceData.alpha = 1;
+                    
+                    //clip( albedoAlpha.a - Dither32( screenPos.xy / screenPos.w * _ScreenParams.xy, _FrameIndexMod4  ));
                 
                 outSurfaceData.albedo = albedoAlpha.rgb; // * _BaseColor.rgb; // * vertexColor.rgb;
                 outSurfaceData.metallic = 0;
@@ -99,23 +100,18 @@
                 outSurfaceData.emission = 0;
             }
 
-            void InitializeInputData(VertexOutput input, half3 normalTS, out InputData inputData)
+            void InitializeInputData(VertexOutput input, half3 normalTS, out InputData inputData, out float3 bitangent)
             {
                 inputData = (InputData)0;
                 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
                     inputData.positionWS = input.positionWS;
                 #endif
-                //#ifdef _NORMALMAP
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
-                //#else
-                //    half3 viewDirWS = input.viewDirWS;
-                //    inputData.normalWS = input.normalWS;
-                //#endif
-
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
+                float sgn = input.tangentWS.w;      // should be either +1 or -1
+                bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
+            
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-
                 inputData.viewDirectionWS = viewDirWS;
                 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
@@ -152,7 +148,8 @@
 
             //  Prepare surface data (like bring normal into world space and get missing inputs like gi
                 InputData inputData;
-                InitializeInputData(input, surfaceData.normalTS, inputData);
+                float3 bitangent;
+                InitializeInputData(input, surfaceData.normalTS, inputData,     bitangent);
 
                 #if defined(_RIMLIGHTING)
                     half rim = saturate(1.0h - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
@@ -169,7 +166,7 @@
                     inputData,
                     input.tangentWS.xyz,
                     //(_StrandDir == 0) ? input.bitangentWS.xyz : input.tangentWS.xyz,
-                    input.bitangentWS.xyz,
+                    bitangent,
                     surfaceData.albedo * lerp(_SecondaryColor.rgb, _BaseColor.rgb, input.color.a), //_BaseColor.rgb,
                     surfaceData.specular,
                     surfaceData.occlusion,

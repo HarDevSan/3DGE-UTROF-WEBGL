@@ -11,7 +11,7 @@ Shader "Lux URP/Projection/Decal Unlit"
 
         [Header(Surface Inputs)]
         [Space(5)]
-        [HDR]_Color                                     ("Color", Color) = (1,1,1,1)
+        [HDR] _Color                                    ("Color", Color) = (1,1,1,1)
         [NoScaleOffset] _BaseMap                        ("Albedo (RGB) Alpha (A)", 2D) = "white" {}
 
         [Header(Distance Fading)]
@@ -22,8 +22,8 @@ Shader "Lux URP/Projection/Decal Unlit"
         [Header(Stencil)]
         [Space(5)]
         [IntRange] _StencilRef                          ("Stencil Reference", Range (0, 255)) = 0
-        [IntRange] _ReadMask                            ("    Read Mask", Range (0, 255)) = 255
-        [IntRange] _WriteMask                           ("    Write Mask", Range (0, 255)) = 255
+        [IntRange] _ReadMask                            ("     Read Mask", Range (0, 255)) = 255
+        [IntRange] _WriteMask                           ("     Write Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _StencilCompare                                 ("Stencil Comparison", Int) = 6
 

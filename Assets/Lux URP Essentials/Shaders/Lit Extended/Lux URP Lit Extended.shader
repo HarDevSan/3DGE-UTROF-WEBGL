@@ -25,7 +25,7 @@
         // Specular vs Metallic workflow
         [HideInInspector] _WorkflowMode("WorkflowMode", Float) = 1.0
         
-        [MainColor] _BaseColor("Color", Color) = (0.5,0.5,0.5,1)
+        [MainColor] _BaseColor("Color", Color) = (1,1,1,1)
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
 
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
@@ -152,7 +152,7 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            
+
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragmentRim
 
@@ -217,6 +217,7 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+
             #pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
             #pragma vertex ShadowPassVertex

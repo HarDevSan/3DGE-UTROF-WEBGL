@@ -11,29 +11,30 @@ Shader "Lux URP/Human/Skin"
         [Space(5)]
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
-        _SkinShadowBias             ("    Shadow Caster Bias", Range(.1, 1.0)) = 1.0
-        _SkinShadowSamplingBias     ("    Shadow Sampling Bias", Range(0, 0.05)) = 0
+        _SkinShadowBias             ("     Shadow Caster Bias", Range(.1, 1.0)) = 1.0
+        _SkinShadowSamplingBias     ("     Shadow Sampling Bias", Range(0, 0.05)) = 0
         
         [Header(Surface Inputs)]
         [Space(5)]
         [NoScaleOffset] [MainTexture]
         _BaseMap                    ("Albedo (RGB) Smoothness (A)", 2D) = "white" {}
-        [HideInInspector] [MainColor]
+        [MainColor]
         _BaseColor                  ("Color", Color) = (1,1,1,1)
         
         [Space(5)]
         _Smoothness                 ("Smoothness", Range(0.0, 1.0)) = 0.5
-        _SpecColor                  ("Specular", Color) = (0.2, 0.2, 0.2)
+    //  For some reason android did not like _SpecColor!?
+        _SpecularColor              ("Specular", Color) = (0.2, 0.2, 0.2)
 
         [Space(5)]
         [Toggle(_NORMALMAP)]
         _ApplyNormal                ("Enable Normal Map", Float) = 0.0
         [NoScaleOffset]
-        _BumpMap                    ("    Normal Map", 2D) = "bump" {}
-        _BumpScale                  ("    Normal Scale", Float) = 1.0
+        _BumpMap                    ("     Normal Map", 2D) = "bump" {}
+        _BumpScale                  ("     Normal Scale", Float) = 1.0
         [Toggle(_NORMALMAPDIFFUSE)]
-        _ApplyNormalDiffuse         ("    Enable Diffuse Normal Sample", Float) = 0.0
-        _Bias                       ("    Bias", Range(0.0, 8.0)) = 3.0
+        _ApplyNormalDiffuse         ("     Enable Diffuse Normal Sample", Float) = 0.0
+        _Bias                       ("     Bias", Range(0.0, 8.0)) = 3.0
 
         [Header(Skin Lighting)]
         [Space(5)]
@@ -67,8 +68,8 @@ Shader "Lux URP/Human/Skin"
         [HDR] _RimColor             ("Rim Color", Color) = (0.5,0.5,0.5,1)
         _RimPower                   ("Rim Power", Float) = 2
         _RimFrequency               ("Rim Frequency", Float) = 0
-        _RimMinPower                ("    Rim Min Power", Float) = 1
-        _RimPerPositionFrequency    ("    Rim Per Position Frequency", Range(0.0, 1.0)) = 1
+        _RimMinPower                ("     Rim Min Power", Float) = 1
+        _RimPerPositionFrequency    ("     Rim Per Position Frequency", Range(0.0, 1.0)) = 1
 
         [Header(Advanced)]
         [Space(5)]
@@ -81,8 +82,8 @@ Shader "Lux URP/Human/Skin"
         [Header(Stencil)]
         [Space(5)]
         [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
-        [IntRange] _ReadMask        ("    Read Mask", Range (0, 255)) = 255
-        [IntRange] _WriteMask       ("    Write Mask", Range (0, 255)) = 255
+        [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
+        [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _StencilComp                ("Stencil Comparison", Int) = 8     // always 
         [Enum(UnityEngine.Rendering.StencilOp)]
@@ -139,7 +140,7 @@ Shader "Lux URP/Human/Skin"
 
             // -------------------------------------
             // Material Keywords
-            #define _SPECULAR_SETUP 1
+            #define _SPECULAR_SETUP
             #pragma shader_feature _NORMALMAP
             #pragma shader_feature_local _NORMALMAPDIFFUSE
             #pragma shader_feature_local _DISTANCEFADE
@@ -198,19 +199,18 @@ Shader "Lux URP/Human/Skin"
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = input.texcoord;
 
+                output.normalWS = normalInput.normalWS; //NormalizeNormalPerVertex(normalInput.normalWS);
+                output.viewDirWS = viewDirWS;
+
                 #ifdef _NORMALMAP
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
                 #endif
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
@@ -223,6 +223,8 @@ Shader "Lux URP/Human/Skin"
                 #endif
 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+                //  tweak the sampling position
+                    vertexInput.positionWS += output.normalWS.xyz * _SkinShadowSamplingBias;
                     output.shadowCoord = GetShadowCoord(vertexInput);
                 #endif
                 output.positionCS = vertexInput.positionCS;
@@ -235,13 +237,13 @@ Shader "Lux URP/Human/Skin"
 
             inline void InitializeSkinLitSurfaceData(float2 uv, half fade, out SurfaceDescription outSurfaceData)
             {
-                half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
+                half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)) * _BaseColor;
 
                 outSurfaceData.alpha = 1;
                 
                 outSurfaceData.albedo = albedoAlpha.rgb;
                 outSurfaceData.metallic = 0;
-                outSurfaceData.specular = _SpecColor;
+                outSurfaceData.specular = _SpecularColor;
             
             //  Normal Map
                 #if defined (_NORMALMAP)
@@ -267,27 +269,30 @@ Shader "Lux URP/Human/Skin"
                 outSurfaceData.emission = 0;
             }
 
-            void InitializeInputData(VertexOutput input, half3 normalTS, out InputData inputData)
+            void InitializeInputData(VertexOutput input, half3 normalTS, out InputData inputData
+                #ifdef _NORMALMAP
+                    , inout float3 bitangent
+                #endif
+                )
             {
                 inputData = (InputData)0;
                 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
                     inputData.positionWS = input.positionWS;
                 #endif
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
                 #ifdef _NORMALMAP
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS;
                 #endif
 
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-
                 inputData.viewDirectionWS = viewDirWS;
                 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-                    inputData.shadowCoord = input.shadowCoord + input.normalWS * _SkinShadowSamplingBias;
+                    inputData.shadowCoord = input.shadowCoord;
                 #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
                     inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS + input.normalWS * _SkinShadowSamplingBias);
                 #else
@@ -310,7 +315,14 @@ Shader "Lux URP/Human/Skin"
 
             //  Prepare surface data (like bring normal into world space and get missing inputs like gi
                 InputData inputData;
-                InitializeInputData(input, surfaceData.normalTS, inputData);
+                #ifdef _NORMALMAP
+                    float3 bitangent;
+                #endif
+                InitializeInputData(input, surfaceData.normalTS, inputData
+                    #ifdef _NORMALMAP
+                        , bitangent
+                    #endif
+                );
 
                 #if defined(_RIMLIGHTING)
                     half rim = saturate(1.0h - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
@@ -338,7 +350,7 @@ Shader "Lux URP/Human/Skin"
                     1,
                 //  Diffuse Normal
                     #if defined(_NORMALMAP) && defined(_NORMALMAPDIFFUSE)
-                        NormalizeNormalPerPixel( TransformTangentToWorld(surfaceData.diffuseNormalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz)) )
+                        NormalizeNormalPerPixel( TransformTangentToWorld(surfaceData.diffuseNormalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz)) )
                     #else
                         input.normalWS
                     #endif
@@ -500,7 +512,7 @@ Shader "Lux URP/Human/Skin"
                 outSurfaceData.alpha = 1;
                 outSurfaceData.albedo = albedoAlpha.rgb;
                 outSurfaceData.metallic = 0;
-                outSurfaceData.specular = _SpecColor;
+                outSurfaceData.specular = _SpecularColor;
                 outSurfaceData.smoothness = _Smoothness;
                 outSurfaceData.normalTS = half3(0,0,1);
                 outSurfaceData.occlusion = 1;

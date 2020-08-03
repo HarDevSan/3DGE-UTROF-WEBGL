@@ -37,9 +37,9 @@
     #endif
 
     #if ( defined(_NORMALMAP) || defined(_PARALLAX) ) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
-        float4 normal                   : TEXCOORD3;    // xyz: normal, w: viewDir.x
+        float3 normal                   : TEXCOORD3;    // xyz: normal, w: viewDir.x
         float4 tangent                  : TEXCOORD4;    // xyz: tangent, w: viewDir.y
-        float4 bitangent                : TEXCOORD5;    // xyz: bitangent, w: viewDir.z
+        float3 viewDir                  : TEXCOORD5;
     #else
         float3 normal                   : TEXCOORD3;
         float3 viewDir                  : TEXCOORD4;
@@ -48,9 +48,9 @@
 
         half4 fogFactorAndVertexLight   : TEXCOORD6; // x: fogFactor, yzw: vertex light
         float3 positionWS               : TEXCOORD7;
-//    #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+    #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
         float4 shadowCoord              : TEXCOORD8;
-//    #endif
+    #endif
         float4 clipPos                  : SV_POSITION;
 
         UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -185,8 +185,11 @@
     //  Most of this is passed in
         /*
             #if ( defined(_NORMALMAP) || defined (_PARALLAX) ) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
-                half3 viewDirWS = half3(IN.normal.w, IN.tangent.w, IN.bitangent.w);
-                input.normalWS = TransformTangentToWorld(normalTS, half3x3(IN.tangent.xyz, IN.bitangent.xyz, IN.normal.xyz));
+                //half3 viewDirWS = half3(IN.normal.w, IN.tangent.w, IN.bitangent.w);
+                half3 viewDirWS = IN.viewDir;
+                float sgn = input.tangentWS.w;      // should be either +1 or -1
+                float3 bitangent = sgn * cross(IN.normalWS.xyz, IN.tangentWS.xyz);
+                input.normalWS = TransformTangentToWorld(normalTS, half3x3(IN.tangent.xyz, bitangent, IN.normal.xyz));
                 SH = SampleSH(input.normalWS.xyz);
             
             #elif defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
@@ -210,7 +213,7 @@
         */
         
     //  So this is all that has to be done
-        #if defined(_NORMALMAP) || defined (_PARALLAX)              || defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
+        #if defined(_NORMALMAP) || defined (_PARALLAX) || defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
             input.normalWS = TransformTangentToWorld(normalTS, tangentSpaceRotation);
             SH = SampleSH(input.normalWS.xyz);
         #else
@@ -219,25 +222,11 @@
         #endif
 
         input.normalWS = NormalizeNormalPerPixel(input.normalWS);
-
         input.viewDirectionWS = viewDirWS;
         
-        //#if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
-        //    input.shadowCoord = IN.shadowCoord;
-        //#else
-        //    input.shadowCoord = float4(0, 0, 0, 0);
-        //#endif
-
-    //  This is broken! No idea why...
         #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-            input.shadowCoord = input.shadowCoord;
+            input.shadowCoord = IN.shadowCoord;
         #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-            input.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
-        #else
-            input.shadowCoord = float4(0, 0, 0, 0);
-        #endif
-    //  So we do it brute force.
-        #if defined(_MAIN_LIGHT_SHADOWS)
             input.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
         #else
             input.shadowCoord = float4(0, 0, 0, 0);
@@ -486,7 +475,7 @@
         o.uvSplat23.zw = TRANSFORM_TEX(v.texcoord, _Splat3);
     #endif
 
-        half3 viewDirWS = GetCameraPositionWS() - Attributes.positionWS;
+        float3 viewDirWS = GetCameraPositionWS() - Attributes.positionWS;
     #if !SHADER_HINT_NICE_QUALITY
         viewDirWS = SafeNormalize(viewDirWS);
     #endif
@@ -496,24 +485,23 @@
             VertexNormalInputs normalInput = GetVertexNormalInputs(v.normalOS, vertexTangent);
         //  fix orientation
             normalInput.tangentWS *= -1;
-
-            o.normal = half4(normalInput.normalWS, viewDirWS.x);
-            o.tangent = half4(normalInput.tangentWS, viewDirWS.y);
-            o.bitangent = half4(normalInput.bitangentWS, viewDirWS.z);
+            o.normal = normalInput.normalWS;
+            float sign = vertexTangent.w * GetOddNegativeScale();
+            o.tangent = float4(normalInput.tangentWS, sign);
         #else
             o.normal = TransformObjectToWorldNormal(v.normalOS);
-            o.viewDir = viewDirWS;
             o.vertexSH = SampleSH(o.normal);
         #endif
+        o.viewDir = viewDirWS;
 
         o.fogFactorAndVertexLight.x = ComputeFogFactor(Attributes.positionCS.z);
         o.fogFactorAndVertexLight.yzw = VertexLighting(Attributes.positionWS, o.normal.xyz);
         o.positionWS = Attributes.positionWS;
         o.clipPos = Attributes.positionCS;
 
-//        #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+        #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
             o.shadowCoord = GetShadowCoord(Attributes);
-//        #endif
+        #endif
 
         return o;
     }
@@ -531,22 +519,15 @@
         half3 normalTS = half3(0.0h, 0.0h, 1.0h);
 
         half3x3 tangentSpaceRotation = 0;
-        half3 viewDirectionWS = 0;
-
-        #if ( defined(_NORMALMAP) || defined (_PARALLAX) ) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
-            viewDirectionWS = SafeNormalize( half3(IN.normal.w, IN.tangent.w, IN.bitangent.w) ); 
-        #else
-            viewDirectionWS = SafeNormalize( IN.viewDir );
-        #endif
+        half3 viewDirectionWS = SafeNormalize(IN.viewDir);
 
         #if defined(_NORMALMAP) || defined(_PARALLAX) || defined(TERRAIN_SPLAT_BASEPASS)
             #if !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL) && ( defined(_NORMALMAP) || defined(_PARALLAX) )
             //  Same matrix we need to transfer the normalTS
-                tangentSpaceRotation =  half3x3(IN.tangent.xyz, IN.bitangent.xyz, IN.normal.xyz);
+                half3 bitangentWS = cross(IN.normal, IN.tangent.xyz) * -1;
+                tangentSpaceRotation =  half3x3(IN.tangent.xyz, bitangentWS, IN.normal.xyz);
                 half3 tangentWS = IN.tangent.xyz;
-                half3 bitangentWS = IN.bitangent.xyz;
                 half3 viewDirTS = normalize( mul(tangentSpaceRotation, viewDirectionWS ) );
-
             #elif defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
                 float2 sampleCoords = (IN.uvMainAndLM.xy / _TerrainHeightmapRecipSize.zw + 0.5f) * _TerrainHeightmapRecipSize.xy;
                 half3 normalWS = TransformObjectToWorldNormal(normalize(SAMPLE_TEXTURE2D(_TerrainNormalmapTexture, sampler_TerrainNormalmapTexture, sampleCoords).rgb * 2 - 1));

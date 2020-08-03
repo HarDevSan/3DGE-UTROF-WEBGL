@@ -11,7 +11,7 @@ Shader "Lux URP/Vegetation/Grass TextureDisplace"
         _Cull                       ("Culling", Float) = 0
         [Toggle(_ALPHATEST_ON)]
         _AlphaClip                  ("Alpha Clipping", Float) = 1.0
-        _Cutoff                     ("    Threshold", Range(0.0, 1.0)) = 0.5
+        _Cutoff                     ("     Threshold", Range(0.0, 1.0)) = 0.5
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
         
@@ -22,6 +22,12 @@ Shader "Lux URP/Vegetation/Grass TextureDisplace"
         _BaseMap                    ("Albedo (RGB) Alpha (A)", 2D) = "white" {}
         [HideInInspector] [MainColor]
         _BaseColor                  ("Color", Color) = (1,1,1,1)
+
+        [Space(5)]
+        [Toggle(_NORMALMAP)]
+        _EnableNormal               ("Enable Normal Map", Float) = 0
+        [NoScaleOffset] _BumpMap    ("     Normal Map", 2D) = "bump" {}
+        _BumpScale                  ("     Normal Scale", Float) = 1.0
 
         [Space(5)]
         _Smoothness                 ("Smoothness", Range(0.0, 1.0)) = 0.5
@@ -104,6 +110,8 @@ Shader "Lux URP/Vegetation/Grass TextureDisplace"
 
         //  Needed to make BlinnPhong work
             #define _SPECULAR_COLOR
+
+            #pragma shader_feature _NORMALMAP
 
             // -------------------------------------
             // Lightweight Pipeline keywords
@@ -235,17 +243,15 @@ float3 cachedPositionWS = vertexInput.positionWS;
             
             //  End Wind -------------------------------
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
+                output.normalWS = normalInput.normalWS;
+                output.viewDirWS = viewDirWS;
                 #ifdef _NORMALMAP
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
                 #endif
 
                 OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
@@ -277,19 +283,16 @@ float3 cachedPositionWS = vertexInput.positionWS;
                 outSurfaceData.albedo = albedoAlpha.rgb;
                 outSurfaceData.metallic = 0;
                 outSurfaceData.specular = _SpecColor;
-            //  Normal Map currently not supported
+            //  Normal Map
                 #if defined (_NORMALMAP)
                     //outSurfaceData.normalTS = SampleNormal(uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap));
-                    half4 sampleNormal = SAMPLE_TEXTURE2D(_BumpSpecMap, sampler_BumpSpecMap, uv);
-                    half3 tangentNormal;
-                    tangentNormal.xy = sampleNormal.ag * 2 - 1;
-                    tangentNormal.z = sqrt(1.0 - dot(tangentNormal.xy, tangentNormal.xy));  
-                    outSurfaceData.normalTS = tangentNormal;
-                    outSurfaceData.smoothness = sampleNormal.b * _GlossMapScale;
+                    half4 sampleNormal = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
+                    outSurfaceData.normalTS = UnpackNormalScale(sampleNormal, _BumpScale);
                 #else
                     outSurfaceData.normalTS = float3(0, 0, 1);
-                    outSurfaceData.smoothness = _Smoothness;
                 #endif
+
+                outSurfaceData.smoothness = _Smoothness;
                 outSurfaceData.occlusion = fadeOcclusion.y;
                 outSurfaceData.emission = 0;
             }
@@ -298,17 +301,16 @@ float3 cachedPositionWS = vertexInput.positionWS;
             {
                 inputData = (InputData)0;
                 inputData.positionWS = input.positionWS;
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
                 #ifdef _NORMALMAP
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS;
                 #endif
 
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-
                 inputData.viewDirectionWS = viewDirWS;
                 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
@@ -336,25 +338,6 @@ float3 cachedPositionWS = vertexInput.positionWS;
             //  Prepare surface data (like bring normal into world space) and get missing inputs like gi
                 InputData inputData;
                 InitializeInputData(input, surfaceData.normalTS, inputData);
-
-float2 samplePos = input.positionWS.xz - _Lux_DisplacementPosition.xy; // lower left corner
-samplePos = samplePos * _Lux_DisplacementPosition.z; // one OverSize
-half4 displacementSample = SAMPLE_TEXTURE2D_LOD(_Lux_DisplacementRT, sampler_Lux_DisplacementRT, samplePos, 1);
-//displacementSample = SAMPLE_TEXTURE2D_LOD(_BaseMap, sampler_BaseMap, samplePos, 0);
-if(samplePos.x >= 0.0f && samplePos.x <= 1.0f) {
-    if(samplePos.y >= 0.0f && samplePos.y <= 1.0f) {
-
-half2 radialMask = (samplePos.xy * 2 - 1);
-//half finarm = 1 - length(radialMask);
-half finarm = 1 - dot(radialMask, radialMask);
-finarm = smoothstep(0,.5,finarm);
-
-//surfaceData.albedo = displacementSample.rgb; //half3( abs(displacementSample.rg * 2 - 1), 0);
-
-        //surfaceData.albedo = finarm.xxx;
-    }
-}
-
 
             //  Apply lighting
                 #if defined(_BLINNPHONG)

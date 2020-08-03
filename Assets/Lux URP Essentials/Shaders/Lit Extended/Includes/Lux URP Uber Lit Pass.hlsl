@@ -24,16 +24,14 @@ struct Varyings
 #endif
 
 #if defined (_NORMALMAP) || defined(_PARALLAX) || defined (_BENTNORMAL)
-    float4 normalWS                 : TEXCOORD3;    // xyz: normal, w: viewDir.x
-    float4 tangentWS                : TEXCOORD4;    // xyz: tangent, w: viewDir.y
-    float4 bitangentWS              : TEXCOORD5;    // xyz: bitangent, w: viewDir.z
+    float3 normalWS                 : TEXCOORD3;
+    float3 viewDirWS                : TEXCOORD4;
+    float4 tangentWS                : TEXCOORD5;
 #else
     float3 normalWS                 : TEXCOORD3;
     float3 viewDirWS                : TEXCOORD4;
 #endif
-
     half4 fogFactorAndVertexLight   : TEXCOORD6; // x: fogFactor, yzw: vertex light
-
 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
     float4 shadowCoord              : TEXCOORD7;
 #endif
@@ -57,7 +55,7 @@ struct Varyings
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
-void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData)
+void InitializeInputData(Varyings input, float3 bitangentWS, half3 normalTS, out InputData inputData)
 {
     inputData = (InputData)0;
 
@@ -65,21 +63,15 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
         inputData.positionWS = input.positionWS;
     #endif
 
-    #if defined (_NORMALMAP) || defined(_PARALLAX) || defined (_BENTNORMAL)
-        half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-    #else
-        half3 viewDirWS = input.viewDirWS;
-    #endif
+    half3 viewDirWS = SafeNormalize(input.viewDirWS);
 
     #ifdef _NORMALMAP
-        inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+        inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangentWS.xyz, input.normalWS.xyz));
     #else
         inputData.normalWS = input.normalWS.xyz;
     #endif
 
     inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-    viewDirWS = SafeNormalize(viewDirWS);
-
     inputData.viewDirectionWS = viewDirWS;
 
     #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
@@ -110,20 +102,20 @@ Varyings LitPassVertexUber(Attributes input)
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
     VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-    half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+    float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
     half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
     half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
     output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
 
 #if defined (_NORMALMAP) || defined(_PARALLAX) || defined (_BENTNORMAL)
-    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
+    output.normalWS = normalInput.normalWS;
+    float sign = input.tangentOS.w * GetOddNegativeScale();
+    output.tangentWS = float4(normalInput.tangentWS, sign);
 #else
-    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-    output.viewDirWS = viewDirWS;
+    output.normalWS = normalInput.normalWS; //NormalizeNormalPerVertex(normalInput.normalWS);
 #endif
+    output.viewDirWS = viewDirWS;
 
     OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
     OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
@@ -132,28 +124,12 @@ Varyings LitPassVertexUber(Attributes input)
 
 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
     output.positionWS = vertexInput.positionWS;
-#endif
+#endif 
 
 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
     output.shadowCoord = GetShadowCoord(vertexInput);
 #endif
-
     output.positionCS = vertexInput.positionCS;
-
-/* not needed as we use positionCS
-#if SHADOWS_SCREEN
-    #if !defined(_MAIN_LIGHT_SHADOWS) || defined(_RECEIVE_SHADOWS_OFF)
-        #if defined(_FADING_ON)
-            output.screenCoord = ComputeScreenPos(output.positionCS);
-        #endif
-    #endif
-#else
-    #if defined(_FADING_ON)
-        output.screenCoord = ComputeScreenPos(output.positionCS);
-    #endif
-#endif
-*/
-
     return output;
 }
 

@@ -25,7 +25,7 @@
         [Header(Surface Inputs)]
         [Space(5)]
         [MainTexture] _BaseMap              ("Albedo", 2D) = "white" {}
-        [MainColor] _BaseColor              ("Color", Color) = (0.5,0.5,0.5,1)
+        [MainColor] _BaseColor              ("Color", Color) = (1,1,1,1)
 
         [Space(5)]
         [Toggle(_NORMALMAP)]
@@ -190,7 +190,7 @@
             }
 
             Blend[_SrcBlend][_DstBlend]
-            ZTest [_ZTest]
+			ZTest [_ZTest]
             ZWrite[_ZWrite]
             Cull[_Cull]
 
@@ -249,6 +249,8 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+
+#pragma multi_compile __ LOD_FADE_CROSSFADE
             
             #pragma vertex LitPassVertexUber
             #pragma fragment LitPassFragmentUber
@@ -265,31 +267,31 @@
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
+                //  LOD crossfading
+                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
+                    //LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
+                    clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+                #endif
+
                 //  Camera Fading
                 #if defined(_ALPHATEST_ON) && defined(_FADING_ON)
-                /*  not needed as we go with positionCS
-                //  shadowcoords are screenpos
-                    #if SHADOWS_SCREEN
-                        #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
-                            float4 screenPos = input.shadowCoord;
-                        #endif
-                //  Get screenpos
-                    #else
-                        float4 screenPos = input.screenCoord;
-                    #endif
-                */
                     clip ( input.positionCS.w - _CameraFadeDist - Dither32(input.positionCS.xy, 1));                   
-                    //clip ( input.positionCS.w - _CameraFadeDist - Dither32(screenPos.xy / screenPos.w * _ScreenParams.xy, 1));
-                    //clip ( input.positionCS.w - _CameraFadeDist - Dither5(screenPos.xy / screenPos.w * _ScreenParams.xy + float2(0.5, -0.5), 1));
+                #endif
+
+            //  Calculate bitangent upfront
+                #if defined (_NORMALMAP) || defined(_PARALLAX) || defined (_BENTNORMAL)
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangentWS = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                #else
+                    float3 bitangentWS = 0;
                 #endif
 
                 #if defined(_PARALLAX)
             //  NOTE: Take possible back faces into account.
                     input.normalWS.xyz *= facing;
-
-                    half3x3 tangentSpaceRotation =  half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz);
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                    half3 viewDirTS = SafeNormalize( mul(tangentSpaceRotation, viewDirWS) );
+                    half3x3 tangentSpaceRotation =  half3x3(input.tangentWS.xyz, bitangentWS, input.normalWS.xyz);
+                    //half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
+                    half3 viewDirTS = SafeNormalize( mul(tangentSpaceRotation, input.viewDirWS) );
                 #else
                     half3 viewDirTS = 0; 
                 #endif
@@ -298,14 +300,15 @@
                 InitializeStandardLitSurfaceDataUber(input.uv, viewDirTS, surfaceData);
 
                 InputData inputData;
-                InitializeInputData(input, surfaceData.normalTS, inputData);
+            //  Custom function! which uses bitangentWS as additional input here.
+                InitializeInputData(input, bitangentWS, surfaceData.normalTS, inputData);
 
                 #if defined(_BENTNORMAL)
                     half3 bentNormal  = SampleNormalExtended(input.uv, TEXTURE2D_ARGS(_BentNormalMap, sampler_BentNormalMap), 1);     
                     #if defined(_SAMPLENORMAL)
                         bentNormal = normalize(half3(bentNormal.xy + surfaceData.normalTS.xy, bentNormal.z*surfaceData.normalTS.z));
                     #endif
-                    bentNormal = TransformTangentToWorld(bentNormal, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    bentNormal = TransformTangentToWorld(bentNormal, half3x3(input.tangentWS.xyz, bitangentWS.xyz, input.normalWS.xyz));
                     //bentNormal = mul(GetObjectToWorldMatrix(), float4(bentNormal, 0) );
                     bentNormal = NormalizeNormalPerPixel(bentNormal);
                     #if !defined(LIGHTMAP_ON)
@@ -335,10 +338,8 @@
                     surfaceData.emission += pow(rim, power) * _RimColor.rgb * _RimColor.a;
                 #endif
 
-                //half4 color = LightweightFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha);
-
                 half4 color = LuxExtended_UniversalFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha,
-                    #if defined(_ENABLE_AO_FROM_GI)
+                    #if defined(_ENABLE_AO_FROM_GI) && defined(LIGHTMAP_ON)
                         _GItoAO, _GItoAOBias,
                     #else
                         1, 0,
@@ -397,6 +398,7 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+#pragma multi_compile __ LOD_FADE_CROSSFADE
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -454,6 +456,12 @@
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
+                //  LOD crossfading
+                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
+                    //LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
+                    clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+                #endif
+
                 #if defined(_ALPHATEST_ON)
                 //  Camera Fade
                     #if defined(_FADING_SHADOWS_ON)
@@ -496,6 +504,7 @@
 
                     half alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv).a * _BaseColor.a;
                     clip (alpha - _Cutoff);
+
                 #endif
                 return 0;
             }
@@ -538,6 +547,7 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+#pragma multi_compile __ LOD_FADE_CROSSFADE
 
             #include "Includes/Lux URP Lit Extended Inputs.hlsl"
             //#include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
@@ -563,12 +573,14 @@
                     #if defined(_PARALLAX)
                         VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
                         //half3x3 tangentSpaceRotation =  half3x3(normalInput.tangentWS, normalInput.bitangentWS, normalInput.normalWS);
-                    //  was half3 - but output is float?! lets add normalize here - not: it breks the regular pass...
-                        half3 viewDirWS = GetCameraPositionWS() - positionWS;
+                    //  was half3 - but output is float?! lets add normalize here - not: it breaks the regular pass...
+                        output.viewDirWS = GetCameraPositionWS() - positionWS;
                         //output.viewDirTS = SafeNormalize( mul(tangentSpaceRotation, viewDirWS) );
-                        output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                        output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                        output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
+                        output.normalWS = normalInput.normalWS;
+                        //output.tangentWS = normalInput.tangentWS;
+                        float sign = input.tangentOS.w * GetOddNegativeScale();
+                        output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
+                        //output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
                     #endif
                 #endif
 
@@ -579,6 +591,12 @@
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                //  LOD crossfading
+                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
+                    //LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
+                    clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+                #endif
 
                 #if defined(_ALPHATEST_ON)
 
@@ -593,8 +611,12 @@
                     #if defined(_PARALLAX)
                 
                     //  Parallax
-                        half3x3 tangentSpaceRotation =  half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz);
-                        half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
+                        half sgn = input.tangentWS.w;      // should be either +1 or -1
+                        half3 bitangentWS = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+
+                        half3x3 tangentSpaceRotation =  half3x3(input.tangentWS.xyz, bitangentWS.xyz, input.normalWS.xyz);
+                        //half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
+                        half3 viewDirWS = input.viewDirWS;
                         half3 viewDirTS = SafeNormalize( mul(tangentSpaceRotation, viewDirWS) );
 
                         float3 v = SafeNormalize(viewDirTS);

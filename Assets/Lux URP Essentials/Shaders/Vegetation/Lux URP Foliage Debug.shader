@@ -5,8 +5,16 @@ Shader "Lux URP/Vegetation/Foliage Debug"
 {
     Properties
     {
+        
+        //[IntRange] _DebugColor ("Debug Vertex Color", Range(0, 4)) = 0
+        [Enum(None,0,Red,1,Green,2,Blue,3,Alpha,4)] _DebugColor ("Debug Vertex Color", Float) = 0
+        _Brightness ("Brightness", Float) = 1
+
         [Header(Surface Options)]
         [Space(5)]
+        [Toggle(_ALPHATEST_ON)]
+        _AlphaClip                  ("Alpha Clipping", Float) = 1.0
+        _Cutoff                     ("     Threshold", Range(0.0, 1.0)) = 0.5
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
 
@@ -16,7 +24,6 @@ Shader "Lux URP/Vegetation/Foliage Debug"
         _BaseMap                    ("Albedo (RGB) Alpha (A)", 2D) = "white" {}
         [HideInInspector][MainColor]
         _BaseColor                  ("Color", Color) = (1,1,1,1)
-        _Cutoff                     ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
         [Space(5)]
         _Smoothness                 ("Smoothness", Range(0.0, 1.0)) = 0.5
@@ -26,8 +33,8 @@ Shader "Lux URP/Vegetation/Foliage Debug"
         [Toggle(_NORMALMAP)]
         _ApplyNormal                ("Enable Normal Smoothness Trans Map", Float) = 0.0
         [NoScaleOffset] _BumpSpecMap
-                                    ("    Normal (AG) Smoothness (B) Trans (R)", 2D) = "white" {}
-        _GlossMapScale              ("    Smoothness Scale", Range(0.0, 1.0)) = 1.0
+                                    ("     Normal (AG) Smoothness (B) Trans (R)", 2D) = "white" {}
+        _GlossMapScale              ("     Smoothness Scale", Range(0.0, 1.0)) = 1.0
 
         [Header(Transmission)]
         [Space(5)]
@@ -89,7 +96,7 @@ Shader "Lux URP/Vegetation/Foliage Debug"
 
             // -------------------------------------
             // Material Keywords
-            #define _ALPHATEST_ON 1
+            #pragma shader_feature_local _ALPHATEST_ON
             #define _SPECULAR_SETUP 1
             #pragma shader_feature _NORMALMAP
             #pragma shader_feature _SPECULARHIGHLIGHTS_OFF
@@ -214,14 +221,12 @@ bend.y = 0; //input.color.b * 0.3; // * fBranchAmp;
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = input.texcoord;
+                output.normalWS = normalInput.normalWS;
+                output.viewDirWS = viewDirWS;
 
                 #ifdef _NORMALMAP
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                    half sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = half4(normalInput.tangentWS, sign);
                 #endif
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
@@ -289,12 +294,13 @@ bend.y = 0; //input.color.b * 0.3; // * fBranchAmp;
                 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
                     inputData.positionWS = input.positionWS;
                 #endif
+                half3 viewDirWS = input.viewDirWS;
                 #ifdef _NORMALMAP
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
                     normalTS.z *= facing;
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS * facing;
                 #endif
 
@@ -304,7 +310,7 @@ bend.y = 0; //input.color.b * 0.3; // * fBranchAmp;
                 inputData.viewDirectionWS = viewDirWS;
                 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-                    inputData.shadowCoord = input.shadowCoord;
+                    inputData.shadowCoord = input.shadowCDDDDDDDDDDDDDDDDDDDoord;
                 #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
                     inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
                 #else
@@ -340,7 +346,9 @@ bend.y = 0; //input.color.b * 0.3; // * fBranchAmp;
                 InitializeInputData(input, surfaceData.normalTS, facing, inputData);
 
             //  Apply lighting
-                half4 color = half4(0,0,0,1);
+                half4 color = half4(surfaceData.albedo,1);
+                if(_DebugColor != 0)
+                    color = half4(0,0,0,1);
 
                 if(_DebugColor == 1)
                     color.r = input.color.r * _Brightness;

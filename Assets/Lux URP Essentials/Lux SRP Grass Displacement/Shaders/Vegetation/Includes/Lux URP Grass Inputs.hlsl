@@ -24,11 +24,13 @@
         half4   _WindMultiplier;
         float2  _DistanceFade;
 
-        //half    _DisplacementStrength;
-        half _DisplacementSampleSize;
-        half _DisplacementStrength;
-        half _DisplacementStrengthVertical;
-        half _NormalDisplacement;
+        half    _BumpScale;
+
+        //half  _DisplacementStrength;
+        half    _DisplacementSampleSize;
+        half    _DisplacementStrength;
+        half    _DisplacementStrengthVertical;
+        half    _NormalDisplacement;
     CBUFFER_END
 
 //  Additional textures
@@ -64,17 +66,15 @@
 
         #if !defined(UNITY_PASS_SHADOWCASTER) && !defined(DEPTHONLYPASS)
             DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
-            //#ifdef _ADDITIONAL_LIGHTS
+            #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
                 float3 positionWS           : TEXCOORD2;
-            //#endif
-            #ifdef _NORMALMAP
-                half4 normalWS              : TEXCOORD3;
-                half4 tangentWS             : TEXCOORD4;
-                half4 bitangentWS           : TEXCOORD5;
-            #else
-                half3 normalWS              : TEXCOORD3;
-                half3 viewDirWS             : TEXCOORD4;
             #endif
+            float3 normalWS                 : TEXCOORD3;
+            #ifdef _NORMALMAP
+                float4 tangentWS            : TEXCOORD4;
+            #endif
+            float3 viewDirWS                : TEXCOORD5;
+
             half4 fogFactorAndVertexLight   : TEXCOORD6;
             #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                 float4 shadowCoord          : TEXCOORD7;

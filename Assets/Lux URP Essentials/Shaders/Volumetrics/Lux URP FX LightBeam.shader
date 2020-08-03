@@ -36,8 +36,8 @@ Shader "Lux URP/FX/Lightbeam"
 
         [Header(Scene Fade)]
         [Space(5)]
-        _near                                       ("    Near", Float) = 0.0
-        _far                                        ("    Soft Edge Factor", Float) = 2.0
+        _near                                       ("     Near", Float) = 0.0
+        _far                                        ("     Soft Edge Factor", Float) = 2.0
 
         [Header(Camera Fade)]
         [Space(5)]

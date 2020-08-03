@@ -36,8 +36,8 @@
         [Toggle(_ADDITIONALLIGHT_SHADOWS)]
         _AdditionalLightShadows                 ("Additional Light Shadows", Float) = 1.0
         [Toggle(_PERVERTEX_SHADOWS)]
-        _PerVertexShadows                       ("    Per Vertex Shadows", Float) = 0.0
-        _SampleOffset                           ("    Sample Offset", Range(0, 2)) = 0.1
+        _PerVertexShadows                       ("     Per Vertex Shadows", Float) = 0.0
+        _SampleOffset                           ("     Sample Offset", Range(0, 2)) = 0.1
 
 
         [Header(Surface Inputs)]
@@ -49,28 +49,28 @@
         [Space(5)]
         [ToggleOff] _SpecularHighlights         ("Specular Highlights", Float) = 1.0
         [Toggle]
-        _EnableSpecGloss                        ("    Enable Spec Gloss Map", Float) = 0.0
-        [NoScaleOffset] _SpecGlossMap           ("        Spec Gloss Map", 2D) = "white" {}
-        _SpecColor                              ("        Specular (RGB) Smoothness(A)", Color) = (1.0, 1.0, 1.0, .5)
+        _EnableSpecGloss                        ("     Enable Spec Gloss Map", Float) = 0.0
+        [NoScaleOffset] _SpecGlossMap           ("          Spec Gloss Map", 2D) = "white" {}
+        _SpecColor                              ("          Specular (RGB) Smoothness(A)", Color) = (1.0, 1.0, 1.0, .5)
         //_Smoothness                           ("    Smoothness", Range(0.0, 1.0)) = 0.5
 
         [Space(5)]
         [Toggle(_NORMALMAP)]
         _ApplyNormal                            ("Enable Normal Map", Float) = 0.0
-        [NoScaleOffset] _BumpMap                ("    Normal Map", 2D) = "bump" {}
-        //_BumpScale                            ("    Scale", Float) = 1.0
+        [NoScaleOffset] _BumpMap                ("     Normal Map", 2D) = "bump" {}
+        //_BumpScale                            ("     Scale", Float) = 1.0
 
         [Space(5)]
         [Toggle(_EMISSION)]
         _EnabelEmission                         ("Enable Emission", Float) = 0.0
-        [NoScaleOffset] _EmissionMap            ("    Emission Map", 2D) = "white" {}
-        [HDR]_EmissionColor                     ("    Color", Color) = (1,1,1)
+        [NoScaleOffset] _EmissionMap            ("     Emission Map", 2D) = "white" {}
+        [HDR]_EmissionColor                     ("     Color", Color) = (1,1,1)
 
         [Space(5)]
         [Toggle(_TRANSMISSION)]
         _EnableTransmission                     ("Enable Transmission", Float) = 0.0
-        _Transmission                           ("    Transmission", Range(0.0, 1.0)) = 0.5
-        _TransmissionDistortion                 ("    Distortion", Range(0.01, 0.5)) = 0.01
+        _Transmission                           ("     Transmission", Range(0.0, 1.0)) = 0.5
+        _TransmissionDistortion                 ("     Distortion", Range(0.01, 0.5)) = 0.01
 
         
         // Hidden properties - Generic
@@ -87,23 +87,23 @@
         [Space(5)]      
         [Toggle(_DISTORTION_ON)]
         _DistortionEnabled                      ("Enable Distortion", Float) = 0.0
-        _DistortionStrength                     ("    Strength", Float) = 1.0
-        _DistortionBlend                        ("    Blend", Range(0.0, 1.0)) = 0.5
+        _DistortionStrength                     ("     Strength", Float) = 1.0
+        _DistortionBlend                        ("     Blend", Range(0.0, 1.0)) = 0.5
         [HideInInspector]
-        _DistortionStrengthScaled               ("    Distortion Strength Scaled", Float) = 0.1
+        _DistortionStrengthScaled               ("     Distortion Strength Scaled", Float) = 0.1
 
         [Space(5)] 
         [Toggle(_SOFTPARTICLES_ON)]
         _SoftParticlesEnabled                   ("Enable Soft Particles", Float) = 0.0
         [LuxURPVectorTwoDrawer]
-        _SoftParticleFadeParams                 ("    Near (X) Far (Y)", Vector) = (0,1,0,0)
+        _SoftParticleFadeParams                 ("     Near (X) Far (Y)", Vector) = (0,1,0,0)
         
         [Space(5)] 
         [Toggle(_FADING_ON)]
         _CameraFadingEnabled                    ("Enable Camera Fading", Float) = 0.0
         [LuxURPVectorTwoDrawer]
-        _CameraFadeParamsRaw                    ("    Near (X) Far (Y)", Vector) = (1,2,0,0)
-        [HideInInspector]_CameraFadeParams      ("    Near (X) Far (Y)", Vector) = (1,1,0,0)
+        _CameraFadeParamsRaw                    ("     Near (X) Far (Y)", Vector) = (1,2,0,0)
+        [HideInInspector]_CameraFadeParams      ("     Near (X) Far (Y)", Vector) = (1,1,0,0)
         
 
         // Hidden props

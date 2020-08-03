@@ -43,8 +43,8 @@ Shader "Lux URP/Versatile Blend"
         [Toggle(_NORMALMAP)]
         _ApplyNormal                ("Enable Normal Map", Float) = 0.0
         [NoScaleOffset]
-        _BumpMap                    ("    Normal Map", 2D) = "bump" {}
-        _BumpScale                  ("    Normal Scale", Float) = 1.0
+        _BumpMap                    ("     Normal Map", 2D) = "bump" {}
+        _BumpScale                  ("     Normal Scale", Float) = 1.0
 
 
         [Header(Advanced)]
@@ -166,7 +166,7 @@ Shader "Lux URP/Versatile Blend"
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
@@ -182,14 +182,12 @@ Shader "Lux URP/Versatile Blend"
             //  ///////////////////
 
                 output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
- 
+                // already normalized from normal transform to WS.
+                output.normalWS = normalInput.normalWS;
+                output.viewDirWS = viewDirWS;
                 #if defined(_NORMALMAP)
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS, sign);
                 #endif
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
@@ -241,16 +239,16 @@ Shader "Lux URP/Versatile Blend"
                 inputData = (InputData)0;
                 inputData.positionWS = input.positionWS;
                 
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
                 #if defined(_NORMALMAP)
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS;
                 #endif
 
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
                 inputData.viewDirectionWS = viewDirWS;
 
                 inputData.fogCoord = input.fogFactorAndVertexLight.x;
@@ -280,12 +278,6 @@ Shader "Lux URP/Versatile Blend"
                 #endif
                 float perspectiveSceneDepth = LinearEyeDepth(sceneDepth, _ZBufferParams);
 
-                #ifdef _NORMALMAP
-                    float3 viewDirWS = SafeNormalize( float3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w) );
-                #else
-                    float3 viewDirWS = SafeNormalize(input.viewDirWS);
-                #endif  
-
             //  Depth based blending
                 float depthDist = perspectiveSceneDepth - input.positionCS.w + _AlphaShift;
                 surfaceData.alpha = saturate(depthDist * _AlphaWidth);
@@ -293,6 +285,8 @@ Shader "Lux URP/Versatile Blend"
             //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
                 InputData inputData;
                 InitializeInputData(input, surfaceData.normalTS, surfaceData.occlusion, inputData);
+
+                float3 viewDirWS = inputData.viewDirectionWS;
 
             //  Handle Shadows
                 //  Convert linear eye depth to distance in world space

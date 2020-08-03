@@ -14,7 +14,7 @@ Shader "Lux URP/Human/Hair Blend"
         [Enum(UnityEngine.Rendering.CullMode)]
         _Cull                       ("Culling", Float) = 0
         [Toggle(_ENABLEVFACE)]
-        _EnableVFACE                ("    Enable VFACE", Float) = 0
+        _EnableVFACE                ("     Enable VFACE", Float) = 0
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _ZTest                      ("ZTest", Int) = 4
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
@@ -36,13 +36,13 @@ Shader "Lux URP/Human/Hair Blend"
         [Toggle(_NORMALMAP)]
         _ApplyNormal                ("Enable Normal Map", Float) = 0.0
         [NoScaleOffset]
-        _BumpMap                    ("    Normal Map", 2D) = "bump" {}
-        _BumpScale                  ("    Normal Scale", Float) = 1.0
+        _BumpMap                    ("     Normal Map", 2D) = "bump" {}
+        _BumpScale                  ("     Normal Scale", Float) = 1.0
 
         [Space(5)]
         [Toggle(_MASKMAP)]
         _EnableMaskMap              ("Enable Mask Map", Float) = 0
-        [NoScaleOffset] _MaskMap    ("    Shift (B) Occlusion (G)", 2D) = "white" {}
+        [NoScaleOffset] _MaskMap    ("     Shift (B) Occlusion (G)", 2D) = "white" {}
         
         [Space(5)]
         _SpecColor                  ("Specular", Color) = (0.2, 0.2, 0.2)
@@ -79,8 +79,8 @@ Shader "Lux URP/Human/Hair Blend"
         [HDR] _RimColor             ("Rim Color", Color) = (0.5,0.5,0.5,1)
         _RimPower                   ("Rim Power", Float) = 2
         _RimFrequency               ("Rim Frequency", Float) = 0
-        _RimMinPower                ("    Rim Min Power", Float) = 1
-        _RimPerPositionFrequency    ("    Rim Per Position Frequency", Range(0.0, 1.0)) = 1
+        _RimMinPower                ("     Rim Min Power", Float) = 1
+        _RimPerPositionFrequency    ("     Rim Per Position Frequency", Range(0.0, 1.0)) = 1
 
 
         [Header(Advanced)]
@@ -97,8 +97,8 @@ Shader "Lux URP/Human/Hair Blend"
         [Header(Stencil)]
         [Space(5)]
         [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
-        [IntRange] _ReadMask        ("    Read Mask", Range (0, 255)) = 255
-        [IntRange] _WriteMask       ("    Write Mask", Range (0, 255)) = 255
+        [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
+        [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _StencilComp                ("Stencil Comparison", Int) = 8     // always – terrain should be the first thing being rendered anyway
         [Enum(UnityEngine.Rendering.StencilOp)]

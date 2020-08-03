@@ -113,22 +113,15 @@ float _ScreenEdgeFade;
             //#ifdef _ADDITIONAL_LIGHTS
                 float3 positionWS           : TEXCOORD2;
             //#endif
+            float3 normalWS                 : TEXCOORD3;
+            float3 viewDirWS                : TEXCOORD4;
             #if defined(_NORMALMAP)
-                half4 normalWS              : TEXCOORD3;
-                half4 tangentWS             : TEXCOORD4;
-                half4 bitangentWS           : TEXCOORD5;
-            #else
-                half3 normalWS              : TEXCOORD3;
-                half3 viewDirWS             : TEXCOORD4;
+                float4 tangentWS            : TEXCOORD5;
             #endif
-
             half4 fogFactorAndVertexLight   : TEXCOORD6;
-            
             #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                 float4 shadowCoord          : TEXCOORD7;
             #endif
-
-
             float4 projectionCoord          : TEXCOORD8;
             float  scale                    : TEXCOORD9;
 

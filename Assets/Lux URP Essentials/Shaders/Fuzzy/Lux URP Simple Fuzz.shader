@@ -15,8 +15,8 @@ Shader "Lux URP/Simple Fuzz"
         _AlphaClip                  ("Alpha Clipping", Float) = 0.0
         [LuxURPHelpDrawer]
         _Help ("Enabling Alpha Clipping needs you to enable and assign the Mask Map as well.", Float) = 0.0
-        _Cutoff                     ("    Threshold", Range(0.0, 1.0)) = 0.5
-        [Enum(Off,0,On,1)]_Coverage ("    Alpha To Coverage", Float) = 0
+        _Cutoff                     ("     Threshold", Range(0.0, 1.0)) = 0.5
+        [Enum(Off,0,On,1)]_Coverage ("     Alpha To Coverage", Float) = 0
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
         _ShadowOffset               ("Shadow Offset", Float) = 1.0
@@ -26,21 +26,21 @@ Shader "Lux URP/Simple Fuzz"
         [Space(5)]
         [Toggle(_SIMPLEFUZZ)]
         _EnableFuzzyLighting        ("Enable Fuzzy Lighting", Float) = 1.0
-        _FuzzWrap                   ("    Diffuse Wrap", Range(0, 1)) = 0.5 
-        _FuzzStrength               ("    Fuzz Strength", Range(0, 8)) = 2 
-        _FuzzPower                  ("    Fuzz Power", Range(1, 16)) = 4        
-        _FuzzBias                   ("    Fuzz Bias", Range(0, 1)) = 0
-        _FuzzAmbient                ("    Ambient Strength", Range(0, 1)) = 1
+        _FuzzWrap                   ("     Diffuse Wrap", Range(0, 1)) = 0.5 
+        _FuzzStrength               ("     Fuzz Strength", Range(0, 8)) = 2 
+        _FuzzPower                  ("     Fuzz Power", Range(1, 16)) = 4        
+        _FuzzBias                   ("     Fuzz Bias", Range(0, 1)) = 0
+        _FuzzAmbient                ("     Ambient Strength", Range(0, 1)) = 1
         
 
         [Header(Transmission)]
         [Space(5)]
         [Toggle(_SCATTERING)]
         _UseScattering              ("Enable Transmission", Float) = 0.0
-        _TranslucencyPower          ("    Power", Range(0.0, 32.0)) = 7.0
-        _TranslucencyStrength       ("    Strength", Range(0.0, 1.0)) = 1.0
-        _ShadowStrength             ("    Shadow Strength", Range(0.0, 1.0)) = 0.7
-        _Distortion                 ("    Distortion", Range(0.0, 0.1)) = 0.01
+        _TranslucencyPower          ("     Power", Range(0.0, 32.0)) = 7.0
+        _TranslucencyStrength       ("     Strength", Range(0.0, 1.0)) = 1.0
+        _ShadowStrength             ("     Shadow Strength", Range(0.0, 1.0)) = 0.7
+        _Distortion                 ("     Distortion", Range(0.0, 0.1)) = 0.01
 
 
         [Header(Surface Inputs)]
@@ -58,32 +58,32 @@ Shader "Lux URP/Simple Fuzz"
         [Toggle(_NORMALMAP)]
         _ApplyNormal                ("Enable Normal Map", Float) = 0.0
         [NoScaleOffset]
-        _BumpMap                    ("    Normal Map", 2D) = "bump" {}
-        _BumpScale                  ("    Normal Scale", Float) = 1.0
+        _BumpMap                    ("     Normal Map", 2D) = "bump" {}
+        _BumpScale                  ("     Normal Scale", Float) = 1.0
 
         [Space(5)]
         [Toggle(_MASKMAP)]
         _EnableMaskMap              ("Enable Mask Map", Float) = 0.0
-        _MaskMap                    ("    FuzzMask (R) Thickness (G) Occlusion (B) Alpha (A)", 2D) = "white" {}
-        _OcclusionStrength          ("    Occlusion", Range(0.0, 1.0)) = 1
+        _MaskMap                    ("     FuzzMask (R) Thickness (G) Occlusion (B) Alpha (A)", 2D) = "white" {}
+        _OcclusionStrength          ("     Occlusion", Range(0.0, 1.0)) = 1
         
 
         [Header(Rim Lighting)]
         [Space(5)]
         [Toggle(_RIMLIGHTING)]
         _Rim                        ("Enable Rim Lighting", Float) = 0
-        [HDR] _RimColor                   ("Rim Color", Color) = (0.5,0.5,0.5,1)
+        [HDR] _RimColor             ("Rim Color", Color) = (0.5,0.5,0.5,1)
         _RimPower                   ("Rim Power", Float) = 2
         _RimFrequency               ("Rim Frequency", Float) = 0
-        _RimMinPower                ("    Rim Min Power", Float) = 1
-        _RimPerPositionFrequency    ("    Rim Per Position Frequency", Range(0.0, 1.0)) = 1
+        _RimMinPower                ("     Rim Min Power", Float) = 1
+        _RimPerPositionFrequency    ("     Rim Per Position Frequency", Range(0.0, 1.0)) = 1
 
 
         [Header(Stencil)]
         [Space(5)]
         [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
-        [IntRange] _ReadMask        ("    Read Mask", Range (0, 255)) = 255
-        [IntRange] _WriteMask       ("    Write Mask", Range (0, 255)) = 255
+        [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
+        [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _StencilComp                ("Stencil Comparison", Int) = 8     // always – terrain should be the first thing being rendered anyway
         [Enum(UnityEngine.Rendering.StencilOp)]
@@ -214,22 +214,21 @@ Shader "Lux URP/Simple Fuzz"
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
                 #if defined(_MASKMAP)
                     output.uv.zw = TRANSFORM_TEX(input.texcoord, _MaskMap);
-                #endif  
+                #endif
 
-                #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                output.normalWS = normalInput.normalWS;
+                output.viewDirWS = viewDirWS;
+
+                #ifdef _NORMALMAP
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
                 #endif
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
@@ -302,20 +301,20 @@ Shader "Lux URP/Simple Fuzz"
                 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
                     inputData.positionWS = input.positionWS;
                 #endif
-                
+
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
                 #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
                     normalTS.z *= facing;
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS * facing;
                 #endif
 
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-
                 inputData.viewDirectionWS = viewDirWS;
+                
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
                     inputData.shadowCoord = input.shadowCoord;
                 #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)

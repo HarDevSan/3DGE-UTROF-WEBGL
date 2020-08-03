@@ -12,9 +12,9 @@
         _Color ("Color", Color) = (0,0,0,1)
         _Border ("Width", Float) = 3
         [Toggle(_COMPENSATESCALE)]
-        _CompensateScale            ("    Compensate Scale", Float) = 0
+        _CompensateScale            ("     Compensate Scale", Float) = 0
         [Toggle(_OUTLINEINSCREENSPACE)]
-        _OutlineInScreenSpace       ("    Calculate width in Screen Space", Float) = 0
+        _OutlineInScreenSpace       ("     Calculate width in Screen Space", Float) = 0
 
     }
     SubShader

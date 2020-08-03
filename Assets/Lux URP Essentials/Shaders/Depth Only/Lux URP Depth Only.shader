@@ -6,7 +6,7 @@
         [Space(5)]
         [Toggle(_ALPHATEST_ON)]
         _AlphaClip                  ("Alpha Clipping", Float) = 0.0
-        _Cutoff                     ("    Threshold", Range(0.0, 1.0)) = 0.5
+        _Cutoff                     ("     Threshold", Range(0.0, 1.0)) = 0.5
 
         [Header(Surface Inputs)]
         [Space(5)]

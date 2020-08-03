@@ -14,6 +14,7 @@ Shader "Lux URP/Clear Coat"
         
 
         [Header(Clear Coat Inputs)]
+        [Space(5)]
         _ClearCoatThickness         ("Clear Coat", Range(0.0, 1.0)) = 0.5
         _ClearCoatSmoothness        ("Clear Coat Smoothness", Range(0.0, 1.0)) = 0.5
         _ClearCoatSpecular          ("Clear Coat Specular", Color) = (0.2, 0.2, 0.2)
@@ -26,6 +27,7 @@ Shader "Lux URP/Clear Coat"
         
 
         [Header(Base Layer Inputs)]
+        [Space(5)]
         [MainColor]
         _BaseColor                  ("Color", Color) = (1,1,1,1)
         [Toggle(_SECONDARYCOLOR)]
@@ -188,25 +190,24 @@ Shader "Lux URP/Clear Coat"
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = TRANSFORM_TEX(input.texcoord, _BumpMap);
+                // already normalized from normal transform to WS.
+                output.normalWS = normalInput.normalWS;
+                output.viewDirWS = viewDirWS;
                 
                 #if defined(_MASKMAP)
                     output.uv.zw = TRANSFORM_TEX(input.texcoord, _CoatMask);
                 #endif  
 
                 #if defined(_NORMALMAP)
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
+                    float sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = float4(normalInput.tangentWS, sign);
                 #endif
-
+                
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
                 
@@ -287,17 +288,16 @@ Shader "Lux URP/Clear Coat"
                     inputData.positionWS = input.positionWS;
                 #endif
                 
-                #if defined(_NORMALMAP)
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                //  normalTS.z *= facing;
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
+                half3 viewDirWS = SafeNormalize(input.viewDirWS);
+                #ifdef _NORMALMAP 
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz));
                 #else
-                    half3 viewDirWS = input.viewDirWS;
                     inputData.normalWS = input.normalWS; // * facing;
                 #endif
 
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
                 inputData.viewDirectionWS = viewDirWS;
 
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
@@ -337,24 +337,20 @@ Shader "Lux URP/Clear Coat"
 
             //  Apply lighting
                 half4 color = LuxClearCoatFragmentPBR(
-                        inputData, 
-                        
-                        surfaceData.albedo,
-                        
-                        surfaceData.metallic, 
-                        surfaceData.specular, 
-                        surfaceData.smoothness, 
-                        surfaceData.occlusion, 
-                        surfaceData.emission, 
-                        surfaceData.alpha,
-
-                        surfaceData.clearCoatSmoothness,
-                        surfaceData.clearCoatThickness,
-                        _ClearCoatSpecular,
-                        NormalizeNormalPerPixel(input.normalWS.xyz),
-
-                        _BaseColor,
-                        _SecondaryColor
+                    inputData, 
+                    surfaceData.albedo,
+                    surfaceData.metallic, 
+                    surfaceData.specular, 
+                    surfaceData.smoothness, 
+                    surfaceData.occlusion, 
+                    surfaceData.emission, 
+                    surfaceData.alpha,
+                    surfaceData.clearCoatSmoothness,
+                    surfaceData.clearCoatThickness,
+                    _ClearCoatSpecular,
+                    NormalizeNormalPerPixel(input.normalWS.xyz),
+                    _BaseColor,
+                    _SecondaryColor
                 );    
             //  Add fog
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
