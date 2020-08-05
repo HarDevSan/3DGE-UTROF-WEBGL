@@ -22,9 +22,6 @@ public class PlayerController : MonoBehaviour
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Room;
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Prop;
 
-
-    public float interactionDistance;
-
     [Header("Interaction LayerMasks")]
     public LayerMask interactionMaskRoom;
     public LayerMask interactionMaskItem;
@@ -48,6 +45,9 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         InputReceiver.On_R_Input += ResetPlayer;
+        SceneLoader.OnSceneStartedLoading += SetPlayerToUnplayableState;
+        SceneLoader.OnScene_Has_Loaded += SetPlayerToPlayableState;
+
     }
 
     void Start()
@@ -62,8 +62,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         //Gravity needs to always be applied, even if we have no jumping but maybe some falling
-        if (isApplyGravity)
-            ApplyGravity();
+        // if (isApplyGravity)
+        ApplyGravity();
 
         AnimatePlayer();
 
@@ -196,17 +196,17 @@ public class PlayerController : MonoBehaviour
     void CastRayFromFront()
     {
         RaycastHit hit;
-        if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, interactionDistance, interactionMaskRoom))
+        if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskRoom))
         {
 
             //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
             OnPlayerSeesSomethingInteractable_Room.Invoke();
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = true;
         }
-        else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, interactionDistance, interactionMaskItem))
-            {
+        else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem))
+        {
             //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
-           // OnPlayerSeesSomethingInteractable_Item.Invoke();
+            // OnPlayerSeesSomethingInteractable_Item.Invoke();
             isPlayerCanInteractBecauseHeLooksAtSmth_Prop = true;
 
         }
@@ -239,6 +239,6 @@ public class PlayerController : MonoBehaviour
     }
     void SetPlayerToUnplayableState()
     {
-        isApplyGravity = true;
+        isApplyGravity = false;
     }
 }
