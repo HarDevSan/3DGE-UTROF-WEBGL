@@ -22,6 +22,7 @@ public class PlayerStats : ScriptableObject
     public float _gravityStrength;
     public float _toRunLerpTime;
     public float _toStrafeRunLerpTime;
+    public float _LineOfSightDistance;
 
 
 
