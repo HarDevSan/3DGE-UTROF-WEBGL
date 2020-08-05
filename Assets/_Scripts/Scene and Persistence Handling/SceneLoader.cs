@@ -35,7 +35,13 @@ public class SceneLoader : MonoBehaviour
 
     private void Start()
     {
-        lastSceneName = "Room_1";
+        lastSceneName = GetActiveSceneName();
+    }
+
+    string GetActiveSceneName()
+    {
+        return SceneManager.GetActiveScene().name;
+
     }
 
     bool CheckIfSceneHasOutdoors()
