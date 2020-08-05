@@ -69,7 +69,7 @@ public class SceneTransition : MonoBehaviour
         //Position the char at the next scenetranstion position  (e.g. behind the door , or a ladder)
         charController.transform.position = nextSceneTransition.position;
 
-        //Finally enable the charcontroller again
+        //Finally enable the charcontroller again, makes no sense to do this in th same frame
         charController.enabled = true;
     }
 

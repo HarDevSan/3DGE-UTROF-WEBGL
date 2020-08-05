@@ -12,7 +12,7 @@ public class SceneTransitionActivator : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //Overlap Automatically limits these calls to when the player line of sight sees somehtign interactable , in this case a door
+        //Overlap Automatically limits these calls to when the player line of sight sees somehting interactable , in this case a door
 
         //Collider[] colliders = Physics.OverlapSphere(transform.position, sphereRadius, mask);
 
