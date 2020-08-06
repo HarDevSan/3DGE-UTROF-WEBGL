@@ -48,7 +48,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         {
             textInList.maxVisibleCharacters = 0;
         }
-        hintThatInteractableTXT.maxVisibleCharacters = 0;
+        hintThatblockRayCastsTXT.maxVisibleCharacters = 0;
     }
     public void StartPrintingNoteContent()
     {
