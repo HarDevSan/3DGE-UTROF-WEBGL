@@ -41,6 +41,7 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
             StartCoroutine(PrintTextAndSelectNextTextForInvestigateRoutine());
         }
         BlendInButtonsAndBlendOutHint();
+        interactionCanvasGroup.blocksRaycasts = true;
     }
 
     void BlendInButtonsAndBlendOutHint()
@@ -54,6 +55,7 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
     {
         StartCoroutine(BlendOutButtonsRoutine());
         isDuringInteraction = false;
+        interactionCanvasGroup.blocksRaycasts = false;
 
     }
 
@@ -66,7 +68,7 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
             buttonGroup.alpha = Mathf.Lerp(buttonGroup.alpha, 1, buttonBlendInTime * Time.deltaTime);
             yield return null;
         }
-        //buttonGroup.blocksRaycasts = true;
+        buttonGroup.blocksRaycasts = true;
     }
 
     IEnumerator BlendOutButtonsRoutine()
@@ -76,7 +78,7 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
             buttonGroup.alpha = Mathf.Lerp(buttonGroup.alpha, 0, buttonBlendInTime * Time.deltaTime);
             yield return null;
         }
-        //buttonGroup.blocksRaycasts = false;
+        buttonGroup.blocksRaycasts = false;
     }
 
     public void PlayerChoseNo()
