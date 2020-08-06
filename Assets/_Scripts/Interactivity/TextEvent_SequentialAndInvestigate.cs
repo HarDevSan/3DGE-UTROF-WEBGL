@@ -14,6 +14,9 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
     [Header("Texts List")]
     public List<TextMeshProUGUI> textListToDisplay;
     public List<TextMeshProUGUI> investigateTextList;
+    [Header("Canvasses")]
+    public CanvasGroup interactionCanvasGroup;
+
 
 
     [Header("Bools")]
@@ -51,7 +54,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public UnityEvent OnAllTextHasBeenPrintedAndReadyToCollect;
 
-    public TextMeshProUGUI hintThatInteractableTXT;
+    public TextMeshProUGUI hintThatblockRayCastsTXT;
 
     bool isButtonsVisible;
     public bool isDuringInteraction;
@@ -105,12 +108,12 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public void ShowThatInteractionIsPossible()
     {
-            hintThatInteractableTXT.maxVisibleCharacters = hintThatInteractableTXT.textInfo.characterCount;
+            hintThatblockRayCastsTXT.maxVisibleCharacters = hintThatblockRayCastsTXT.textInfo.characterCount;
     }
 
     public void HideThatInteractionIsPossible()
     {
-        hintThatInteractableTXT.maxVisibleCharacters = 0;
+        hintThatblockRayCastsTXT.maxVisibleCharacters = 0;
 
     }
 
@@ -142,6 +145,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
         if (isTextLeft)
         {
+            interactionCanvasGroup.blocksRaycasts = true;
             isDuringInteraction = true;
 
             brain.enabled = false;
@@ -155,6 +159,8 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
             //ResetAllTextMaxVisibleChars();
             //ResetTextIndex();
             //ResetSelectedTextToFirstText();
+            interactionCanvasGroup.blocksRaycasts = false;
+
             UnlockCursorViaGameManager();
             //brain.enabled = true;
         }
@@ -236,7 +242,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         {
             textInList.maxVisibleCharacters = 0;
         }
-        hintThatInteractableTXT.maxVisibleCharacters = 0;
+        hintThatblockRayCastsTXT.maxVisibleCharacters = 0;
     }
 
     public void ResetTextIndex()
