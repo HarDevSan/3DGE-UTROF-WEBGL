@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
         //Cursor.lockState = CursorLockMode.Locked;
         InputReceiver.On_P_Input += StopGame;
         isCharControllerEnabled = true;
+        LockCursor();
         
     }
 
@@ -55,6 +56,18 @@ public class GameManager : MonoBehaviour
     {
         if(InputReceiver.Check_If_PausePressed())
         Time.timeScale = 0;
+    }
+
+    public static  void LockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+
+    }
+
+    public static void UnLockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+
     }
 
 }
