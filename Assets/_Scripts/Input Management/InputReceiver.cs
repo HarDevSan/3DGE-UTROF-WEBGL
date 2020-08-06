@@ -24,6 +24,8 @@ public class InputReceiver : MonoBehaviour
     public static event InputEvent_R On_R_Input;
     public delegate void InputEvent_P();
     public static event InputEvent_P On_P_Input;
+    public delegate void InputEvent_P_Second();
+    public static event InputEvent_P_Second On_P_Second_Input;
 
     public static bool isMovementInput;
     public static bool pauseWasPressed;
@@ -40,7 +42,7 @@ public class InputReceiver : MonoBehaviour
             ReceiveMovementInputWASD();
         }
         //Debug.Log("isMovementInput : " + isMovementInput);
-
+        Check_If_PausePressed();
     }
 
 
@@ -54,7 +56,7 @@ public class InputReceiver : MonoBehaviour
 
     void ClampYInput()
     {
-        //No need, done in CM
+        //No need, done in CineMachine FreeLook component
     }
 
     public void ClearAllInputs()
@@ -105,20 +107,27 @@ public class InputReceiver : MonoBehaviour
 
     public static bool Check_If_PausePressed()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        if (pauseWasPressed == false)
         {
-            if(pauseWasPressed == false)
-            pauseWasPressed = true;
-            else
+            if (Input.GetKeyDown(KeyCode.P))
             {
-                pauseWasPressed = true;
-            }
-            On_P_Input.Invoke();
 
-            return true;
+                pauseWasPressed = true;
+                On_P_Input.Invoke();
+
+                return true;
+            }
         }
-        else
+
+        else if (Input.GetKeyDown(KeyCode.P))
+        {
+            pauseWasPressed = false;
+            On_P_Second_Input.Invoke();
+
             return false;
+        }
+
+        return false;
     }
 
 
