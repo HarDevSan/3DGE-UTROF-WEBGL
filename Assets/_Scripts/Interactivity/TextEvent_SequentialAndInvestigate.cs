@@ -14,10 +14,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
     [Header("Texts List")]
     public List<TextMeshProUGUI> textListToDisplay;
     public List<TextMeshProUGUI> investigateTextList;
-    [Header("Canvasses")]
-    public CanvasGroup interactionCanvasGroup;
-
-
 
     [Header("Bools")]
     [SerializeField]
@@ -54,7 +50,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public UnityEvent OnAllTextHasBeenPrintedAndReadyToCollect;
 
-    public TextMeshProUGUI hintThatblockRayCastsTXT;
+    public TextMeshProUGUI interactionHintTXT;
 
     bool isButtonsVisible;
     public bool isDuringInteraction;
@@ -85,6 +81,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         Debug.Log(isTextLeft);
         if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone && playerIsInTrigger)
         {
+            FreezePlayerControls();
             PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
 
             //Should eable dynamic text blend speed, postponed
@@ -108,12 +105,12 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public void ShowThatInteractionIsPossible()
     {
-            hintThatblockRayCastsTXT.maxVisibleCharacters = hintThatblockRayCastsTXT.textInfo.characterCount;
+            interactionHintTXT.maxVisibleCharacters = interactionHintTXT.textInfo.characterCount;
     }
 
     public void HideThatInteractionIsPossible()
     {
-        hintThatblockRayCastsTXT.maxVisibleCharacters = 0;
+        interactionHintTXT.maxVisibleCharacters = 0;
 
     }
 
@@ -145,7 +142,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
         if (isTextLeft)
         {
-            interactionCanvasGroup.blocksRaycasts = true;
             isDuringInteraction = true;
 
             brain.enabled = false;
@@ -159,7 +155,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
             //ResetAllTextMaxVisibleChars();
             //ResetTextIndex();
             //ResetSelectedTextToFirstText();
-            interactionCanvasGroup.blocksRaycasts = false;
 
             UnlockCursorViaGameManager();
             //brain.enabled = true;
@@ -195,18 +190,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         }
     }
 
-    /* While the text gets printed and the player did not interact a second time,
-     * time should be paused so that no unfair occurences happen like an enemy stabbing the player or 
-     * the player losing valuable total playtime for his/her score */
-    public void PauseTimeScale()
-    {
-        Time.timeScale = 0f;
-    }
-
-    public void UnPauseTimeScale()
-    {
-        Time.timeScale = 1f;
-    }
     public void SelectFirstTextInList()
     {
         selectedText = textListToDisplay[0];
@@ -242,7 +225,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         {
             textInList.maxVisibleCharacters = 0;
         }
-        hintThatblockRayCastsTXT.maxVisibleCharacters = 0;
+        interactionHintTXT.maxVisibleCharacters = 0;
     }
 
     public void ResetTextIndex()
@@ -260,41 +243,33 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     IEnumerator PrintTextAndSelectNextTextWhenDoneRoutine()
     {
-
+   
         //Reet the last randomly selected text
         ResetCurrentTextMaxVisibleChar();
         //Select a new randomly selected text
         SelectNextTextInList();
-
         //Show the current text's via alpha
         ShowCurrentlySelectedTextViaAlpha();
 
         int visibleCount = 0;
         int totalLength = selectedText.textInfo.characterCount;
 
-        //Debug.Log("CharCount total: " + totalLength);
-
         while (visibleCount <= totalLength)
         {
 
             isPrintingDone = false;
-            // Debug.Log("Visible count : " + visibleCount + " VS total of" + selectedText.maxVisibleCharacters);
             selectedText.maxVisibleCharacters = visibleCount;
             visibleCount++;
 
-            //if (pressedUseCount == 0)
             yield return new WaitForSeconds(timeBetweenCharPrint);
-            //    else if (pressedUseCount > 0)
-            //    {
-            //        yield return new WaitForSeconds(timeBetweenCharPrintWhenPlayerPressedUse);
-            //    }
+     
         }
 
         isPrintingDone = true;
         //Invoke TextHasBeenPrinted after first selected text has finished printing
         if (textIndex == 1)
             OnFirstTextHasBeenPrinted.Invoke();
-        //OnEachTextHasBeenPrinted.Invoke();
+
 
         yield break;
     }
@@ -318,6 +293,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public virtual void OnTriggerExit(Collider other)
     {
+        //Reset all elements whenplayer leaves trigger, unlock cursor, reset text to first
         HideThatInteractionIsPossible();
         GameManager.LockCursor();
         ResetTextIndex();
@@ -325,5 +301,11 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         HideAllTextViaAlpha();
         ResetAllTextMaxVisibleChars();
         playerIsInTrigger = false;
+    }
+
+    private void OnDisable()
+    {
+        OnFirstTextHasBeenPrinted -= FreezePlayerControls;
+
     }
 }
