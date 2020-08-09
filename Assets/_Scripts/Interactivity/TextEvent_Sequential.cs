@@ -44,6 +44,8 @@ public class TextEvent_Sequential : MonoBehaviour
     public delegate void FirstTextHasBeenPrinted();
     public static event FirstTextHasBeenPrinted OnFirstTextHasBeenPrinted;
 
+    bool isReachedEndOfTexts;
+
     private void Awake()
     {
         //Init
@@ -65,20 +67,22 @@ public class TextEvent_Sequential : MonoBehaviour
 
     private void Update()
     {
-        CheckIfThereIsTextLeft();
 
         Debug.Log(isTextLeft);
-        if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone)
-        {
-            PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
-            //Should eable dynamic text blend speed, postponed
-            //pressedUseCount++;
-        }
-        else
-        {
-            //pressedUseCount = 0;
+        //if (isTextLeft)
+        //{
+            if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone && !isReachedEndOfTexts)
+            {
+                PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
+                //Should eable dynamic text blend speed, postponed
+                //pressedUseCount++;
+            }
+            else
+            {
+                //pressedUseCount = 0;
 
-        }
+            }
+        //}
 
 
     }
@@ -97,14 +101,15 @@ public class TextEvent_Sequential : MonoBehaviour
 
     void PrintNextTextAndInvokeAllHasBeenPrintedIfNot()
     {
-        Debug.Log("Reached PrintText");
+                Debug.Log("Reached PrintText");
         //Only call again if printing has ended
         // if (isPrintingDone == true)
-        if (isTextLeft)
-            StartCoroutine(PrintTextAndSelectNextTextWhenDoneRoutine());
+        if(CheckIfThereIsTextLeft())
+        StartCoroutine(PrintTextAndSelectNextTextWhenDoneRoutine());
         else
         {
             OnAllTextHasBeenPrinted.Invoke();
+            isReachedEndOfTexts = true;
             ResetAllTextMaxVisibleChars();
         }
     }
@@ -119,16 +124,16 @@ public class TextEvent_Sequential : MonoBehaviour
 
     }
 
-    void CheckIfThereIsTextLeft()
+    bool CheckIfThereIsTextLeft()
     {
         if (textIndex < textListToDisplay.Count)
         {
-            isTextLeft = true;
+           return true;
         }
         else
         {
 
-            isTextLeft = false;
+            return false;
 
         }
     }
@@ -156,10 +161,10 @@ public class TextEvent_Sequential : MonoBehaviour
     void SelectNextTextInList()
     {
 
-            selectedText = textListToDisplay[textIndex];
-            textIndex++;
-      
-       
+        selectedText = textListToDisplay[textIndex];
+        textIndex++;
+
+
     }
 
     void ResetCurrentTextMaxVisibleChar()
