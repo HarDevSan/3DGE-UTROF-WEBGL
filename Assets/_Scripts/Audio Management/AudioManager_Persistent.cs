@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class AudioManager_Persistent : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public AudioSource KeyCollectedSound;
+
+
+    private void Awake()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
