@@ -26,7 +26,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         }
     }
 
-   
+
 
     public override void CheckIfThereIsTextLeft()
     {
@@ -48,7 +48,6 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         {
             textInList.maxVisibleCharacters = 0;
         }
-        hintThatblockRayCastsTXT.maxVisibleCharacters = 0;
     }
     public void StartPrintingNoteContent()
     {
@@ -73,7 +72,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
     IEnumerator BlendInBackGroundImageRoutine()
     {
-        while (backGoundImageGrp.alpha < backGroundOpacityMax-.001f)
+        while (backGoundImageGrp.alpha < backGroundOpacityMax - .001f)
         {
             backGoundImageGrp.alpha = Mathf.Lerp(backGoundImageGrp.alpha, backGroundOpacityMax, blendInBackGroundSpeed * Time.deltaTime);
             yield return null;
@@ -114,11 +113,11 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
             visibleCount++;
 
             yield return new WaitForSeconds(timeBetweenCharPrint);
-      
+
         }
 
         isPrintingDone = true;
-  
+
         yield break;
     }
 }
