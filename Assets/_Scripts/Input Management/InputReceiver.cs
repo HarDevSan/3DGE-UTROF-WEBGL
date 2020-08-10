@@ -71,6 +71,7 @@ public class InputReceiver : MonoBehaviour
     public static void BlockMovementInput()
     {
         isMovementInput = false;
+        movementInput = Vector2.zero;
     }
 
 
