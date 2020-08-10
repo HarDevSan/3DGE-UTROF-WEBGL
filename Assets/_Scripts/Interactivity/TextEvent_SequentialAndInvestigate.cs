@@ -50,7 +50,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public UnityEvent OnAllTextHasBeenPrintedAndReadyToCollect;
 
-    public TextMeshProUGUI interactionHintTXT;
 
     bool isButtonsVisible;
     public bool isDuringInteraction;
@@ -79,7 +78,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         CheckIfThereIsTextLeft();
 
         Debug.Log(isTextLeft);
-        if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone && playerIsInTrigger)
+        if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
         {
             FreezePlayerControls();
             PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
@@ -93,26 +92,11 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
         }
 
-        if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Prop && !isButtonsVisible && !isDuringInteraction)
-            ShowThatInteractionIsPossible();
-        else
-        {
-            HideThatInteractionIsPossible();
-        }
 
 
     }
 
-    public void ShowThatInteractionIsPossible()
-    {
-            interactionHintTXT.maxVisibleCharacters = interactionHintTXT.textInfo.characterCount;
-    }
-
-    public void HideThatInteractionIsPossible()
-    {
-        interactionHintTXT.maxVisibleCharacters = 0;
-
-    }
+  
 
     public void FreezePlayerControls()
     {
@@ -127,7 +111,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public void ShowCurrentlySelectedTextViaAlpha()
     {
-        Debug.Log("ShowTextCalled");
         selectedText.alpha = 1;
     }
 
@@ -151,6 +134,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         {
 
             //UnFreezePlayerControls();
+            if(OnAllTextHasBeenPrinted != null)
             OnAllTextHasBeenPrinted.Invoke();
             //ResetAllTextMaxVisibleChars();
             //ResetTextIndex();
@@ -215,6 +199,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public void ResetCurrentTextMaxVisibleChar()
     {
+        if(selectedText != null)
         selectedText.maxVisibleCharacters = 0;
     }
 
@@ -225,7 +210,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         {
             textInList.maxVisibleCharacters = 0;
         }
-        interactionHintTXT.maxVisibleCharacters = 0;
     }
 
     public void ResetTextIndex()
@@ -268,7 +252,10 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         isPrintingDone = true;
         //Invoke TextHasBeenPrinted after first selected text has finished printing
         if (textIndex == 1)
+        {
+            if(OnFirstTextHasBeenPrinted != null)
             OnFirstTextHasBeenPrinted.Invoke();
+        }
 
 
         yield break;
@@ -294,7 +281,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
     public virtual void OnTriggerExit(Collider other)
     {
         //Reset all elements whenplayer leaves trigger, unlock cursor, reset text to first
-        HideThatInteractionIsPossible();
         GameManager.LockCursor();
         ResetTextIndex();
         ResetSelectedTextToFirstText();
