@@ -61,7 +61,7 @@ public class TextEvent_SequentialAndCollect : MonoBehaviour
         isPrintingDone = true;
         isTextLeft = true;
         ////Print the first block of text when scene starts
-        PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
+        //PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
 
         ////set default time interavls between printing each char
         //timeBetweenCharPrint = defaultTimeBetweenCharPrint;
@@ -71,7 +71,6 @@ public class TextEvent_SequentialAndCollect : MonoBehaviour
     {
         CheckIfThereIsTextLeft();
 
-        Debug.Log(isTextLeft);
         if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone)
         {
             PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
