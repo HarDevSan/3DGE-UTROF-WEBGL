@@ -26,6 +26,14 @@ public class SceneTransition : MonoBehaviour
     [Header("FreeLookCam Ref")]
     public CinemachineFreeLook cam;
 
+    [Header("Inventory Ref")]
+    public Inventory inventorySO;
+
+    [Header("KeyNameIfAny")]
+    public string keyName;
+
+    [Header("Tick if this door is locked")]
+    public bool isDoorisNeedingKey;
 
     //---Events
     public delegate void PlayerPressedEnterOnSight(string name);
@@ -38,7 +46,7 @@ public class SceneTransition : MonoBehaviour
     {
         /*Need to UNSUBSCRIBE the event , otherwise it wil lfire again even if the object is disabled
         It's also ok to hanlde scenetransition on playerInput instead of "OnSceneHasLoaed", OnsceneHasLoaded 
-        can be used to determin when the playercontrols should be unlocked in the new scene and the blen out of UI loding sceen*/
+        can be used to determin when the playercontrols should be unlocked in the new scene and the blend out of UI loading sceen*/
         InputReceiver.On_E_Input += SpawnPlayerInNewScene;
         InputReceiver.On_E_Input += SwitchTransitionActivity;
 
@@ -46,18 +54,48 @@ public class SceneTransition : MonoBehaviour
         //SceneLoader.OnScene_Has_Loaded += SwitchTransitionActivity;
     }
 
+
     private void Update()
     {
+        //Needs timer
+        CheckIfPlayerHasKeyAndUnlockDoorIfYes();
 
-        //When the player raycast hits something interactable and the player has pressed the use key 
-        if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed())
+        //When the player raycast hits something interactable and the player has pressed the use key and the door is unlocked(needs key false)
+        if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed() && CheckIfDoorNeedAKey())
         {
+
             //Debug.Log("Reached");
             OnPlayerPressedEnterOnSight.Invoke(nextSceneName);
             SpawnPlayerInNewScene();
             SwitchTransitionActivity();
         }
     }
+
+    public bool CheckIfDoorNeedAKey()
+    {
+        return !isDoorisNeedingKey;
+    }
+
+    void UnlockDoor()
+    {
+        isDoorisNeedingKey = false;
+    }
+
+    bool CheckIfPlayerHasKeyAndUnlockDoorIfYes()
+    {
+
+        if (inventorySO.SearchListFor(keyName))
+        {
+            UnlockDoor();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
 
     //---Spawning
     void SpawnPlayerInNewScene()
