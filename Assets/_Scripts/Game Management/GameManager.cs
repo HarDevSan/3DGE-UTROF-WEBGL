@@ -23,15 +23,30 @@ public class GameManager : MonoBehaviour
 
     public float toSettingsBlendTime;
 
+
+    public delegate void GameHasBeenPaused();
+    public static event GameHasBeenPaused OnGameHasBeenPaused;
+    public delegate void GameHasBeenResumed();
+    public static event GameHasBeenResumed OnGameHasBeenResumed;
+
+
     private void Awake()
     {
         SceneLoader.OnSceneIsLoading += SetIsCharControllerEnabledToDisabled;
         SceneLoader.OnScene_Has_Loaded += SetIsCharControllerEnabledToEnabled;
-        //Can't pause game when coroutines needs to run
+        //Can't pause game when coroutines need to run
         //InputReceiver.On_P_Input += PauseGame;
         InputReceiver.On_P_Second_Input += ResumeGame;
         InputReceiver.On_P_Input += BlendInSettingsAndPauseGame;
         InputReceiver.On_P_Second_Input += BlendOutSettings;
+        //TextEvent_withInvestigatePrompt.OnButtonsGetBlendedIn += EnableInteractionCanvasBlockRayCasts;
+        //TextEvent_withInvestigatePrompt.OnButtonsGetBlendedOut += DisableInteractionCanvasBlockRayCasts;
+        OnGameHasBeenPaused += DisableInteractionCanvasBlockRayCasts;
+        OnGameHasBeenPaused += EnableSettingsCanvasBlockRayCasts;
+        OnGameHasBeenResumed += DisableSettingsCanvasBlockRayCasts;
+        OnGameHasBeenResumed += DisableInteractionCanvasBlockRayCasts;
+
+
     }
 
     // Start is called before the first frame update
@@ -41,8 +56,8 @@ public class GameManager : MonoBehaviour
 
         isCharControllerEnabled = true;
         LockCursor();
-        interactionCanvasGroup.interactable = false;
-        settingsCgroup.interactable = false;
+        //DisableInteractionCanvasBlockRayCasts();
+        DisableSettingsCanvasBlockRayCasts();
     }
 
     private void Update()
@@ -50,6 +65,30 @@ public class GameManager : MonoBehaviour
 
         characterControllerRef.enabled = isCharControllerEnabled;
         Debug.Log("Character Conroller is enabled : characterControllerRef.enabled");
+
+    }
+
+    public void EnableInteractionCanvasBlockRayCasts()
+    {
+        interactionCanvasGroup.blocksRaycasts = true;
+
+    }
+
+    public void DisableInteractionCanvasBlockRayCasts()
+    {
+        interactionCanvasGroup.blocksRaycasts = false;
+
+    }
+
+    public void EnableSettingsCanvasBlockRayCasts()
+    {
+        settingsCgroup.blocksRaycasts = true;
+
+    }
+
+    public void DisableSettingsCanvasBlockRayCasts()
+    {
+        settingsCgroup.blocksRaycasts = false;
 
     }
 
@@ -70,7 +109,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
         InputReceiver.BlockMovementInput();
         brain.enabled = false;
-        settingsCgroup.interactable = true;
+        settingsCgroup.blocksRaycasts = true;
+        OnGameHasBeenPaused.Invoke();
     }
 
     void ResumeGame()
@@ -78,8 +118,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
         InputReceiver.UnBlockMovementInputs();
         brain.enabled = true;
-        settingsCgroup.interactable = false;
-
+        settingsCgroup.blocksRaycasts = false;
+        OnGameHasBeenResumed.Invoke();
     }
 
     public static void LockCursor()
@@ -129,4 +169,14 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private void OnDisable()
+    {
+        SceneLoader.OnSceneIsLoading -= SetIsCharControllerEnabledToDisabled;
+        SceneLoader.OnScene_Has_Loaded -= SetIsCharControllerEnabledToEnabled;
+        //Can't pause game when coroutines needs to run
+        //InputReceiver.On_P_Input += PauseGame;
+        InputReceiver.On_P_Second_Input -= ResumeGame;
+        InputReceiver.On_P_Input -= BlendInSettingsAndPauseGame;
+        InputReceiver.On_P_Second_Input -= BlendOutSettings;
+    }
 }
