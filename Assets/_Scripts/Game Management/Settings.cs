@@ -28,8 +28,10 @@ public class Settings : MonoBehaviour
 
     private void Awake()
     {
+        //arbritarily measured "feelGood" vaues
         defaultSpeedX = 3f;
         defaultSpeedY = 0.025f;
+        //Init mult by 1, no change
         speedSliderBoth.value = 1;
         speedSliderX.value = 1;
         speedSliderY.value = 1;
@@ -46,8 +48,8 @@ public class Settings : MonoBehaviour
             freeLookCam.m_XAxis.m_MaxSpeed = defaultSpeedX * mouseSpeedBoth * mouseSpeedX;
             freeLookCam.m_YAxis.m_MaxSpeed = defaultSpeedY * mouseSpeedBoth * mouseSpeedY; ;
 
-            //currentVCamspeedX = freeLookCam.m_XAxis.m_MaxSpeed;
-            //currentVCamspeedY = freeLookCam.m_YAxis.m_MaxSpeed;
+            currentVCamspeedX = freeLookCam.m_XAxis.m_MaxSpeed;
+            currentVCamspeedY = freeLookCam.m_YAxis.m_MaxSpeed;
 
         }
     }
