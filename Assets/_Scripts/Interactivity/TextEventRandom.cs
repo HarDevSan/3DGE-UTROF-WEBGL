@@ -11,7 +11,7 @@ public class TextEventRandom : MonoBehaviour
     [Header("Texts List")]
     public List<TextMeshProUGUI> textListToDisplay;
     [Header("InteractionPrompt")]
-    public TextMeshProUGUI interactionPromptGrpup;
+    public TextMeshProUGUI interactionPrompt;
     public float interactionPromptBlendTime;
 
     [Header("Bools")]
@@ -175,9 +175,9 @@ public class TextEventRandom : MonoBehaviour
 
     IEnumerator BlendInInteractionPromptRoutine()
     {
-        while(interactionPromptGrpup.alpha < 0.999)
+        while(interactionPrompt.alpha < 0.999)
         {
-            interactionPromptGrpup.alpha = Mathf.Lerp(interactionPromptGrpup.alpha, 1, interactionPromptBlendTime * Time.deltaTime);
+            interactionPrompt.alpha = Mathf.Lerp(interactionPrompt.alpha, 1, interactionPromptBlendTime * Time.deltaTime);
             yield return null;
         }
     }
