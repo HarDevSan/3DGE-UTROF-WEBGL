@@ -37,8 +37,6 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
 
     void StartInvestigateModeTextPrint()
     {
-        ////Pause Time while printing            
-        //PauseTimeScale();
    
         if (isTextLeft)
         {
@@ -51,44 +49,48 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
     {
         StartCoroutine(BlendInButtonsAndBlendOutHintRoutine());
         isDuringInteraction = true;
-        buttonGroup.blocksRaycasts = true;
     }
 
     void BlendOutButtons()
     {
         StartCoroutine(BlendOutButtonsRoutine());
         isDuringInteraction = false;
-        buttonGroup.blocksRaycasts = false;
 
     }
 
     IEnumerator BlendInButtonsAndBlendOutHintRoutine()
     {
-        HideThatInteractionIsPossible();
+        if(OnButtonsGetBlendedIn != null)
         OnButtonsGetBlendedIn.Invoke();
 
-        while ( buttonGroup.alpha < .999f)
-        {
-            buttonGroup.alpha = Mathf.Lerp(buttonGroup.alpha, 1, buttonBlendInTime * Time.deltaTime);
-            yield return null;
-        }
+        //while ( buttonGroup.alpha < .999f)
+        //{
+        //    buttonGroup.alpha = Mathf.Lerp(buttonGroup.alpha, 1, buttonBlendInTime += Time.deltaTime);
+        //    yield return null;
+        //}
+        buttonGroup.alpha = 1;
+
+        yield return null;
+
     }
 
     IEnumerator BlendOutButtonsRoutine()
     {
-        OnButtonsGetBlendedOut.Invoke();
+        if (OnButtonsGetBlendedOut != null)
+            OnButtonsGetBlendedOut.Invoke();
 
-        while (buttonGroup.alpha > 0.001)
-        {
-            buttonGroup.alpha = Mathf.Lerp(buttonGroup.alpha, 0, buttonBlendInTime * Time.deltaTime);
-            yield return null;
-        }
+        //while (buttonGroup.alpha > 0.001 || buttonGroup.alpha == 0)
+        //{
+        //    buttonGroup.alpha = Mathf.Lerp(buttonGroup.alpha, 0, buttonBlendInTime += Time.deltaTime);
+        //    yield return null;
+        //}
+        buttonGroup.alpha = 0;
+        yield return null;
     }
 
     public void PlayerChoseNo()
     {
         //Clear up all UI elements and reset text to first. Unfreeze PlayerControls. Re enable Brain.
-        HideThatInteractionIsPossible();
         GameManager.LockCursor();
         ResetTextIndex();
         ResetSelectedTextToFirstText();
@@ -97,13 +99,21 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
         UnFreezePlayerControls();
         brain.enabled = true;
         BlendOutButtons();
-        ShowThatInteractionIsPossible();
 
     }
 
+    //BoilerPlate, just in case different functionality will be needed
     public void PlayerChoseYes()
     {
-        
+        //Clear up all UI elements and reset text to first. Unfreeze PlayerControls. Re enable Brain.
+        GameManager.LockCursor();
+        ResetTextIndex();
+        ResetSelectedTextToFirstText();
+        HideAllTextViaAlpha();
+        ResetAllTextMaxVisibleChars();
+        UnFreezePlayerControls();
+        brain.enabled = true;
+        BlendOutButtons();
     }
 
     IEnumerator PrintTextAndSelectNextTextForInvestigateRoutine()
@@ -156,8 +166,15 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
     public override void OnTriggerExit(Collider other)
     {
         base.OnTriggerExit(other);
+        //BlendOutButtons();
+        //buttonGroup.blocksRaycasts = false;
     }
 
+    private void OnEnable()
+    {
+        OnAllTextHasBeenPrinted += StartInvestigateModeTextPrint;
+        OnFirstTextHasFinishedPrinting += FreezePlayerControls;
+    }
     private void OnDisable()
     {
         OnAllTextHasBeenPrinted -= StartInvestigateModeTextPrint;
