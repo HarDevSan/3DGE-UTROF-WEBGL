@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using TMPro;
 
 public class InventoryItem : MonoBehaviour
 {
-    [SerializeField]
-    bool isNearItem;
 
-    public Inventory inventorSO;
+    public Inventory inventorySO;
 
     public string itemName;
 
@@ -16,27 +15,52 @@ public class InventoryItem : MonoBehaviour
 
     public AudioSource inventoryItemSound;
 
-    private void Update()
+    public CanvasGroup youHaveCollectedxGroup;
+
+    public float blendInOutYouHaveCollectedxHintSpeed;
+
+    private void Awake()
     {
-        if (isNearItem)
+        youHaveCollectedxGroup.alpha = 0;
+   
+    }
+  
+    public void AddItemToInventory()
+    {
+        inventorySO.AddItemToList(itemName);
+        inventoryObject.SetActive(false);
+        BlendInYouHaveCollectedTxt();
+    }
+    void BlendInYouHaveCollectedTxt()
+    {
+        youHaveCollectedxGroup.GetComponentInChildren<TextMeshProUGUI>().maxVisibleCharacters = youHaveCollectedxGroup.GetComponentInChildren<TextMeshProUGUI>().textInfo.characterCount;
+
+        StartCoroutine(ShowYouHaveCollectedItemblendInRoutine());
+    }
+    void BlendOutYouHaveCollectedTxt()
+    {
+        StartCoroutine(ShowYouHaveCollectedItemblendOutRoutine());
+    }
+
+    IEnumerator ShowYouHaveCollectedItemblendInRoutine()
+    {
+        while (youHaveCollectedxGroup.alpha < 0.999)
         {
-            if (InputReceiver.CheckIf_Use_Pressed())
-            {
-                AddItemToInventory(itemName);
-                inventoryObject.SetActive(false);
-                //inventoryItemSound.PlayOneShot(inventoryItemSound.clip);
-            }
+            youHaveCollectedxGroup.alpha = Mathf.Lerp(youHaveCollectedxGroup.alpha, 1, blendInOutYouHaveCollectedxHintSpeed * Time.deltaTime);
+            yield return null;
+        }
+        BlendOutYouHaveCollectedTxt();
+
+    }
+    IEnumerator ShowYouHaveCollectedItemblendOutRoutine()
+    {
+
+        while (youHaveCollectedxGroup.alpha > 0.001)
+        {
+            youHaveCollectedxGroup.alpha = Mathf.Lerp(youHaveCollectedxGroup.alpha, 0, blendInOutYouHaveCollectedxHintSpeed * Time.deltaTime);
+            yield return null;
         }
     }
 
 
-    public void AddItemToInventory(string name)
-    {
-        inventorSO.AddItemToList(name);
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        isNearItem = true;
-    }
 }
