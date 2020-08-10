@@ -23,7 +23,6 @@ public class SceneLoaderIntro : MonoBehaviour
     {
         TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadFirstScene;
         TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadPersistentScene;
-        ScreenOutBlender.OnScreenFinsihedBeingBlendedOut += UnloadIntroScene;
     }
 
     void LoadPersistentScene()
@@ -77,7 +76,7 @@ public class SceneLoaderIntro : MonoBehaviour
                 yield return null;
             }
         }
-
+        StartCoroutine(UnloadIntroSceneRoutine());
 
         yield break;
     }
