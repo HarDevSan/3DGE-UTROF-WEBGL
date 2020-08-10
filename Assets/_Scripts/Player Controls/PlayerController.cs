@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-
-
     public float _toDefaultWalkSpeedLerpTime;
     public float _toDefaultStrafeSpeedLerpTime;
 
@@ -20,7 +18,7 @@ public class PlayerController : MonoBehaviour
 
     public static bool isApplyGravity;
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Room;
-    public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Prop;
+    public static bool isPlayerCanInteractBecauseHeLooksAtSmth_item;
 
     [Header("Interaction LayerMasks")]
     public LayerMask interactionMaskRoom;
@@ -47,7 +45,6 @@ public class PlayerController : MonoBehaviour
         InputReceiver.On_R_Input += ResetPlayer;
         SceneLoader.OnSceneStartedLoading += SetPlayerToUnplayableState;
         SceneLoader.OnScene_Has_Loaded += SetPlayerToPlayableState;
-
     }
 
     void Start()
@@ -198,24 +195,23 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskRoom))
         {
-
-            //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
-            OnPlayerSeesSomethingInteractable_Room.Invoke();
+            if (OnPlayerSeesSomethingInteractable_Room != null)
+                OnPlayerSeesSomethingInteractable_Room.Invoke();
+            Debug.Log("INVOKED SEEYING");
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = true;
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem))
         {
-            //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
-            // OnPlayerSeesSomethingInteractable_Item.Invoke();
-            isPlayerCanInteractBecauseHeLooksAtSmth_Prop = true;
+            //OnPlayerSeesSomethingInteractable_Item.Invoke();
+            isPlayerCanInteractBecauseHeLooksAtSmth_item = true;
 
         }
         else
         {
-            //Debug.Log(isPlayerCanInteractBecauseHeLooksAtSmth);
-            OnPlayerDoesNotSeeSomehtingInteractable.Invoke();
+            if (OnPlayerDoesNotSeeSomehtingInteractable != null)
+                OnPlayerDoesNotSeeSomehtingInteractable.Invoke();
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = false;
-            isPlayerCanInteractBecauseHeLooksAtSmth_Prop = false;
+            isPlayerCanInteractBecauseHeLooksAtSmth_item = false;
         }
         Debug.DrawRay(castRayFrom.position, castRayFrom.forward, Color.green);
 
@@ -240,5 +236,13 @@ public class PlayerController : MonoBehaviour
     void SetPlayerToUnplayableState()
     {
         isApplyGravity = false;
+    }
+
+    private void OnDisable()
+    {
+        InputReceiver.On_R_Input -= ResetPlayer;
+        SceneLoader.OnSceneStartedLoading -= SetPlayerToUnplayableState;
+        SceneLoader.OnScene_Has_Loaded -= SetPlayerToPlayableState;
+
     }
 }
