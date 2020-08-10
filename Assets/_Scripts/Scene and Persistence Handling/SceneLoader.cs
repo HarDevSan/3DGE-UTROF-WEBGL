@@ -35,13 +35,7 @@ public class SceneLoader : MonoBehaviour
 
     private void Start()
     {
-        lastSceneName = GetActiveSceneName();
-    }
-
-    string GetActiveSceneName()
-    {
-        return SceneManager.GetActiveScene().name;
-
+        lastSceneName = "1stFloor_Reception";
     }
 
     bool CheckIfSceneHasOutdoors()
@@ -71,13 +65,14 @@ public class SceneLoader : MonoBehaviour
     //---------Unloading
     void UnloadLastScene(string notNeeded)
     {
-
+        Debug.Log("UNLOAD CALLED");
         //Only unload a scene if it's loaded. Otherwise spare the coroutine
         if (SceneManager.GetSceneByName(lastSceneName).isLoaded == true)
         {
             //start unloading of last scene
             StartCoroutine(WaitForSceneToFinishUnloading());
         }
+
     }
 
     //----------CoRoutines, managing loading progress and finish 
