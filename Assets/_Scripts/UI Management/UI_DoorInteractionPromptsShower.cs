@@ -24,15 +24,16 @@ public class UI_DoorInteractionPromptsShower : MonoBehaviour
 
     public  void ShowInteractionPrompt()
     {
-        if (attachedSceneTransition.CheckIfDoorNeedAKey())
-        {
-            interactionGroupLockedDoor.alpha = 1;
-            interactionGroupOpenDoor.alpha = 0;
-        }
-        else
+        if (attachedSceneTransition.CheckIfDoorUnLocked())
         {
             interactionGroupLockedDoor.alpha = 0;
             interactionGroupOpenDoor.alpha = 1;
+        }
+        else
+        {
+            interactionGroupLockedDoor.alpha = 1;
+            interactionGroupOpenDoor.alpha = 0;
+            
         }
 
     }

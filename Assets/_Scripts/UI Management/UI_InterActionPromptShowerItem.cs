@@ -12,8 +12,11 @@ public class UI_InterActionPromptShowerItem : MonoBehaviour
     //{
     //    ShowInteractionPrompt();
     //}
-     
-   
+
+    private void Awake()
+    {
+        InventoryItem.OnItemHasBeenCollected += HideInteractionPrompt;
+    }
 
     public virtual void ShowInteractionPrompt()
     {
@@ -30,11 +33,16 @@ public class UI_InterActionPromptShowerItem : MonoBehaviour
 
     }
 
+
     private void OnTriggerStay(Collider other)
     {
         if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
         {
             ShowInteractionPrompt();
+        }
+        else
+        {
+            HideInteractionPrompt();
         }
     }
 
@@ -49,6 +57,12 @@ public class UI_InterActionPromptShowerItem : MonoBehaviour
         HideInteractionPrompt();
         PlayerController.OnPlayerSeesSomethingInteractable_Item -= ShowInteractionPrompt;
         PlayerController.OnPlayerDoesNotSeeSomehtingInteractable -= HideInteractionPrompt;
+    }
+
+    private void OnEnable()
+    {
+        PlayerController.OnPlayerSeesSomethingInteractable_Item += ShowInteractionPrompt;
+        PlayerController.OnPlayerDoesNotSeeSomehtingInteractable += HideInteractionPrompt;
     }
 
 }
