@@ -7,17 +7,17 @@ public class SceneTransitionActivator : MonoBehaviour
 
     public LayerMask mask;
 
-    public Transform child;
+    public Transform childTransform;
 
 
     public virtual void OnTriggerStay(Collider other)
     {
-        child.gameObject.SetActive(true);
+        childTransform.gameObject.SetActive(true);
 
     }
     public virtual void OnTriggerExit(Collider other)
     {
-        child.gameObject.SetActive(false);
+        childTransform.gameObject.SetActive(false);
 
     }
 
