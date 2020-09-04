@@ -15,13 +15,14 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
     public delegate void ButtonsAreBlendedIn();
     public static event ButtonsAreBlendedIn OnButtonsGetBlendedIn;
     public delegate void ButtonsAreBlendedOut();
-    public static event ButtonsAreBlendedOut OnButtonsGetBlendedOut;
+    public static event ButtonsAreBlendedOut OnButtonsAreBlendedOutAfterPlayerChoseYes;
 
     public override void Awake()
     {
         base.Awake();
         OnAllTextHasBeenPrinted += StartInvestigateModeTextPrint;
-        OnFirstTextHasFinishedPrinting += FreezePlayerControls;
+        InventoryItem.OnItemHasBeenCollected += DisableColliders;
+
     }
 
     public override void Start()
@@ -34,17 +35,27 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
         base.Update();
     }
 
+    void DisableColliders()
+    {
+        Collider[] colliders = GetComponents<Collider>();
+        foreach(Collider c in colliders)
+        {
+            c.enabled = false;
+        }
+    }
+
 
     void StartInvestigateModeTextPrint()
     {
-        ////Pause Time while printing not possible when wanting to run a coroutine       
-        //PauseTimeScale();
-
-        if (isTextLeft)
+        //Only start coroutines if this object is enabled, Unity does not automatically prevent Coroutines from running if an object is disabled
+        if (gameObject.activeSelf)
         {
-            StartCoroutine(PrintTextAndSelectNextTextForInvestigateRoutine());
+            if (isTextLeft)
+            {
+                StartCoroutine(PrintTextAndSelectNextTextForInvestigateRoutine());
+            }
+            BlendInButtonsAndBlendOutHint();
         }
-        BlendInButtonsAndBlendOutHint();
     }
 
     void BlendInButtonsAndBlendOutHint()
@@ -54,9 +65,16 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
         buttonGroup.blocksRaycasts = true;
     }
 
-    void BlendOutButtons()
+    void BlendOutButtonsOnYes()
     {
-        StartCoroutine(BlendOutButtonsRoutine());
+        StartCoroutine(BlendOutButtonsOnYesRoutine());
+        isDuringInteraction = false;
+        buttonGroup.blocksRaycasts = false;
+
+    }
+    void BlendOutButtonsOnNo()
+    {
+        StartCoroutine(BlendOutButtonsOnNoRoutine());
         isDuringInteraction = false;
         buttonGroup.blocksRaycasts = false;
 
@@ -64,7 +82,9 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
 
     IEnumerator BlendInButtonsAndBlendOutHintRoutine()
     {
-        OnButtonsGetBlendedIn.Invoke();
+
+        if (OnButtonsGetBlendedIn != null)
+            OnButtonsGetBlendedIn.Invoke();
 
         while (buttonGroup.alpha < .999f)
         {
@@ -72,16 +92,26 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
             yield return null;
         }
     }
-
-    IEnumerator BlendOutButtonsRoutine()
+    IEnumerator BlendOutButtonsOnYesRoutine()
     {
-        OnButtonsGetBlendedOut.Invoke();
-
         while (buttonGroup.alpha > 0.001)
         {
             buttonGroup.alpha = Mathf.Lerp(buttonGroup.alpha, 0, buttonBlendInTime * Time.deltaTime);
             yield return null;
         }
+        //Fire event for Item to get deactivated
+        
+        if (OnButtonsAreBlendedOutAfterPlayerChoseYes != null)
+            OnButtonsAreBlendedOutAfterPlayerChoseYes.Invoke();
+    }
+    IEnumerator BlendOutButtonsOnNoRoutine()
+    {
+        while (buttonGroup.alpha > 0.001)
+        {
+            buttonGroup.alpha = Mathf.Lerp(buttonGroup.alpha, 0, buttonBlendInTime * Time.deltaTime);
+            yield return null;
+        }
+        //Do not fire event for item to get deactivated
     }
 
     public void PlayerChoseNo()
@@ -92,15 +122,23 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
         ResetSelectedTextToFirstText();
         HideAllTextViaAlpha();
         ResetAllTextMaxVisibleChars();
-        UnFreezePlayerControls();
+        PlayerController.SetPlayerToPlayableState();
         brain.enabled = true;
-        BlendOutButtons();
+        BlendOutButtonsOnNo();
 
     }
 
     public void PlayerChoseYes()
     {
-
+        //Clear up all UI elements and reset text to first. Unfreeze PlayerControls. Re enable Brain.
+        GameManager.LockCursor();
+        ResetTextIndex();
+        ResetSelectedTextToFirstText();
+        HideAllTextViaAlpha();
+        ResetAllTextMaxVisibleChars();
+        PlayerController.SetPlayerToPlayableState();
+        brain.enabled = true;
+        BlendOutButtonsOnYes();
     }
 
     IEnumerator PrintTextAndSelectNextTextForInvestigateRoutine()
@@ -119,20 +157,14 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
 
         while (visibleCount <= totalLength)
         {
-            //Pause Time for while printing
 
             isPrintingDone = false;
-            //Debug.Log("Reached While Loop");
-            // Debug.Log("Visible count : " + visibleCount + " VS total of" + selectedText.maxVisibleCharacters);
+
             selectedText.maxVisibleCharacters = visibleCount;
             visibleCount++;
 
-            //if (pressedUseCount == 0)
             yield return new WaitForSeconds(timeBetweenCharPrint);
-            //    else if (pressedUseCount > 0)
-            //    {
-            //        yield return new WaitForSeconds(timeBetweenCharPrintWhenPlayerPressedUse);
-            //    }
+
         }
 
         isPrintingDone = true;
@@ -155,10 +187,14 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
         base.OnTriggerExit(other);
     }
 
+    private void OnEnable()
+    {
+        OnAllTextHasBeenPrinted += StartInvestigateModeTextPrint;
+    }
+
     private void OnDisable()
     {
         OnAllTextHasBeenPrinted -= StartInvestigateModeTextPrint;
-        OnFirstTextHasFinishedPrinting -= FreezePlayerControls;
     }
 
 }
