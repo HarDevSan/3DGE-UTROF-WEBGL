@@ -41,6 +41,8 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
     [Header("Cinemachine Brain Ref")]
     public Cinemachine.CinemachineBrain brain;
 
+
+
     public delegate void AllTextHasBeenPrinted();
     public static event AllTextHasBeenPrinted OnAllTextHasBeenPrinted;
     public delegate void EachTextHasBeenPrinted();
@@ -58,7 +60,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
     {
         //Init
         ResetAllTextMaxVisibleChars();
-        OnFirstTextHasBeenPrinted += FreezePlayerControls;
+        OnFirstTextHasBeenPrinted += PlayerController.SetPlayerToUnplayableState;
     }
 
     public virtual void Start()
@@ -80,7 +82,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         Debug.Log(isTextLeft);
         if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
         {
-            FreezePlayerControls();
+            PlayerController.SetPlayerToUnplayableState();
             PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
 
             //Should eable dynamic text blend speed, postponed
@@ -95,19 +97,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
 
     }
-
-  
-
-    public void FreezePlayerControls()
-    {
-        InputReceiver.BlockMovementInput();
-    }
-
-    public void UnFreezePlayerControls()
-    {
-        InputReceiver.UnBlockMovementInputs();
-    }
-
 
     public void ShowCurrentlySelectedTextViaAlpha()
     {
@@ -291,7 +280,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     private void OnDisable()
     {
-        OnFirstTextHasBeenPrinted -= FreezePlayerControls;
+        OnFirstTextHasBeenPrinted -= PlayerController.SetPlayerToUnplayableState;
 
     }
 }
