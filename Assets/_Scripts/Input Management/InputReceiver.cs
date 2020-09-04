@@ -26,6 +26,8 @@ public class InputReceiver : MonoBehaviour
     public static event InputEvent_P On_P_Input;
     public delegate void InputEvent_P_Second();
     public static event InputEvent_P_Second On_P_Second_Input;
+    public delegate void InputEvent_Q_Input();
+    public static event InputEvent_Q_Input On_Q_Inpu;
 
     public static bool isMovementInput;
     public static bool pauseWasPressed;
@@ -131,5 +133,15 @@ public class InputReceiver : MonoBehaviour
         return false;
     }
 
+    public static bool CheckIf_Quit_Pressed()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            // On_E_Input.Invoke(); No Subs, yet
+            return true;
+        }
+        else
+            return false;
+    }
 
 }
