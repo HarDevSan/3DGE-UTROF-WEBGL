@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1602377068320217204
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1602377068320217210}
+  - component: {fileID: 1602377068320217211}
+  - component: {fileID: 1602377068320217209}
+  - component: {fileID: 1602377068320217208}
+  - component: {fileID: 3511095927659487375}
+  m_Layer: 10
+  m_Name: InvestigatableItem-Object
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1602377068320217210
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602377068320217204}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.052, y: 0.704, z: 6.21}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1602377068320217211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602377068320217204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55400768f97a3634fbdbee4633b5e3b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textListToDisplay:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  interactionPromptBlendTime: 0.5
+  backGround: {fileID: 0}
+  playerIsInTrigger: 0
+  isUserInvestigating: 0
+  isPrintingDone: 0
+  timeBetweenCharPrint: 0
+  randomlySelectedText: {fileID: 0}
+--- !u!65 &1602377068320217209
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602377068320217204}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1.6984155, z: 1.5301557}
+  m_Center: {x: 0, y: 0.34920776, z: -0.26507783}
+--- !u!114 &1602377068320217208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602377068320217204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5778552c777e2d042831888fbe27a1fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionGroupGeneric: {fileID: 0}
+  promptText: {fileID: 0}
+--- !u!65 &3511095927659487375
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602377068320217204}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1.8178446, z: 0.52098656}
+  m_Center: {x: 0, y: 0.4089223, z: 0.23950672}
