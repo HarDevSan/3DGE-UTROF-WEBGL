@@ -31,6 +31,7 @@ public class SceneLoader : MonoBehaviour
         //-- Dont forget to UNSUBSCRIBE
         SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
         SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
+        OnScene_Has_Loaded += PlayerController.SetPlayerToPlayableState;
     }
 
     private void Start()
@@ -57,7 +58,7 @@ public class SceneLoader : MonoBehaviour
         if (SceneManager.GetSceneByName(name).isLoaded == false)
         {
             OnSceneStartedLoading.Invoke();
-        StartCoroutine(WaitForSceneToFinishLoading(name));
+            StartCoroutine(WaitForSceneToFinishLoading(name));
             //check if the scene that needs to unloaded is loaded alread, if not, spare this step  
         }
     }
@@ -95,11 +96,11 @@ public class SceneLoader : MonoBehaviour
         //Debug.Log("Loading Finished");
         loadingprogress = 0;
         lastSceneName = name;
+        yield return new WaitForSeconds(loadDelay);
 
         OnScene_Has_Loaded.Invoke();
         //Debug.Log("OnScene_Has_Loaded.Invoke");
         // Debug.Log("Scene that will unload next is : " + lastSceneName);
-        yield return new WaitForSeconds(loadDelay);
     }
 
     IEnumerator WaitForSceneToFinishUnloading()
@@ -118,8 +119,8 @@ public class SceneLoader : MonoBehaviour
 
         }
         // Debug.Log("finishedUnloading ");
-       OnScene_Has_UnLoaded.Invoke();
-       //Debug.Log("OnSceneHasUnloaded was invoked");
+        OnScene_Has_UnLoaded.Invoke();
+        //Debug.Log("OnSceneHasUnloaded was invoked");
         yield break;
     }
     private void OnDisable()
