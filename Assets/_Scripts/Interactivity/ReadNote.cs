@@ -49,9 +49,10 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
             textInList.maxVisibleCharacters = 0;
         }
     }
+
     public void StartPrintingNoteContent()
     {
-        Debug.Log("RAAAAAAAA is textLef: " + isTextLeft);
+        Debug.Log("is textLeft: " + isTextLeft);
         ////Pause Time while printing            
         //PauseTimeScale();
         if (isTextLeft)
