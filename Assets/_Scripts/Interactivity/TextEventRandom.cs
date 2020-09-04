@@ -10,9 +10,9 @@ public class TextEventRandom : MonoBehaviour
      * TextEvent script is attached to*/
     [Header("Texts List")]
     public List<TextMeshProUGUI> textListToDisplay;
-    [Header("InteractionPrompt")]
-    public TextMeshProUGUI interactionPrompt;
+
     public float interactionPromptBlendTime;
+    public CanvasGroup backGround;
 
     [Header("Bools")]
     [SerializeField]
@@ -58,7 +58,7 @@ public class TextEventRandom : MonoBehaviour
 
     private void Update()
     {
-        if (playerIsInTrigger && InputReceiver.CheckIf_Use_Pressed())
+        if (playerIsInTrigger && InputReceiver.CheckIf_Use_Pressed() && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
         {
             //isUserInvestigating = !isUserInvestigating;
 
@@ -80,14 +80,17 @@ public class TextEventRandom : MonoBehaviour
             //{
 
         }
-   
+        else if (playerIsInTrigger && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item == false)
+        {
+            HideAllTextViaAlpha();
+            Debug.Log("Player is not looking at the object");
+        }
+
+
 
     }
 
-    void BlendInInteractionPrompt()
-    {
-        StartCoroutine(BlendInInteractionPromptRoutine());
-    }
+
 
     void ShowCurrentlySelectedTextViaAlpha()
     {
@@ -159,7 +162,7 @@ public class TextEventRandom : MonoBehaviour
     {
         randomlySelectedText.maxVisibleCharacters = 0;
     }
-     
+
     void ResetAllTextMaxVisibleChars()
     {
         foreach (TextMeshProUGUI textInList in textListToDisplay)
@@ -168,19 +171,7 @@ public class TextEventRandom : MonoBehaviour
         }
     }
 
-    void BLendInInteractionPrompt()
-    {
-        StartCoroutine(BlendInInteractionPromptRoutine());
-    }
 
-    IEnumerator BlendInInteractionPromptRoutine()
-    {
-        while(interactionPrompt.alpha < 0.999)
-        {
-            interactionPrompt.alpha = Mathf.Lerp(interactionPrompt.alpha, 1, interactionPromptBlendTime * Time.deltaTime);
-            yield return null;
-        }
-    }
 
     IEnumerator PrintTextAndSelectRandomTextWhenDoneRoutine()
     {
@@ -208,7 +199,7 @@ public class TextEventRandom : MonoBehaviour
         }
 
         isPrintingDone = true;
-        
+
         yield break;
     }
 
@@ -216,7 +207,6 @@ public class TextEventRandom : MonoBehaviour
     {
         SelectRandomTextInList();
         ShowCurrentlySelectedTextViaAlpha();
-        BlendInInteractionPrompt();
     }
 
     private void OnTriggerStay(Collider other)
