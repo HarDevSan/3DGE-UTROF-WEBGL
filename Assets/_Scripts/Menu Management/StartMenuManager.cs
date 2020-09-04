@@ -16,12 +16,11 @@ public class StartMenuManager : MonoBehaviour
 
     public void OnPlayClicked()
     {
+        PlayerController.SetPlayerToUnplayableState();
         Debug.Log("Play button was clicked");
         canvasMain.alpha = 0;
         canvasMain.blocksRaycasts = false;
         OnPlayButtonClicked.Invoke();
-        InputReceiver.UnBlockMovementInputs();
-        PlayerController.isApplyGravity = true;
     }
 
 }

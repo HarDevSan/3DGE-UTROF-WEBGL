@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float _toDefaultWalkSpeedLerpTime;
-    public float _toDefaultStrafeSpeedLerpTime;
+
 
     public Transform resetTo;
     [Header("RayTarget")]
@@ -24,7 +23,6 @@ public class PlayerController : MonoBehaviour
     public LayerMask interactionMaskRoom;
     public LayerMask interactionMaskItem;
 
-
     CharacterController _characterController;
 
     Vector3 _velocity;
@@ -40,17 +38,22 @@ public class PlayerController : MonoBehaviour
     //SO
     public PlayerStats playerstats;
 
+    static bool isCharControllerEnabled;
+
     private void Awake()
     {
         InputReceiver.On_R_Input += ResetPlayer;
+        //Character Controller class must be enabled/diabled inside the update function for it work
         SceneLoader.OnSceneStartedLoading += SetPlayerToUnplayableState;
         SceneLoader.OnScene_Has_Loaded += SetPlayerToPlayableState;
+        GameManager.OnGameHasBeenPaused += SetPlayerToUnplayableState;
+        GameManager.OnGameHasBeenResumed += SetPlayerToPlayableState;
     }
 
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
-
+        SetPlayerToUnplayableState();
         //Set default speed values for walking and strafing, which we then lerp back to in the Run() method, when the player stopped running
         playerstats._defaultWalkSpeed = playerstats._walkSpeed;
         playerstats._defaultStrafeSpeed = playerstats._strafeSpeed;
@@ -63,6 +66,8 @@ public class PlayerController : MonoBehaviour
         ApplyGravity();
 
         AnimatePlayer();
+
+        //Set CharController enabled by member boo, cause must be done every frame
 
         //Only call Movement related functions if the player does movmeent input
         if (InputManager.CheckIfAnyMovementInput())
@@ -97,11 +102,15 @@ public class PlayerController : MonoBehaviour
             _velocity = Vector3.zero;
             //Debug.Log("grounded");
         }
-        else
+        else if(isApplyGravity)
         {
             //If the player is not grounded, move him downwards on the y-axis. Note this is NOT the same as applying force with a rigidbody as we are using a character controller
             _velocity = new Vector3(_velocity.x, _velocity.y - playerstats._gravityStrength * Time.deltaTime, _velocity.z);
             _characterController.Move(_velocity * Time.deltaTime);
+        }
+        else
+        {
+            _velocity = Vector3.zero;
         }
     }
 
@@ -152,7 +161,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            playerstats._walkSpeed = Mathf.Lerp(playerstats._walkSpeed, playerstats._defaultWalkSpeed, _toDefaultWalkSpeedLerpTime * Time.deltaTime);
+            playerstats._walkSpeed = Mathf.Lerp(playerstats._walkSpeed, playerstats._defaultWalkSpeed, playerstats._toDefaultWalkSpeedLerpTime * Time.deltaTime);
         }
 
         //Run sidewards
@@ -162,7 +171,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            playerstats._strafeSpeed = Mathf.Lerp(playerstats._strafeSpeed, playerstats._defaultStrafeSpeed, _toDefaultStrafeSpeedLerpTime * Time.deltaTime);
+            playerstats._strafeSpeed = Mathf.Lerp(playerstats._strafeSpeed, playerstats._defaultStrafeSpeed, playerstats._toDefaultStrafeSpeedLerpTime * Time.deltaTime);
         }
 
     }
@@ -224,19 +233,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void AnimatePlayer()
+    void AnimatePlayer()
     {
         playerAnimator.SetFloat("WalkSpeed", InputReceiver.movementInput.magnitude);
     }
 
-    void SetPlayerToPlayableState()
+    public static void SetPlayerToPlayableState()
     {
+      
         isApplyGravity = true;
+        InputReceiver.UnBlockMovementInputs();
     }
-    void SetPlayerToUnplayableState()
+    public static void SetPlayerToUnplayableState()
     {
         isApplyGravity = false;
+        InputReceiver.BlockMovementInput();
     }
+
+  
 
     private void OnDisable()
     {
