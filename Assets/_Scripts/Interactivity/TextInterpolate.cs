@@ -8,31 +8,22 @@ public class TextInterpolate : MonoBehaviour
     public TextMeshProUGUI textToBlendIn;
     public float blendInAmount;
 
-    public bool shouldBlendIn;
-
-    // Start is called before the first frame update
     void Awake()
     {
         TextEvent_Sequential.OnFirstTextHasBeenPrinted += BLendInText;
     }
 
-
-
     public void BLendInText()
     {
-        if (shouldBlendIn)
-        {
-            StartCoroutine(BlendInTextRoutine());
-
-        }
+        StartCoroutine(BlendInTextRoutine());
     }
-    
+
     IEnumerator BlendInTextRoutine()
     {
-        while(textToBlendIn.alpha < 1)
+        while (textToBlendIn.alpha < 1)
         {
-           
-            textToBlendIn.alpha = Mathf.Lerp(textToBlendIn.alpha , 1, blendInAmount * Time.deltaTime);
+
+            textToBlendIn.alpha = Mathf.Lerp(textToBlendIn.alpha, 1, blendInAmount * Time.deltaTime);
 
             yield return null;
         }
