@@ -35,63 +35,113 @@ public class SceneTransition : MonoBehaviour
     [Header("Tick if this door is locked")]
     public bool isDoorisNeedingKey;
 
+    [Header("Door locked/unlocked state")]
+    public bool isDoorUnLocked;
+
     //---Events
     public delegate void PlayerPressedEnterOnSight(string name);
     public static event PlayerPressedEnterOnSight OnPlayerPressedEnterOnSight;
+    //Door is locked Events
+    public delegate void HeavyDoorIsLocked();
+    public static event HeavyDoorIsLocked OnHeavyDoorIsLocked;
+    public delegate void LightWeightDoorClosed();
+    public static event LightWeightDoorClosed OnLightWeightDoorIsLocked;
+    //Open Door Events
+    public delegate void HeavyDoorOpened();
+    public static event HeavyDoorOpened OnHeavyDoorOpened;
+    public delegate void LightWeightDoorOpened();
+    public static event LightWeightDoorOpened OnLightWeightDoorOpened;
+    //Closing Door Events
+    public delegate void HeavyDoorClosing();
+    public static event HeavyDoorClosing OnHeavyDoorClosing;
+    public delegate void LightWeightDoorClosing();
+    public static event LightWeightDoorClosing OnLightWeightDoorClosing;
 
     [SerializeField]
     bool isPlayerCanEnterScene;
+
+    [Header("Door Type")]
+    public DoorEnum.DoorTypesEnum doorType;
 
     private void Awake()
     {
         /*Need to UNSUBSCRIBE the event , otherwise it wil lfire again even if the object is disabled
         It's also ok to hanlde scenetransition on playerInput instead of "OnSceneHasLoaed", OnsceneHasLoaded 
         can be used to determin when the playercontrols should be unlocked in the new scene and the blend out of UI loading sceen*/
-        InputReceiver.On_E_Input += SpawnPlayerInNewScene;
+        PlayerController.OnPlayerSeesSomethingInteractable_Room += UnlockDoorIfPlayerHasKey;
         InputReceiver.On_E_Input += SwitchTransitionActivity;
+        InputReceiver.On_E_Input += SpawnPlayerInNewScene;
 
-        //SceneLoader.OnScene_Has_Loaded += SpawnPlayerInNewScene;
-        //SceneLoader.OnScene_Has_Loaded += SwitchTransitionActivity;
+        SceneLoader.OnScene_Has_Loaded += InvokeDoorClosingSound;
+    }
+
+    void InvokeDoorClosingSound()
+    {
+        if (doorType == DoorEnum.DoorTypesEnum.Heavy)
+        {
+            Debug.Log("Door INVOKDED");
+            OnHeavyDoorClosing.Invoke();
+        }
+        else if (doorType == DoorEnum.DoorTypesEnum.Lightweight)
+        {
+            OnLightWeightDoorClosing.Invoke();
+        }
     }
 
 
     private void Update()
     {
-        //Needs timer
-        CheckIfPlayerHasKeyAndUnlockDoorIfYes();
-
-        //When the player raycast hits something interactable and the player has pressed the use key and the door is unlocked(needs key false)
-        if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed() && CheckIfDoorNeedAKey())
+        //When the player raycast hits something interactable and the player has pressed the use key and the door is unlocked
+        if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed() && CheckIfDoorUnLocked())
         {
+            //Send door type to audio manager
+            if (doorType == DoorEnum.DoorTypesEnum.Heavy)
+            {
+                OnHeavyDoorOpened.Invoke();
+            }
+            else if (doorType == DoorEnum.DoorTypesEnum.Lightweight)
+            {
+                OnLightWeightDoorOpened.Invoke();
+            }
 
-            //Debug.Log("Reached");
+            //Invoking player pressed used on sight, spawn player in next scene, switch trigger activity
             OnPlayerPressedEnterOnSight.Invoke(nextSceneName);
             SpawnPlayerInNewScene();
-            SwitchTransitionActivity();
+            SwitchTransitionActivity();        
+        }
+        else if(PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed())
+        {
+            //Send door type to audio manager
+            if (doorType == DoorEnum.DoorTypesEnum.Heavy)
+            {
+                OnHeavyDoorIsLocked.Invoke();
+            }
+            else if (doorType == DoorEnum.DoorTypesEnum.Lightweight)
+            {
+                OnLightWeightDoorIsLocked.Invoke();
+            }
         }
     }
 
-    public bool CheckIfDoorNeedAKey()
+    public bool CheckIfDoorUnLocked()
     {
-        return !isDoorisNeedingKey;
+        return isDoorUnLocked;
     }
 
     void UnlockDoor()
     {
-        isDoorisNeedingKey = false;
+        isDoorUnLocked = true;
     }
 
-    bool CheckIfPlayerHasKeyAndUnlockDoorIfYes()
+    void UnlockDoorIfPlayerHasKey()
     {
 
         if (inventorySO.SearchListFor(keyName))
         {
             UnlockDoor();
-            return true;
         }
         else
         {
-            return false;
         }
     }
 
