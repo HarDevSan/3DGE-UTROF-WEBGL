@@ -22,7 +22,9 @@ public class SceneLoaderIntro : MonoBehaviour
     private void Start()
     {
         TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadFirstScene;
-        TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadPersistentScene;
+        TextEvent_Sequential.OnAllTextHasBeenPrinted += PlayerController.SetPlayerToPlayableState;
+
+        //TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadPersistentScene;
     }
 
     void LoadPersistentScene()
@@ -99,7 +101,10 @@ public class SceneLoaderIntro : MonoBehaviour
         yield break;
     }
 
-
-
+    private void OnDisable()
+    {
+        TextEvent_Sequential.OnAllTextHasBeenPrinted -= LoadFirstScene;
+        TextEvent_Sequential.OnAllTextHasBeenPrinted -= PlayerController.SetPlayerToPlayableState;
+    }
 }
 
