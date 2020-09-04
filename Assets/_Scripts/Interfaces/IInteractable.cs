@@ -5,9 +5,8 @@ using TMPro;
 
 public interface IInteractable
 {
-  
-    void OnInteraction();
 
 
+    void Interact();
 
 }
