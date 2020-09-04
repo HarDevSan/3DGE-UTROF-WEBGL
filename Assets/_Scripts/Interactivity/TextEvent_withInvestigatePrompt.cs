@@ -21,7 +21,7 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
     {
         base.Awake();
         OnAllTextHasBeenPrinted += StartInvestigateModeTextPrint;
-        OnFirstTextHasFinishedPrinting += FreezePlayerControls;
+        OnFirstTextHasFinishedPrinting += PlayerController.SetPlayerToUnplayableState;
     }
 
     public override void Start()
@@ -37,22 +37,27 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
 
     void StartInvestigateModeTextPrint()
     {
-   
-        if (isTextLeft)
+        //Only start coroutines if this object is enabled, Unity does not automatically prevent Coroutines from running if an object is disabled
+        if (gameObject.activeSelf)
         {
-            StartCoroutine(PrintTextAndSelectNextTextForInvestigateRoutine());
+            if (isTextLeft)
+            {
+                StartCoroutine(PrintTextAndSelectNextTextForInvestigateRoutine());
+            }
+            BlendInButtonsAndBlendOutHint();
         }
-        BlendInButtonsAndBlendOutHint();
     }
 
     void BlendInButtonsAndBlendOutHint()
     {
         StartCoroutine(BlendInButtonsAndBlendOutHintRoutine());
         isDuringInteraction = true;
+        buttonGroup.blocksRaycasts = true;
     }
 
     void BlendOutButtons()
     {
+        buttonGroup.blocksRaycasts = false;
         StartCoroutine(BlendOutButtonsRoutine());
         isDuringInteraction = false;
 
@@ -88,7 +93,7 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
         yield return null;
     }
 
-    public void PlayerChoseNo()
+    public virtual void PlayerChoseNo()
     {
         //Clear up all UI elements and reset text to first. Unfreeze PlayerControls. Re enable Brain.
         GameManager.LockCursor();
@@ -96,14 +101,14 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
         ResetSelectedTextToFirstText();
         HideAllTextViaAlpha();
         ResetAllTextMaxVisibleChars();
-        UnFreezePlayerControls();
+        PlayerController.SetPlayerToPlayableState();
         brain.enabled = true;
         BlendOutButtons();
 
     }
 
     //BoilerPlate, just in case different functionality will be needed
-    public void PlayerChoseYes()
+    public virtual void PlayerChoseYes()
     {
         //Clear up all UI elements and reset text to first. Unfreeze PlayerControls. Re enable Brain.
         GameManager.LockCursor();
@@ -111,7 +116,7 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
         ResetSelectedTextToFirstText();
         HideAllTextViaAlpha();
         ResetAllTextMaxVisibleChars();
-        UnFreezePlayerControls();
+        PlayerController.SetPlayerToPlayableState();
         brain.enabled = true;
         BlendOutButtons();
     }
@@ -173,12 +178,10 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
     private void OnEnable()
     {
         OnAllTextHasBeenPrinted += StartInvestigateModeTextPrint;
-        OnFirstTextHasFinishedPrinting += FreezePlayerControls;
     }
     private void OnDisable()
     {
         OnAllTextHasBeenPrinted -= StartInvestigateModeTextPrint;
-        OnFirstTextHasFinishedPrinting -= FreezePlayerControls;
     }
 
 }
