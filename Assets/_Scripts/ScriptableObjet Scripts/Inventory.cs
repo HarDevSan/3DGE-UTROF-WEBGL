@@ -8,12 +8,6 @@ public class Inventory : ScriptableObject
 {
     public List<string> itemList;
 
-    private void Awake()
-    {
-        //ClearInvenotryWhenGameStarts
-        itemList = new List<string>();
-     
-    }
 
     public bool SearchListFor(string name)
     {
