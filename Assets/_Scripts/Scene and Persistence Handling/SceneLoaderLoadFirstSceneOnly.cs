@@ -24,7 +24,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
     private void Start()
     {
         StartMenuManager.OnPlayButtonClicked += LoadFirstScene;
-        //StartMenuManager.OnPlayButtonClicked += LoadPersistentScene;
+        StartMenuManager.OnPlayButtonClicked += LoadPersistentScene;
 
         OnFirstSceneFinishedLoading += UnloadStartMenuScene;
     }
