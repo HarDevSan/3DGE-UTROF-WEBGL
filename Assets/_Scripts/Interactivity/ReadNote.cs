@@ -2,20 +2,55 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class ReadNote : TextEvent_SequentialAndInvestigate
 {
     [Header("Note Content Texts List")]
     public List<TextMeshProUGUI> noteTextList;
     public CanvasGroup backGoundImageGrp;
+    public Image foreGroundDarkenImage;
     public float blendInBackGroundSpeed;
+    public float blendInBackForeGroundSpeed;
     public float backGroundOpacityMax;
+    public float foreGroundOpacityMax;
+
+    /*Disable the class that drives printing before
+     Otherwise we have duplicated text*/
+    public TextEvent_withInvestigatePrompt parentScript;
+
+    bool isReadingNote;
 
     public override void Start()
     {
         base.Start();
     }
 
+    public override void Update()
+    {
+        /*Do not call base.Update in this case, we do not wanttext printed on interaction,
+         * but only after all prompts have been printed*/
+        if (isReadingNote)
+        {
+            base.Update();
+        }
+        //Blend In forgreound to darken the notes graphical representation
+        if (textIndex == 2 && InputReceiver.CheckIf_Use_Pressed())
+        {
+            BlendInForeGroundToDarkenImage();
+
+        }
+    }
+
+    void BlendInForeGroundToDarkenImage()
+    {
+        StartCoroutine(BlendInForeGroundImageRoutine());
+    }
+
+    public void DisableParentScript()
+    {
+        parentScript.enabled = false;
+    }
 
     public override void SelectNextTextInList()
     {
@@ -25,8 +60,6 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
             textIndex++;
         }
     }
-
-
 
     public override void CheckIfThereIsTextLeft()
     {
@@ -52,10 +85,9 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
     public void StartPrintingNoteContent()
     {
-        Debug.Log("is textLeft: " + isTextLeft);
-        ////Pause Time while printing            
-        //PauseTimeScale();
-        if (isTextLeft)
+        isReadingNote = true;
+          
+        if (true)
         {
             StartCoroutine(PrintNoteTextRoutine());
         }
@@ -70,6 +102,20 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         StartCoroutine(BlendOutBackGroundImageRoutine());
     }
 
+    IEnumerator BlendInForeGroundImageRoutine()
+    {
+        Color tempCol = new Color(0, 0, 0, foreGroundOpacityMax);
+
+        while (tempCol.a <= foreGroundOpacityMax)
+        {
+            tempCol.a = Mathf.Lerp(foreGroundDarkenImage.color.a, foreGroundOpacityMax, blendInBackForeGroundSpeed * Time.deltaTime);
+            foreGroundDarkenImage.color = tempCol;
+
+            yield return null;
+        }
+
+        yield return null;
+    }
 
     IEnumerator BlendInBackGroundImageRoutine()
     {
@@ -91,7 +137,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
     IEnumerator PrintNoteTextRoutine()
     {
-
+        
         //Reet the last randomly selected text
         ResetCurrentTextMaxVisibleChar();
         //Select a new randomly selected text
@@ -116,7 +162,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
             yield return new WaitForSeconds(timeBetweenCharPrint);
 
         }
-
+    
         isPrintingDone = true;
 
         yield break;
