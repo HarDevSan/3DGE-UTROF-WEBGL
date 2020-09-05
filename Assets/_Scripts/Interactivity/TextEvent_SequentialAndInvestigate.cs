@@ -68,11 +68,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
         isPrintingDone = true;
         isTextLeft = true;
-        ////Print the first block of text when scene starts
-        //PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
-
-        ////set default time interavls between printing each char
-        //timeBetweenCharPrint = defaultTimeBetweenCharPrint;
+ 
     }
 
     public virtual void Update()
@@ -84,17 +80,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         {
             PlayerController.SetPlayerToUnplayableState();
             PrintNextTextAndInvokeAllHasBeenPrintedIfNot();
-
-            //Should eable dynamic text blend speed, postponed
-            //pressedUseCount++;
         }
-        else
-        {
-            //pressedUseCount = 0;
-
-        }
-
-
 
     }
 
@@ -122,15 +108,9 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         else
         {
 
-            //UnFreezePlayerControls();
             if(OnAllTextHasBeenPrinted != null)
             OnAllTextHasBeenPrinted.Invoke();
-            //ResetAllTextMaxVisibleChars();
-            //ResetTextIndex();
-            //ResetSelectedTextToFirstText();
-
             UnlockCursorViaGameManager();
-            //brain.enabled = true;
         }
     }
 
@@ -188,7 +168,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public void ResetCurrentTextMaxVisibleChar()
     {
-        if(selectedText != null)
         selectedText.maxVisibleCharacters = 0;
     }
 
@@ -239,7 +218,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         }
 
         isPrintingDone = true;
-        //Invoke TextHasBeenPrinted after first selected text has finished printing
+        //Invoke FirstTextHasBeenPrinted after first selected text has finished printing
         if (textIndex == 1)
         {
             if(OnFirstTextHasBeenPrinted != null)
@@ -256,8 +235,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
         SelectFirstTextInList();
         ShowCurrentlySelectedTextViaAlpha();
         playerIsInTrigger = true;
-
-
 
     }
 
@@ -281,6 +258,12 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
     private void OnDisable()
     {
         OnFirstTextHasBeenPrinted -= PlayerController.SetPlayerToUnplayableState;
+
+    }
+
+    private void OnEnable()
+    {
+        OnFirstTextHasBeenPrinted += PlayerController.SetPlayerToUnplayableState;
 
     }
 }
