@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using UnityEngine.Events;
 
 
 public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigate
@@ -16,6 +18,8 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
     public static event ButtonsAreBlendedIn OnButtonsGetBlendedIn;
     public delegate void ButtonsAreBlendedOut();
     public static event ButtonsAreBlendedOut OnButtonsGetBlendedOut;
+
+    public UnityEvent OnPlayerChoseYes;
 
     public override void Awake()
     {
@@ -74,8 +78,8 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
         //    yield return null;
         //}
         buttonGroup.alpha = 1;
-
         yield return null;
+  
 
     }
 
@@ -117,8 +121,11 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
         HideAllTextViaAlpha();
         ResetAllTextMaxVisibleChars();
         PlayerController.SetPlayerToPlayableState();
-        brain.enabled = true;
+        /*Not enabing the brain in this case, because the player will read 
+         * the note or investigate the object after all text has ben printed*/
+        //brain.enabled = true;
         BlendOutButtons();
+        OnPlayerChoseYes.Invoke();
     }
 
     IEnumerator PrintTextAndSelectNextTextForInvestigateRoutine()
@@ -152,7 +159,6 @@ public class TextEvent_withInvestigatePrompt : TextEvent_SequentialAndInvestigat
             //        yield return new WaitForSeconds(timeBetweenCharPrintWhenPlayerPressedUse);
             //    }
         }
-
         isPrintingDone = true;
       
         yield break;
