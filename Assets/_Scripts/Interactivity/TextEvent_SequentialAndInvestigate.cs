@@ -75,7 +75,6 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
     {
         CheckIfThereIsTextLeft();
 
-        Debug.Log(isTextLeft);
         if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
         {
             PlayerController.SetPlayerToUnplayableState();
@@ -120,7 +119,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     }
 
-    public void HideAllTextViaAlpha()
+    public virtual void HideAllTextViaAlpha()
     {
         foreach (TextMeshProUGUI textInList in textListToDisplay)
         {
@@ -168,6 +167,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     public void ResetCurrentTextMaxVisibleChar()
     {
+        if(selectedText != null)
         selectedText.maxVisibleCharacters = 0;
     }
 
@@ -186,7 +186,7 @@ public class TextEvent_SequentialAndInvestigate : MonoBehaviour
 
     }
 
-    public void ResetSelectedTextToFirstText()
+    public virtual void ResetSelectedTextToFirstText()
     {
 
         selectedText = textListToDisplay[0];
