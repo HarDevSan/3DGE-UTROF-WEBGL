@@ -181,8 +181,11 @@ public class SceneTransition : MonoBehaviour
         InputReceiver.On_E_Input -= SpawnPlayerInNewScene;
         InputReceiver.On_E_Input -= SwitchTransitionActivity;
 
-        //SceneLoader.OnScene_Has_Loaded -= SpawnPlayerInNewScene;
-        //SceneLoader.OnScene_Has_Loaded -= SwitchTransitionActivity;
+    }
+    private void OnEnable()
+    {
+        InputReceiver.On_E_Input += SpawnPlayerInNewScene;
+        InputReceiver.On_E_Input += SwitchTransitionActivity;
 
     }
 
