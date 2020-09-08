@@ -68,21 +68,36 @@ public class CanvasBlendingandBlocking : MonoBehaviour
 
     IEnumerator BlendInSettingsRoutine()
     {
-        while (settingsCgroup.alpha < 1f)
+        float from = 0f;
+        float to = 1f;
+        float t = 0f;
+        float lerpvalue = 0; 
+
+        while (lerpvalue < to)
         {
-            settingsCgroup.alpha = Mathf.Lerp(settingsCgroup.alpha, 1, uiBLendingSO.toSettingsBlendTime * Time.deltaTime);
+            t += uiBLendingSO.toSettingsBlendTime;
+            lerpvalue = Mathf.Lerp(from, to, t);
+            settingsCgroup.alpha = lerpvalue;
             yield return null;
+            Debug.Log(lerpvalue);
         }
         OnSettingsBlendedIn.Invoke();
     }
 
     IEnumerator BlendOutSettingsRoutine()
     {
+        float from = 1f;
+        float to = 0f;
+        float t = 0f;
+        float lerpvalue = 1;
 
-        while (settingsCgroup.alpha > 0f)
+        while (lerpvalue > to)
         {
-            settingsCgroup.alpha = Mathf.Lerp(settingsCgroup.alpha, 0, uiBLendingSO.toSettingsBlendTime * Time.deltaTime);
+            t += uiBLendingSO.toSettingsBlendTime;
+            lerpvalue = Mathf.Lerp(from, to, t);
+            settingsCgroup.alpha = lerpvalue;
             yield return null;
+
         }
         OnSettingsBlendedOut.Invoke();
 
