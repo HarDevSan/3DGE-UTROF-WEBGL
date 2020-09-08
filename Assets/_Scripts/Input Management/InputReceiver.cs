@@ -101,7 +101,6 @@ public class InputReceiver : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            // On_E_Input.Invoke(); No Subs, yet
             return true;
         }
         else
