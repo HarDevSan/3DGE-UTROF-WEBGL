@@ -5,12 +5,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-
-
     public Transform resetTo;
     [Header("RayTarget")]
     public Transform castRayFrom;
-
 
     public Camera _mainCamera;
     public Animator playerAnimator;
@@ -35,7 +32,7 @@ public class PlayerController : MonoBehaviour
     public delegate void PlayerDoesNotSeeSomehtingInteractable();
     public static event PlayerDoesNotSeeSomehtingInteractable OnPlayerDoesNotSeeSomehtingInteractable;
 
-    //SO
+    //Scriptable Objects
     public PlayerStats playerstats;
 
     static bool isCharControllerEnabled;
@@ -154,6 +151,7 @@ public class PlayerController : MonoBehaviour
 
     public void Run()
     {
+        
         //Run forward
         if (InputManager.CheckIfVerticalInput())
         {
@@ -189,7 +187,16 @@ public class PlayerController : MonoBehaviour
 
         Quaternion lookRotation = Quaternion.LookRotation(direction);
 
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, playerstats._turnSpeed * Time.deltaTime);
+        //Spherical interpolate players y-rotation towards camera forward vector
+        Quaternion from = transform.rotation;
+        Quaternion to = lookRotation;
+        float t = 0f;
+        Quaternion lerpValue;
+
+        t += playerstats._turnSpeed * Time.deltaTime;
+
+        lerpValue = Quaternion.Slerp(transform.rotation, lookRotation, t);
+        transform.rotation = lerpValue;
 
         //Zero out any rotations on x and z
         var zeroedOutEulers = transform.eulerAngles;
@@ -250,13 +257,18 @@ public class PlayerController : MonoBehaviour
         InputReceiver.BlockMovementInput();
     }
 
-  
-
     private void OnDisable()
     {
         InputReceiver.On_R_Input -= ResetPlayer;
         SceneLoader.OnSceneStartedLoading -= SetPlayerToUnplayableState;
         SceneLoader.OnScene_Has_Loaded -= SetPlayerToPlayableState;
+
+    }
+    private void OnEnable()
+    {
+        InputReceiver.On_R_Input += ResetPlayer;
+        SceneLoader.OnSceneStartedLoading += SetPlayerToUnplayableState;
+        SceneLoader.OnScene_Has_Loaded += SetPlayerToPlayableState;
 
     }
 }
