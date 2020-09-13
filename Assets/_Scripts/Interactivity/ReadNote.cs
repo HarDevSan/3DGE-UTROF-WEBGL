@@ -12,7 +12,8 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
     public Image foreGroundDarkenImage;
     public CanvasGroup buttonReReadYesNoGRP;
     public float blendInBackGroundSpeed;
-    public float blendInBackForeGroundSpeed;
+    public float blendInForeGroundSpeed;
+    public float blendInNextTextSpeed;
     public float backGroundOpacityMax;
     public float foreGroundOpacityMax;
     public float buttonBlendTime;
@@ -33,7 +34,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
     public override void Awake()
     {
         base.Awake();
-        OnReachedEndOfNote += BlendInReReadButtons;
+        //OnReachedEndOfNote += BlendInReReadButtons;
     }
 
     public override void Start()
@@ -55,7 +56,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
             if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
             {
-                PlayerController.SetPlayerToUnplayableState();
+                //PlayerController.SetPlayerToUnplayableState();
                 StartPrintingNoteContent();
             }
             else if (InputReceiver.CheckIf_Quit_Pressed())
@@ -69,17 +70,17 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         {
             BlendInForeGroundToDarkenImage();
         }
+
     }
     void BlendInReReadButtons()
     {
-        Debug.Log("ReachedEnOfNote");
+        Debug.Log("BlendInReReadButtonsCalled");
         StartCoroutine(BlendInReReadButtonsRoutine());
         buttonReReadYesNoGRP.blocksRaycasts = true;
         GameManager.UnLockCursor();
     }
     void BlendOutReReadButtons()
     {
-        Debug.Log("ReachedEnOfNote");
         StartCoroutine(BlendOutReReadButtonsRoutine());
         buttonReReadYesNoGRP.blocksRaycasts = false;
     }
@@ -142,15 +143,22 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
     public void HardRestAllAplhasAndRayCastBlocks()
     {
-        
-        foreach(CanvasGroup noteGRP in noteTextGroupList)
+
+        foreach (CanvasGroup noteGRP in noteTextGroupList)
         {
-            noteGRP.alpha = 0;
+            if (noteGRP != null)
+                noteGRP.alpha = 0;
         }
-        backGoundImageGrp.alpha = 0;
-        foreGroundDarkenImage.color = new Color(0,0,0,0);
+        if (backGoundImageGrp != null)
+        {
+            backGoundImageGrp.alpha = 0;
+        }
+        foreGroundDarkenImage.color = new Color(0, 0, 0, 0);
         buttonReReadYesNoGRP.blocksRaycasts = false;
-        buttonReReadYesNoGRP.alpha = 0;
+        if (buttonReReadYesNoGRP != null)
+        {
+            buttonReReadYesNoGRP.alpha = 0;
+        }
     }
 
     public override void HideAllTextViaAlpha()
@@ -184,9 +192,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         }
         else
         {
-
             isTextLeft = false;
-
         }
     }
 
@@ -215,7 +221,6 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         }
         else
         {
-            isReadingNote = false;
         }
     }
 
@@ -230,50 +235,74 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
     IEnumerator BlendInForeGroundImageRoutine()
     {
-        Color tempCol = new Color(0, 0, 0, foreGroundOpacityMax);
 
-        while (tempCol.a <= foreGroundOpacityMax)
+        float t = 0f;
+        float toLerpFrom = 0f;
+        float toLerpTo = foreGroundOpacityMax;
+        float lerpValue = 0f;
+
+        Color tempCol = new Color(0, 0, 0, toLerpTo);
+
+        while (lerpValue < toLerpTo)
         {
-            tempCol.a = Mathf.Lerp(foreGroundDarkenImage.color.a, foreGroundOpacityMax, blendInBackForeGroundSpeed * Time.deltaTime);
+            t += blendInForeGroundSpeed * Time.deltaTime;
+            tempCol.a = Mathf.Lerp(toLerpFrom, toLerpTo, t);
             foreGroundDarkenImage.color = tempCol;
 
             yield return null;
         }
 
-        yield return null;
     }
 
     IEnumerator BlendOutForeGroundImageRoutine()
     {
-        Color tempCol = new Color(0, 0, 0, 0);
+        float t = 0f;
+        float toLerpFrom = foreGroundOpacityMax;
+        float toLerpTo = 0f;
+        float lerpValue = 0f;
 
-        while (tempCol.a <= foreGroundOpacityMax)
+        Color tempCol = new Color(0, 0, 0, toLerpTo);
+
+        while (lerpValue < toLerpTo)
         {
-            tempCol.a = Mathf.Lerp(foreGroundDarkenImage.color.a, 0, blendInBackForeGroundSpeed * Time.deltaTime);
+            t += blendInForeGroundSpeed * Time.deltaTime;
+            tempCol.a = Mathf.Lerp(toLerpFrom, toLerpTo, t);
             foreGroundDarkenImage.color = tempCol;
 
             yield return null;
         }
 
-        yield return null;
     }
 
     IEnumerator BlendInReReadButtonsRoutine()
     {
-        while (buttonReReadYesNoGRP.alpha <= .99f)
-        {
-            buttonReReadYesNoGRP.alpha = Mathf.Lerp(buttonReReadYesNoGRP.alpha, 1, buttonBlendTime * Time.deltaTime);
+        float t = 0f;
+        float toLerpFrom = 0f;
+        float toLerpTo = 1f;
+        float lerpValue = 0f;
 
+        while (lerpValue < toLerpTo)
+        {
+
+            t += buttonBlendTime * Time.deltaTime;
+            lerpValue = Mathf.Lerp(toLerpFrom, toLerpTo, t);
+            buttonReReadYesNoGRP.alpha = lerpValue;
             yield return null;
         }
     }
 
     IEnumerator BlendOutReReadButtonsRoutine()
     {
-        while (buttonReReadYesNoGRP.alpha >= .001f)
-        {
-            buttonReReadYesNoGRP.alpha = Mathf.Lerp(buttonReReadYesNoGRP.alpha, 0, buttonBlendTime * Time.deltaTime);
+        float t = 0f;
+        float toLerpFrom = 1f;
+        float toLerpTo = 0f;
+        float lerpValue = 1f;
 
+        while (lerpValue > toLerpTo)
+        {
+            t += buttonBlendTime * Time.deltaTime;
+            lerpValue = Mathf.Lerp(toLerpFrom, toLerpTo, t);
+            buttonReReadYesNoGRP.alpha = lerpValue;
             yield return null;
         }
     }
@@ -290,7 +319,6 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
             t += blendInBackGroundSpeed * Time.deltaTime;
             lerpValue = Mathf.Lerp(toLerpFrom, toLerpTo, t);
             backGoundImageGrp.alpha = lerpValue;
-            Debug.Log("BlendInRuns");
             yield return null;
         }
     }
@@ -304,7 +332,6 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
         while (lerpValue > toLerpTo)
         {
-            Debug.Log("LerpValue " + lerpValue);
             t += blendInBackGroundSpeed * Time.deltaTime;
             lerpValue = Mathf.Lerp(toLerpFrom, toLerpTo, t);
             backGoundImageGrp.alpha = lerpValue;
@@ -318,13 +345,24 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         ResetAllTextsGroupsVisibility();
         SelectNextTextInList();
 
-        while (selectedTextGroup.alpha <= .999f)
+        float t = 0f;
+        float toLerpFrom = 0;
+        float toLerpTo = 1f;
+        float lerpValue = 0f;
+
+        while (lerpValue < toLerpTo)
         {
-            selectedTextGroup.alpha = Mathf.Lerp(selectedTextGroup.alpha, 1, blendInBackGroundSpeed * Time.deltaTime);
+            Debug.Log("Inside");
+            t += blendInNextTextSpeed * Time.deltaTime;
+            lerpValue = Mathf.Lerp(toLerpFrom, toLerpTo, t);
+            selectedText.alpha = lerpValue;
             yield return null;
         }
-        if(isTextLeft == false)
-        OnReachedEndOfNote.Invoke();
+        if (isTextLeft == false)
+        {
+            OnReachedEndOfNote.Invoke();
+            Debug.Log("ReachedEndOfNoteInvoked");
+        }
     }
 
     private void OnDisable()
