@@ -29,11 +29,13 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
     public delegate void PlayerHasChosenNo();
     public static event PlayerHasChosenNo OnPlayerHasChosenNo;
 
-    public CanvasGroup selectedTextGroup;
+    [SerializeField]
+    CanvasGroup selectedTextGroup;
 
     public override void Awake()
     {
         base.Awake();
+        //Prevent double subscription, alread subscribed in OnEnable 
         //OnReachedEndOfNote += BlendInReReadButtons;
     }
 
@@ -54,7 +56,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
             PlayerController.SetPlayerToUnplayableState();
             CheckIfThereIsTextLeft();
 
-            if (InputReceiver.CheckIf_Use_Pressed() && isPrintingDone && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
+            if (InputReceiver.CheckIf_Use_Pressed() && /*isPrintingDone &&*/ PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
             {
                 //PlayerController.SetPlayerToUnplayableState();
                 StartPrintingNoteContent();
@@ -198,9 +200,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
     public void ResetSelectedTextGroupToFirstText()
     {
-
         selectedTextGroup = noteTextGroupList[0];
-
     }
 
     public void ResetAllTextsGroupsVisibility()
@@ -346,23 +346,23 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
         SelectNextTextInList();
 
         float t = 0f;
-        float toLerpFrom = 0;
+        float toLerpFrom = 0f;
         float toLerpTo = 1f;
         float lerpValue = 0f;
 
         while (lerpValue < toLerpTo)
         {
-            Debug.Log("Inside");
+            Debug.Log("CanvasGRoupalpha : " + selectedText.alpha);
             t += blendInNextTextSpeed * Time.deltaTime;
             lerpValue = Mathf.Lerp(toLerpFrom, toLerpTo, t);
-            selectedText.alpha = lerpValue;
+            selectedTextGroup.alpha = lerpValue;
             yield return null;
         }
         if (isTextLeft == false)
         {
             OnReachedEndOfNote.Invoke();
-            Debug.Log("ReachedEndOfNoteInvoked");
         }
+        yield return null;
     }
 
     private void OnDisable()
