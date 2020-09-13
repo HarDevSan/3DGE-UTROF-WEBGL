@@ -31,7 +31,7 @@ public class SceneLoader : MonoBehaviour
     private void Awake()
     {
         //-- Dont forget to UNSUBSCRIBE
-        //This makes no sense, why is it already subscribed here ?
+        //Double Check OnEnable Method to prevent double subscription
         SceneTransition.OnPlayerPressedEnterOnSight -= LoadNextScene;
         SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
         SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
