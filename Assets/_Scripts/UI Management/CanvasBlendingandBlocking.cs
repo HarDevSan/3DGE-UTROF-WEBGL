@@ -79,7 +79,6 @@ public class CanvasBlendingandBlocking : MonoBehaviour
             lerpvalue = Mathf.Lerp(from, to, t);
             settingsCgroup.alpha = lerpvalue;
             yield return null;
-            Debug.Log(lerpvalue);
         }
         OnSettingsBlendedIn.Invoke();
     }
