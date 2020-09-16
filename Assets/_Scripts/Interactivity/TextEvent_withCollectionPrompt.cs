@@ -123,9 +123,8 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
         HideAllTextViaAlpha();
         ResetAllTextMaxVisibleChars();
         PlayerController.SetPlayerToPlayableState();
-        brain.enabled = true;
         BlendOutButtonsOnNo();
-
+        brain.enabled = true;
     }
 
     public void PlayerChoseYes()
@@ -137,8 +136,8 @@ public class TextEvent_withCollectionPrompt : TextEvent_SequentialAndInvestigate
         HideAllTextViaAlpha();
         ResetAllTextMaxVisibleChars();
         PlayerController.SetPlayerToPlayableState();
-        brain.enabled = true;
         BlendOutButtonsOnYes();
+        brain.enabled = true;
     }
 
     IEnumerator PrintTextAndSelectNextTextForInvestigateRoutine()
