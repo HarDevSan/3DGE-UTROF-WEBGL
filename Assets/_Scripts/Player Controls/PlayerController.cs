@@ -37,6 +37,8 @@ public class PlayerController : MonoBehaviour
 
     static bool isCharControllerEnabled;
 
+
+
     private void Awake()
     {
         InputReceiver.On_R_Input += ResetPlayer;
