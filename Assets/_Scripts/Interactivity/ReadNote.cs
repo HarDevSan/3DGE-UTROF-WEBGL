@@ -110,7 +110,7 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
     {
         GameManager.LockCursor();
         ResetTextIndex();
-        textIndex = 1;
+        textIndex = 2; //set to the first filled text, the first two text are empty on purpose for blending
         isTextLeft = true;
         ResetSelectedTextToFirstText();
         HideAllTextViaAlpha();
