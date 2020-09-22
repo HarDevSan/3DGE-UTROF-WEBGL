@@ -10,6 +10,9 @@ public class BreakLight : MonoBehaviour
     public float flickerIncreaseSpeed;
     public AudioSource lightBreakingSound;
 
+    public GameObject optionalDisappearingObject;
+    public bool isLetObjectDisappear;
+
     private void Start()
     {
         //Setthe light intensity whie flickering to the lights intensity in the scene
@@ -23,8 +26,7 @@ public class BreakLight : MonoBehaviour
 
     IEnumerator BreakLightsRoutine()
     {
-
-
+        lightBehaviour.isFlickerPingPong = true;
         float t = 0f;
         float toLerpFrom = 0f;
         float toLerpTo = maxFlickerSpeed;
@@ -37,8 +39,15 @@ public class BreakLight : MonoBehaviour
             lightBehaviour.flickerSpeed = lerpValue;
             yield return null;
         }
+        lightBehaviour.isFlickerPingPong = false;
         lightBreakingSound.Play();
         light.intensity = 0f;
+
+        if (isLetObjectDisappear)
+        {
+            optionalDisappearingObject.SetActive(false);
+            GameObject.Destroy(optionalDisappearingObject);
+        }
     }
 
    
