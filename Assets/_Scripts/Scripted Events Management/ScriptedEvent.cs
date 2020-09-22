@@ -6,14 +6,18 @@ using UnityEngine.Events;
 public class ScriptedEvent : MonoBehaviour
 {
     public UnityEvent scriptedEvent;
+    public bool isAlreadyTriggered;
 
-    public void InvokeScriptedEvent()
+    public virtual void InvokeScriptedEvent()
     {
         scriptedEvent.Invoke();
     }
 
-    private void OnTriggerEnter(Collider other)
+    public virtual void OnTriggerEnter(Collider other)
     {
-        InvokeScriptedEvent();  
+        if (isAlreadyTriggered == false)
+            InvokeScriptedEvent();
+        isAlreadyTriggered = true;
+
     }
 }
