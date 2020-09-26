@@ -27,6 +27,7 @@ public class LightBehaviour : MonoBehaviour
     public float greenShiftIntensity;
     public float greenShiftlength;
 
+    bool isFlickerRandom;
 
     public void Update()
     {
@@ -67,7 +68,8 @@ public class LightBehaviour : MonoBehaviour
         {
             {
                 Debug.Log("Light should flicker");
-                light.intensity = Mathf.PingPong(Time.time * flickerSpeed, flickerLightIntensity);
+                float tempIntensity= Mathf.PingPong(Time.time * flickerSpeed, Random.Range(0,flickerLightIntensity));
+                light.intensity = tempIntensity;
             }
         }
     }
