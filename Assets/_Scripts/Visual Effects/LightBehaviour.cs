@@ -14,6 +14,7 @@ public class LightBehaviour : MonoBehaviour
     [Header("Flicker Params")]
     public float flickerSpeed;
     public float flickerLightIntensity;
+    public bool isFlickerRandom;
 
     [Header("Phasing Params")]
     public float phaseLength;
@@ -26,8 +27,6 @@ public class LightBehaviour : MonoBehaviour
     public float blueShiftlength;
     public float greenShiftIntensity;
     public float greenShiftlength;
-
-    bool isFlickerRandom;
 
     public void Update()
     {
@@ -68,7 +67,17 @@ public class LightBehaviour : MonoBehaviour
         {
             {
                 Debug.Log("Light should flicker");
-                float tempIntensity= Mathf.PingPong(Time.time * flickerSpeed, Random.Range(0,flickerLightIntensity));
+                float tempIntensity;
+                //Decide if light flickers randomly
+                if (isFlickerRandom)
+                {
+                     tempIntensity = Mathf.PingPong(flickerLightIntensity, Random.Range(0, flickerSpeed));
+                }
+                else
+                {
+                     tempIntensity = Mathf.PingPong(flickerLightIntensity, flickerSpeed);
+                }
+
                 light.intensity = tempIntensity;
             }
         }
