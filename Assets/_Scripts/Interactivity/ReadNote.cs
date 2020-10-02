@@ -352,7 +352,6 @@ public class ReadNote : TextEvent_SequentialAndInvestigate
 
         while (lerpValue < toLerpTo)
         {
-            Debug.Log("CanvasGRoupalpha : " + selectedText.alpha);
             t += blendInNextTextSpeed * Time.deltaTime;
             lerpValue = Mathf.Lerp(toLerpFrom, toLerpTo, t);
             selectedTextGroup.alpha = lerpValue;
