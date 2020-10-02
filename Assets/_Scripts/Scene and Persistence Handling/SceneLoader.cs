@@ -110,7 +110,10 @@ public class SceneLoader : MonoBehaviour
         }
         loadingprogress = 0;
         lastSceneName = name;
-        yield return new WaitForSeconds(loadDelay);
+        //Manually thetrahedralize Light Probes AFTER the scene is loaded
+        LightProbes.TetrahedralizeAsync();
+        //Yield return wait for seconds to even out loading times between scenes, if need be
+        //yield return new WaitForSeconds(loadDelay);
 
         OnScene_Has_Loaded.Invoke();
         brain.enabled = true;
