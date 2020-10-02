@@ -29,8 +29,8 @@ public class Settings : MonoBehaviour
     private void Awake()
     {
         //arbritarily measured "feelGood" vaues
-        defaultSpeedX = 3f;
-        defaultSpeedY = 0.025f;
+        defaultSpeedX = 1.5f;
+        defaultSpeedY = 0.0125f;
         //Init mult by 1, no change
         speedSliderBoth.value = 1;
         speedSliderX.value = 1;
