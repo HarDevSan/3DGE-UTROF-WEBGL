@@ -32,10 +32,11 @@ public class SceneLoader : MonoBehaviour
     {
         //-- Dont forget to UNSUBSCRIBE
         //Double Check OnEnable Method to prevent double subscription
-        SceneTransition.OnPlayerPressedEnterOnSight -= LoadNextScene;
-        SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
-        SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
+        //SceneTransition.OnPlayerPressedEnterOnSight -= LoadNextScene;
+        //SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
+        //SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
         OnScene_Has_Loaded += PlayerController.SetPlayerToPlayableState;
+        SceneLoaderIntro.OnFirstSceneHasBeenLoaded += FilterScenesToGetFirstSceneNameAfterIntro;
     }
 
     private void Start()
@@ -43,12 +44,18 @@ public class SceneLoader : MonoBehaviour
         /*There will never be more than 2 scenes in loaded at once. The Persistent scene an one additional scene.
          * Cause of this, we can check which scene is loaded at the start of the game
          * that is NOT named Persistent and then assign its name to the lastSceneName variable.*/
-        Scene[] sceneArray =  SceneManager.GetAllScenes();
-        foreach(Scene scene in sceneArray)
+      
+    }
+
+    public void FilterScenesToGetFirstSceneNameAfterIntro()
+    {
+        Scene[] sceneArray = SceneManager.GetAllScenes();
+        foreach (Scene scene in sceneArray)
         {
             if (!scene.name.Equals("Persistent"))
             {
                 lastSceneName = scene.name;
+                Debug.Log("SCENE NAME IN ARRAY: " + lastSceneName);
             }
         }
     }
@@ -112,8 +119,6 @@ public class SceneLoader : MonoBehaviour
         lastSceneName = name;
         //Manually thetrahedralize Light Probes AFTER the scene is loaded
         LightProbes.TetrahedralizeAsync();
-        //Yield return wait for seconds to even out loading times between scenes, if need be
-        //yield return new WaitForSeconds(loadDelay);
 
         OnScene_Has_Loaded.Invoke();
         brain.enabled = true;
@@ -141,10 +146,10 @@ public class SceneLoader : MonoBehaviour
         SceneTransition.OnPlayerPressedEnterOnSight -= LoadNextScene;
         SceneTransition.OnPlayerPressedEnterOnSight -= UnloadLastScene;
     }
-    //private void OnEnable()
-    //{
-    //    SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
-    //    SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
-    //}
+    private void OnEnable()
+    {
+        SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
+        SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
+    }
 }
 

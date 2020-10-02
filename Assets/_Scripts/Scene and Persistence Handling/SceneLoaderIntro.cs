@@ -17,11 +17,16 @@ public class SceneLoaderIntro : MonoBehaviour
     [Header("StartMenuSceneName")]
     public string introSceneName;
     bool isPersistentSceneLoaded;
+    public float loadDelay;
 
+    public delegate void FirstSceneHasBeenLoaded();
+    public static event FirstSceneHasBeenLoaded OnFirstSceneHasBeenLoaded;
 
     private void Start()
     {
         TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadFirstScene;
+        TextEvent_Sequential.OnAllTextHasBeenPrinted += UnloadIntroScene;
+
         TextEvent_Sequential.OnAllTextHasBeenPrinted += PlayerController.SetPlayerToPlayableState;
 
         //TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadPersistentScene;
@@ -81,9 +86,8 @@ public class SceneLoaderIntro : MonoBehaviour
         //Manually thetrahedralize Light Probes AFTER the scene is loaded
         LightProbes.TetrahedralizeAsync();
         //Unload old scene after new scene is loaded
-        StartCoroutine(UnloadIntroSceneRoutine());
-
-        yield break;
+        OnFirstSceneHasBeenLoaded.Invoke();
+        yield return new WaitForSeconds(loadDelay);
     }
 
 
@@ -100,8 +104,6 @@ public class SceneLoaderIntro : MonoBehaviour
 
 
         }
-
-        yield break;
     }
 
     private void OnDisable()
@@ -109,5 +111,10 @@ public class SceneLoaderIntro : MonoBehaviour
         TextEvent_Sequential.OnAllTextHasBeenPrinted -= LoadFirstScene;
         TextEvent_Sequential.OnAllTextHasBeenPrinted -= PlayerController.SetPlayerToPlayableState;
     }
+    //private void OnEnable()
+    //{
+    //    TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadFirstScene;
+    //    TextEvent_Sequential.OnAllTextHasBeenPrinted += PlayerController.SetPlayerToPlayableState;
+    //}
 }
 
