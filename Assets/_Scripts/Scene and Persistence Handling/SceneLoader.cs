@@ -44,7 +44,7 @@ public class SceneLoader : MonoBehaviour
         /*There will never be more than 2 scenes in loaded at once. The Persistent scene an one additional scene.
          * Cause of this, we can check which scene is loaded at the start of the game
          * that is NOT named Persistent and then assign its name to the lastSceneName variable.*/
-      
+        FilterScenesToGetFirstSceneNameAfterIntro();
     }
 
     public void FilterScenesToGetFirstSceneNameAfterIntro()
