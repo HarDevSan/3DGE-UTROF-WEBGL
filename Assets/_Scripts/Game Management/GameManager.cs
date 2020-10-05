@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
         //Can't pause game when coroutines need to run
         InputReceiver.On_P_Input += PauseGame;
         InputReceiver.On_P_Second_Input += ResumeGame;
+        InputReceiver.On_P_Second_Input += LockCursor;
+
 
         //TextEvent_withInvestigatePrompt.OnButtonsGetBlendedIn += EnableInteractionCanvasBlockRayCasts;
         //TextEvent_withInvestigatePrompt.OnButtonsGetBlendedOut += DisableInteractionCanvasBlockRayCasts;
