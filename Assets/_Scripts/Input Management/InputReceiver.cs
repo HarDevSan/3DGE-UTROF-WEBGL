@@ -28,13 +28,19 @@ public class InputReceiver : MonoBehaviour
     public static event InputEvent_P_Second On_P_Second_Input;
     public delegate void InputEvent_Q_Input();
     public static event InputEvent_Q_Input On_Q_Inpu;
+    public delegate void InputEvent_F_Input();
+    public static event InputEvent_F_Input On_F_Inpu;
+    public delegate void InputEvent_F_Second();
+    public static event InputEvent_F_Second On_F_Second_Input;
 
     public static bool isMovementInput;
     public static bool pauseWasPressed;
+    public static bool lighterWasPressed;
 
     private void Awake()
     {
         isMovementInput = true;
+     
     }
 
     void Update()
@@ -45,6 +51,8 @@ public class InputReceiver : MonoBehaviour
         }
         //Debug.Log("isMovementInput : " + isMovementInput);
         Check_If_PausePressed();
+        CheckIf_Lighter_Pressed();
+
     }
 
 
@@ -105,6 +113,28 @@ public class InputReceiver : MonoBehaviour
         }
         else
             return false;
+    }
+    public static bool CheckIf_Lighter_Pressed()
+    {
+        if (lighterWasPressed == false)
+        {
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                Debug.Log("Hit F");
+                lighterWasPressed = true;
+                On_F_Inpu.Invoke();
+                return true;
+            }
+        }
+
+        else if (Input.GetKeyDown(KeyCode.F))
+        {
+            lighterWasPressed = false;
+            On_F_Second_Input.Invoke();
+            return false;
+        }
+
+        return false;
     }
 
     public static bool Check_If_PausePressed()
