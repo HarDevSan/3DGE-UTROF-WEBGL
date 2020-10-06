@@ -5,6 +5,7 @@ using UnityEngine;
 public class Lighter : MonoBehaviour
 {
     public Light lighter;
+    public Inventory inventory;
 
     private void Awake()
     {
@@ -12,9 +13,28 @@ public class Lighter : MonoBehaviour
         InputReceiver.On_F_Second_Input += DisableLighter;
     }
 
-    void EnableLighter()
+    /*Check if Lighter is already collected by the player and added to 
+     * the list of names in the Inventory Scriptable Object*/
+    bool checkIfLighterIsInInvenotry()
     {
-        Debug.Log("FunctionReached");
+        if (inventory.SearchListFor("Lighter"))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+            
+    }
+
+    bool CheckIfGameIsPaused()
+    {
+       return GameManager.isGamePaused;
+    }
+
+    void EnableLighter()
+    {   if(CheckIfGameIsPaused() == false)
         lighter.enabled = true;
     }
     void DisableLighter()
