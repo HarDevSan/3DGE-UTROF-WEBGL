@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     public delegate void GameHasBeenResumed();
     public static event GameHasBeenResumed OnGameHasBeenResumed;
 
+    public static bool isGamePaused;
+
     private void Awake()
     {
         SceneLoader.OnSceneIsLoading += PlayerController.SetPlayerToUnplayableState;
@@ -61,6 +63,7 @@ public class GameManager : MonoBehaviour
         InputReceiver.BlockMovementInput();
         brain.enabled = false;
         OnGameHasBeenPaused.Invoke();
+        isGamePaused = true;
     }
 
     void ResumeGame()
@@ -69,6 +72,8 @@ public class GameManager : MonoBehaviour
         InputReceiver.UnBlockMovementInputs();
         brain.enabled = true;
         OnGameHasBeenResumed.Invoke();
+        isGamePaused = false;
+
     }
 
     public static void LockCursor()
