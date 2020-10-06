@@ -7,7 +7,6 @@ public class CameraController : MonoBehaviour
 {
 
     public CinemachineFreeLook vFreeLookCam;
-    public CinemachineFreeLook alternateTargetVCam;
 
     CinemachineVirtualCameraBase vCamBase_MiddleRig;
 
