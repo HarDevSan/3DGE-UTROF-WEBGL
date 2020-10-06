@@ -7,38 +7,65 @@ public class CameraController : MonoBehaviour
 {
 
     public CinemachineFreeLook vFreeLookCam;
+    public CinemachineFreeLook alternateTargetVCam;
+
+    CinemachineVirtualCameraBase vCamBase_MiddleRig;
+
+    public CinemachineCollider cinemachineCollider;
+
     public CinemachineBrain brain;
 
     string defaultAxisNameX;
     string defaultAxisNameY;
 
+    bool isCollsionGoingOn;
+    public Transform defaultLookAt;
+    public Transform alternateLookAt;
+
     private void Start()
     {
         defaultAxisNameX = vFreeLookCam.m_XAxis.m_InputAxisName;
-        defaultAxisNameY = vFreeLookCam.m_YAxis.m_InputAxisName;
+        defaultAxisNameY = vFreeLookCam.m_YAxis.m_InputAxisName;   
     }
 
-     void Update()
+    void Update()
     {
+        /*When brain is blending from cam to another, we dont want any axis input, 
+        *therefore we set the axis temporarily to empty strings*/
         if (brain.IsBlending)
         {
             vFreeLookCam.m_XAxis.m_InputAxisName = "";
             vFreeLookCam.m_YAxis.m_InputAxisName = "";
             Debug.Log("IS BLENDING");
         }
-       
+
+        //Check for Camera Displacement
+        vCamBase_MiddleRig = vFreeLookCam.GetRig(1);
+        isCollsionGoingOn = cinemachineCollider.CameraWasDisplaced(vCamBase_MiddleRig);
+
+
+        if (isCollsionGoingOn)
+        {
+            Debug.Log("Reached Cam Collision");
+            vFreeLookCam.LookAt = alternateLookAt;
+
+        }
+        else
+        {
+            vFreeLookCam.LookAt = defaultLookAt;
+        }
     }
 
     /*Acces this via Signal in timeline, so we prevent polluting Update with 
      * further instructions per frame and only reset the axis once*/
     public void ResetAxisNamesAfterBlend()
     {
-            vFreeLookCam.m_XAxis.m_InputAxisName = defaultAxisNameX;
-            vFreeLookCam.m_YAxis.m_InputAxisName = defaultAxisNameY;  
+        vFreeLookCam.m_XAxis.m_InputAxisName = defaultAxisNameX;
+        vFreeLookCam.m_YAxis.m_InputAxisName = defaultAxisNameY;
     }
 }
 
-   //Old unneeded code 
+//Old unneeded code 
 //    public CinemachineCollider vFreeLookCamCollider;
 
 //    [Range(.5f, 1)]
@@ -71,7 +98,7 @@ public class CameraController : MonoBehaviour
 //    // Update is called once per frame
 //    void Update()
 //    {
-       
+
 //        if(vFreeLookCam != null)
 //        {
 //            Debug.Log("Cam found!");
@@ -113,7 +140,7 @@ public class CameraController : MonoBehaviour
 //    }
 //    void SwitchLookAtTargetsOnOcclusion() {
 
-                
+
 
 //    }
 //}
