@@ -11,6 +11,8 @@ public class Lighter : MonoBehaviour
     {
         InputReceiver.On_F_Inpu += EnableLighter;
         InputReceiver.On_F_Second_Input += DisableLighter;
+
+        lighter.enabled = false;
     }
 
     /*Check if Lighter is already collected by the player and added to 
