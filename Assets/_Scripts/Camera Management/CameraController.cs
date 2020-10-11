@@ -27,7 +27,7 @@ public class CameraController : MonoBehaviour
         defaultAxisNameY = vFreeLookCam.m_YAxis.m_InputAxisName;   
     }
 
-    void Update()
+    void LateUpdate()
     {
         /*When brain is blending from cam to another, we dont want any axis input, 
         *therefore we set the axis temporarily to empty strings*/
@@ -39,15 +39,18 @@ public class CameraController : MonoBehaviour
         }
 
         //Check for Camera Displacement
+        SwapTargetOnCollision(); 
+    }
+
+    void SwapTargetOnCollision()
+    {
         vCamBase_MiddleRig = vFreeLookCam.GetRig(1);
         isCollsionGoingOn = cinemachineCollider.CameraWasDisplaced(vCamBase_MiddleRig);
-
 
         if (isCollsionGoingOn)
         {
             Debug.Log("Reached Cam Collision");
             vFreeLookCam.LookAt = alternateLookAt;
-
         }
         else
         {
