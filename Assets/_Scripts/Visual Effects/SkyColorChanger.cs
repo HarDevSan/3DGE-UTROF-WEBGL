@@ -5,11 +5,15 @@ using UnityEngine;
 public class SkyColorChanger : MonoBehaviour
 {
     public Transform sky;
-    Renderer rendeRerer;
+    public Transform moon;
+    Renderer rendeRererSky;
+    Renderer rendeRererMoon;
+
     public Color colortochangeTo;
 
     public float lerpSpeed;
-    Color originalColor;
+    Color originalColorSky;
+    Color originalColorMoon;
 
     public int timeToWait;
 
@@ -17,8 +21,11 @@ public class SkyColorChanger : MonoBehaviour
 
     private void Start()
     {
-        rendeRerer = sky.GetComponent<Renderer>();
-        originalColor = rendeRerer.material.GetColor("_BaseColor");
+        rendeRererSky = sky.GetComponent<Renderer>();
+        rendeRererMoon = moon.GetComponent<Renderer>();
+        originalColorSky = rendeRererSky.material.GetColor("_BaseColor");
+        originalColorMoon = rendeRererMoon.material.GetColor("_BaseColor");
+
     }
 
     public void ChangeSkyColor()
@@ -36,7 +43,7 @@ public class SkyColorChanger : MonoBehaviour
         }
 
     }
-    void StartResetColor()
+    public void StartResetColor()
     {
         StartCoroutine(SetSkyToOriginalColorRoutine());
     }
@@ -48,9 +55,11 @@ public class SkyColorChanger : MonoBehaviour
 
         var block = new MaterialPropertyBlock();
 
-        block.SetColor("_BaseColor", originalColor);
+        block.SetColor("_BaseColor", originalColorSky);
 
-        rendeRerer.SetPropertyBlock(block);
+        rendeRererSky.SetPropertyBlock(block);
+        rendeRererMoon.SetPropertyBlock(block);
+
 
     }
 
@@ -62,7 +71,7 @@ public class SkyColorChanger : MonoBehaviour
         float t = 0f;
 
         Color fromColor = new Color(0, 0, 0, 1);
-        Color tempCol = rendeRerer.material.color;
+        Color tempCol = rendeRererSky.material.color;
 
         while (t < 1)
         {
@@ -72,7 +81,8 @@ public class SkyColorChanger : MonoBehaviour
 
             block.SetColor("_BaseColor", tempCol);
 
-            rendeRerer.SetPropertyBlock(block);
+            rendeRererSky.SetPropertyBlock(block);
+            rendeRererMoon.SetPropertyBlock(block);
 
             yield return null;
         }
