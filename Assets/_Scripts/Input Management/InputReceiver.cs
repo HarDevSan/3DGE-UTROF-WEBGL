@@ -52,7 +52,7 @@ public class InputReceiver : MonoBehaviour
         //Debug.Log("isMovementInput : " + isMovementInput);
         Check_If_PausePressed();
         CheckIf_Lighter_Pressed();
-
+        //CheckIf_ResetPlayer_Pressed();
     }
 
 

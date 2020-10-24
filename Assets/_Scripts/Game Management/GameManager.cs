@@ -49,13 +49,6 @@ public class GameManager : MonoBehaviour
         //DisableInteractionCanvasBlockRayCasts();
     }
 
-    private void Update()
-    {
-
-        Debug.Log("Character Conroller is enabled : characterControllerRef.enabled");
-
-    }
-
 
     void PauseGame()
     {

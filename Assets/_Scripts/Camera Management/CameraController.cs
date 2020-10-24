@@ -24,7 +24,11 @@ public class CameraController : MonoBehaviour
     private void Start()
     {
         defaultAxisNameX = vFreeLookCam.m_XAxis.m_InputAxisName;
-        defaultAxisNameY = vFreeLookCam.m_YAxis.m_InputAxisName;   
+        defaultAxisNameY = vFreeLookCam.m_YAxis.m_InputAxisName;
+
+           //cache rig
+        vCamBase_MiddleRig = vFreeLookCam.GetRig(1);
+
     }
 
     void LateUpdate()
@@ -44,13 +48,16 @@ public class CameraController : MonoBehaviour
 
     void SwapTargetOnCollision()
     {
-        vCamBase_MiddleRig = vFreeLookCam.GetRig(1);
         isCollsionGoingOn = cinemachineCollider.CameraWasDisplaced(vCamBase_MiddleRig);
 
-        if (isCollsionGoingOn)
+        if (isCollsionGoingOn == true)
         {
             Debug.Log("Reached Cam Collision");
             vFreeLookCam.LookAt = alternateLookAt;
+        }
+        else if(isCollsionGoingOn == false)
+        {
+            vFreeLookCam.LookAt = defaultLookAt;
         }
         else
         {

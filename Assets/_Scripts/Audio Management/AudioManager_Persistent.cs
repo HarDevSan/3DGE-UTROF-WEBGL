@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class AudioManager_Persistent : MonoBehaviour
 {
-    public AudioSource keyCollectedSound;
-    public AudioSource trackIntro;
+    public AudioSource keyCollectedSoundSource;
+    public AudioSource trackIntroSource;
 
     [Header("DoorSoundSource")]
     public AudioSource doorSoundSource;
@@ -16,6 +16,9 @@ public class AudioManager_Persistent : MonoBehaviour
     public AudioClip doorClosingClipLightWeight;
     public AudioClip doorIsLockedClipHeavy;
     public AudioClip doorIsLockedClipLightweight;
+
+    public float tempLowerTrackVolume;
+    public float tempLowerVolumeSpeed;
 
     private void Awake()
     {
@@ -29,7 +32,7 @@ public class AudioManager_Persistent : MonoBehaviour
 
     private void Start()
     {
-        trackIntro.Play();
+        trackIntroSource.Play();
     }
     //Door Locked sounds
     void PlayDoorIsLockedSoundHeavy()
@@ -70,6 +73,24 @@ public class AudioManager_Persistent : MonoBehaviour
         doorSoundSource.Play();
 
     }
+
+    public void TemporaryLowerTrackVolume()
+    {
+
+        float from = trackIntroSource.volume;
+        float to = tempLowerTrackVolume;
+        float t = 0f;
+        float value = trackIntroSource.volume;
+
+        while(value > tempLowerTrackVolume)
+        {
+            t += Time.deltaTime + tempLowerVolumeSpeed;
+            value = Mathf.Lerp(from, to, t);
+            trackIntroSource.volume = value;
+        }
+    }
+
+
 
 
 
