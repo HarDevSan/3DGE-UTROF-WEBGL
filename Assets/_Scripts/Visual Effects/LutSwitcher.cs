@@ -23,26 +23,10 @@ public class LutSwitcher : MonoBehaviour
 
     public void BlendLUTByWeight()
     {
-        StartCoroutine(BlendInWeightRoutine());
         StartCoroutine(BlendInLUTRoutine());
     }
 
-    IEnumerator BlendInWeightRoutine()
-    {
-        float from = 0f;
-        float to = 1f;
-        float t = 0f;
-        float value = 0f;
-
-        while (value < 1)
-        {
-
-            t += blendInSpeed * Time.deltaTime;
-            value = Mathf.Lerp(from, to, t);
-            postFXVolume.weight = value;
-            yield return null;
-        }
-    }
+ 
 
     IEnumerator BlendInLUTRoutine()
     {
