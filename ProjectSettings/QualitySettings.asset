@@ -4,7 +4,7 @@
 QualitySettings:
   m_ObjectHideFlags: 0
   serializedVersion: 5
-  m_CurrentQuality: 2
+  m_CurrentQuality: 1
   m_QualitySettings:
   - serializedVersion: 2
     name: Low
@@ -42,7 +42,9 @@ QualitySettings:
     resolutionScalingFixedDPIFactor: 1
     customRenderPipeline: {fileID: 11400000, guid: a31e9f9f9c9d4b9429ed0d1234e22103,
       type: 2}
-    excludedTargetPlatforms: []
+    excludedTargetPlatforms:
+    - Standalone
+    - WebGL
   - serializedVersion: 2
     name: Medium
     pixelLightCount: 1
@@ -80,7 +82,6 @@ QualitySettings:
     customRenderPipeline: {fileID: 11400000, guid: d847b876476d3d6468f5dfcd34266f96,
       type: 2}
     excludedTargetPlatforms:
-    - WebGL
     - Standalone
   - serializedVersion: 2
     name: High
@@ -119,8 +120,8 @@ QualitySettings:
     customRenderPipeline: {fileID: 11400000, guid: 19ba41d7c0026c3459d37c2fe90c55a0,
       type: 2}
     excludedTargetPlatforms:
-    - WebGL
     - Standalone
+    - WebGL
   m_PerPlatformDefaultQuality:
     Android: 1
     Lumin: 2
