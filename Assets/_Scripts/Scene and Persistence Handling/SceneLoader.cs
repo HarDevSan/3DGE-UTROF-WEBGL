@@ -55,7 +55,6 @@ public class SceneLoader : MonoBehaviour
             if (!scene.name.Equals("Persistent"))
             {
                 lastSceneName = scene.name;
-                Debug.Log("SCENE NAME IN ARRAY: " + lastSceneName);
             }
         }
     }
