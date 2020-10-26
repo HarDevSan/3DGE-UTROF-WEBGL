@@ -52,10 +52,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
-        SetPlayerToUnplayableState();
-        //Set default speed values for walking and strafing, which we then lerp back to in the Run() method, when the player stopped running
-        playerstats._defaultWalkSpeed = playerstats._walkSpeed;
-        playerstats._defaultStrafeSpeed = playerstats._strafeSpeed;
+        SetPlayerToUnplayableState();        
     }
 
     void Update()
