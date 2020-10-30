@@ -72,6 +72,8 @@ public class CameraController : MonoBehaviour
         vFreeLookCam.m_XAxis.m_InputAxisName = defaultAxisNameX;
         vFreeLookCam.m_YAxis.m_InputAxisName = defaultAxisNameY;
     }
+
+  
 }
 
 //Old unneeded code 
