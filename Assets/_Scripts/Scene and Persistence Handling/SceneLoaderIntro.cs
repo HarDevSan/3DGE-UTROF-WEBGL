@@ -27,7 +27,7 @@ public class SceneLoaderIntro : MonoBehaviour
         TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadFirstScene;
         TextEvent_Sequential.OnAllTextHasBeenPrinted += UnloadIntroScene;
 
-        TextEvent_Sequential.OnAllTextHasBeenPrinted += PlayerController.SetPlayerToPlayableState;
+        OnFirstSceneHasBeenLoaded += PlayerController.SetPlayerToPlayableState;
 
         //TextEvent_Sequential.OnAllTextHasBeenPrinted += LoadPersistentScene;
     }
