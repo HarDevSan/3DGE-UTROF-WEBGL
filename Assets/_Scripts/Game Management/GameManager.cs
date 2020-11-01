@@ -37,8 +37,6 @@ public class GameManager : MonoBehaviour
         CanvasBlendingandBlocking.OnSettingsBlendedIn += UnLockCursor;
         CanvasBlendingandBlocking.OnSettingsBlendedOut += LockCursor;
 
-        CanvasBlendingandBlocking.OnSettingsBlendedIn += UnLockCursor;
-        CanvasBlendingandBlocking.OnSettingsBlendedOut += UnLockCursor;
     }
 
     // Start is called before the first frame update
