@@ -13,10 +13,23 @@ public class MaxVisibleCharToZero : MonoBehaviour
 
     private void Awake()
     {
-        foreach (TextMeshProUGUI txt in textsToResetMaxVisCharToZeroOnStart)
-        {
-            txt.maxVisibleCharacters = 0;
-        }
+        //foreach (TextMeshProUGUI txt in textsToResetMaxVisCharToZeroOnStart)
+        //{
+        //    txt.maxVisibleCharacters = 0;
+        //}
+        StartCoroutine(textsToResetMaxVisCharToZeroOnStartRoutine());
      
+    }
+
+    IEnumerator textsToResetMaxVisCharToZeroOnStartRoutine()
+    {
+        int i = 0;
+
+        while(i< textsToResetMaxVisCharToZeroOnStart.Length)
+        {
+            textsToResetMaxVisCharToZeroOnStart[i].maxVisibleCharacters = 0;
+            yield return null;
+        }
+
     }
 }
