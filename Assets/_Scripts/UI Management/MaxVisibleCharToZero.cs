@@ -28,6 +28,7 @@ public class MaxVisibleCharToZero : MonoBehaviour
         while(i< textsToResetMaxVisCharToZeroOnStart.Length)
         {
             textsToResetMaxVisCharToZeroOnStart[i].maxVisibleCharacters = 0;
+            i++;
             yield return null;
         }
 
