@@ -11,6 +11,7 @@ public class Settings : MonoBehaviour
     public Slider speedSliderBoth;
     public Slider speedSliderX;
     public Slider speedSliderY;
+    public Slider walkSpeedSlider;
 
     float defaultSpeedX;
     float defaultSpeedY;
@@ -25,6 +26,10 @@ public class Settings : MonoBehaviour
     float currentVCamspeedX;
     [SerializeField]
     float currentVCamspeedY;
+    [SerializeField]
+    float currentWalkSpeed;
+
+    public PlayerStats playerStatSO;
 
     private void Awake()
     {
@@ -36,6 +41,7 @@ public class Settings : MonoBehaviour
         speedSliderX.value = 1;
         speedSliderY.value = 1;
 
+        walkSpeedSlider.value = playerStatSO._defaultWalkSpeed;
     }
 
     private void Update()
@@ -51,6 +57,9 @@ public class Settings : MonoBehaviour
             currentVCamspeedX = freeLookCam.m_XAxis.m_MaxSpeed;
             currentVCamspeedY = freeLookCam.m_YAxis.m_MaxSpeed;
 
+            currentWalkSpeed = walkSpeedSlider.value;
+            playerStatSO._defaultWalkSpeed = currentWalkSpeed;
+            playerStatSO._walkSpeed = currentWalkSpeed;
         }
     }
 }
