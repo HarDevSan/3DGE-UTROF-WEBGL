@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+
 public class UI_InterActionPromptShowerItem : MonoBehaviour
 {
     [Header("InteractionCanvasGroup")]
     public CanvasGroup interactionGroupGeneric;
-    public TextMeshProUGUI promptText;
-
-    //private void OnEnable()
-    //{
-    //    ShowInteractionPrompt();
-    //}
 
     private void Awake()
     {
@@ -20,17 +16,12 @@ public class UI_InterActionPromptShowerItem : MonoBehaviour
 
     public virtual void ShowInteractionPrompt()
     {
-        //if(isPlayerInsideTrigger)
         interactionGroupGeneric.alpha = 1;
-        promptText.maxVisibleCharacters = promptText.textInfo.characterCount;
     }
 
     public virtual void HideInteractionPrompt()
     {
-        if(interactionGroupGeneric != null)
         interactionGroupGeneric.alpha = 0;
-        promptText.maxVisibleCharacters = 0;
-
     }
 
 
@@ -48,7 +39,6 @@ public class UI_InterActionPromptShowerItem : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        //isPlayerInsideTrigger = false;
         HideInteractionPrompt();
     }
 
