@@ -6,6 +6,7 @@ public class Lighter : MonoBehaviour
 {
     public Light lighter;
     public Inventory inventory;
+    public static bool isLighterEnabled;
 
     private void Awake()
     {
@@ -38,10 +39,12 @@ public class Lighter : MonoBehaviour
     void EnableLighter()
     {   if(CheckIfGameIsPaused() == false)
         lighter.enabled = true;
+        isLighterEnabled = true;
     }
     void DisableLighter()
     {
         lighter.enabled = false;
+        isLighterEnabled = false;
     }
 
 
