@@ -14,6 +14,8 @@ public class Jitter : MonoBehaviour
     public Vector3 lightDefaultPos;
     public Vector3 randomRangeAdd;
 
+    public Lighter lighter;
+
     private void Start()
     {
         lightDefaultPos = light.transform.localPosition;
@@ -23,8 +25,11 @@ public class Jitter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        RandomizeLightRange();
-        RandomizeLightPos();
+        if (Lighter.isLighterEnabled)
+        {
+            RandomizeLightRange();
+            RandomizeLightPos();
+        }
     }
 
     void RandomizeLightPos()
