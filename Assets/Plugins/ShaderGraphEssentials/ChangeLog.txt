@@ -1,0 +1,59 @@
+﻿Change Log:
+
+1.0.0	-	Initial Release.
+
+1.0.1	-	Fixed a bug in SGESimpleLit and SGEUnlit master nodes that made it impossible to work on Mac/Unix systems.
+
+1.0.2	-	Uploaded a new 2019.1 compatible version. 
+		- 	The 2018.3 version is unchanged.
+
+1.0.2b	- 	Fixed an issue with permission which was creating errors on load with a 2019.1 project.
+1.0.2c	-	Turns out the previous fix was working on windows only; so this version add the permission fix on mac.
+
+1.0.3	-	Added support up to ShaderGraph 5.13.0.
+
+1.0.4	-	2019.1 - LWRP version now requires ShaderGraph 5.13.0 or newer (if you're on 2018.3 or on HDRP you're fine)
+			- If you don't want to update to 5.13.0, please contact me.
+		-	Added new Custom Lighting master node (LWRP - 2019.1 only)
+		-	Added new Toon Lighting master node example (LWRP - 2019.1 only)
+		-	In all master nodes, added a "CustomEditor" setting so you can specify custom editor scripts like in regular shaders.
+
+1.0.5	-	Updated SimpleLit master node to follow what Unity's been doing on LWRP/SimpleLit shader.
+			- Removed Glossiness node (it wasn't used)
+			- Renamed Shininess to Smoothness
+		Added a new fix for "Internal Errors" that some users were getting when opening ShaderGraphEssentials the first time (and sometimes on later open too).
+
+1.0.6	-	Introduced the "Getting Started" window. It's useful to both existing and new users!
+		-	Restructured how file are organized in the plugin. Also moved the entire plugin from Assets/ShaderGraphEssentials to Assets/Plugins/ShaderGraphEssentials. This has been requested by many users as to reduced the visual clutter of the root folder (as the plugin can't be moved at the moment!).
+		-	Move the menu items from SGE to Tools/ShaderGraph Essentials for the same reasons.
+
+1.0.7	- 	Fixed a bug with the default custom lighting graph, referencing a wrong path (hlsl file).
+		-	Fixed a minor bug that was throwing an GUI error the first time the Getting Started window was opened
+		- 	Fixed a bug that blocked the Getting Started window to import the HDRP package or demo scenes
+
+1.0.8	- 	If you're on Unity 2019.1.3 or newer and using LWRP, then you need to update to LWRP/ShaderGraph 5.16.1 when getting this version.
+		- 	Fixed a bug in SimpleLit / CustomLit shaders. The bug was giving errors in editor, but the shader was still working in editor and in builds.
+		- 	Fixed the version number in Getting Started window being wrong.
+
+1.0.9	- 	Only impacts 2019.2; if you're on 2018 or 2019.1 it's not useful to update.
+		- 	Add 2019.2 support (require ShaderGraph / SRP 6.9.1 and not 6.9.0 which contains a bug with custom functions and subgraphs). If you update from 2019.1, please delete the ShaderGraph Essentials folder and re-download the new one after upgrade to make sure there're no leftover files.
+		- 	Removed some demo shaders that were unused and fixed minor bugs in other demo shaders
+
+1.1.0	- 	Added new setting in all SGE master nodes: "Update Vertex Position".
+		- 	Added new water demo scene and shaders, with vertex displacement and depth-based foam to showcase the new setting
+		-	Red-did the entire SGE asset store page, marketing visuals and added an extensive online doc
+
+1.1.1	- 	Added support for Unity 2019.3 (2019.3.0b11 and above).
+
+1.1.2	- 	Fixed a compilation error starting from 2019.3.0f6 (with URP  7.1.8).
+        -   Improving SGE registration. This should solve errors when updating URP or Unity and getting "is inaccessible error". If you still have an issue similar to this, please contact me on the discord server.
+        -   Better support if you have ShaderGraph package locally in your asset folder.
+        -   Typo fix: "Periode" to "Period".
+        
+1.1.3   -   Only impact 2019.3: Fixed shader compilation error when using SGE master nodes on Android VR. 
+
+1.1.4   -   Only impact 2019.3: Now supports and requires URP / HDRP 7.2.1. 
+
+1.1.6	-   Completely changed how the plugin integrates with ShaderGraph. It is much more robust and future proof!
+        -   Fixed possible NaNs error when using 3D perlin Ridge noise node. 
+        -   Fixed all scripts warnings.
