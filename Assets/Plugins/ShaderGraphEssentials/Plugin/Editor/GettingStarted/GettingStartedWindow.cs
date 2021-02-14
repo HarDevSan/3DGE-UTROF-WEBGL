@@ -58,7 +58,7 @@ namespace ShaderGraphEssentials
     
     public class GettingStartedWindow : EditorWindow
     {
-        private const string SGEVersion = "1.1.6";
+        private const string SGEVersion = "1.1.8";
         
         private const string SGEPath = "Assets/Plugins/ShaderGraphEssentials";
         private const string SGELogoFileName = "Plugin/Editor/GettingStarted/Data/SGE_key_128x128.png";

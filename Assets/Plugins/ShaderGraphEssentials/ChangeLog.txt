@@ -57,3 +57,5 @@
 1.1.6	-   Completely changed how the plugin integrates with ShaderGraph. It is much more robust and future proof!
         -   Fixed possible NaNs error when using 3D perlin Ridge noise node. 
         -   Fixed all scripts warnings.
+        
+1.1.8   -   Fixed the default value for "Render Queue" from "Background" to "Geometry". Geometry is probably what most people expect, and Geometry was causing issue with drag-n-dropping materials in the scene view. 
