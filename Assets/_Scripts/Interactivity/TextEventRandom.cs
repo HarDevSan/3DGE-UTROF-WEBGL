@@ -60,24 +60,8 @@ public class TextEventRandom : MonoBehaviour
     {
         if (playerIsInTrigger && InputReceiver.CheckIf_Use_Pressed() && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item)
         {
-            //isUserInvestigating = !isUserInvestigating;
-
-            //if (isUserInvestigating == true)
-            //{
-            //    PauseTimeScale();
-            //if(isPrintingDone)
+  
             PrintText();
-
-
-            //    }
-            //    else
-            //    {
-            //        ResumeTimeScale();
-            //    }
-
-            //}
-            //else
-            //{
 
         }
         else if (playerIsInTrigger && PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item == false)
@@ -132,18 +116,6 @@ public class TextEventRandom : MonoBehaviour
         InputReceiver.UnBlockMovementInputs();
     }
 
-    /* While the text gets printed and the player did not interact a second time,
-     * time should be paused so that no unfair occurences happen like an enemy stabbing the player or 
-     * the player losing valuable total playtime for his/her score */
-    void PauseTimeScale()
-    {
-        Time.timeScale = 0f;
-    }
-
-    void ResumeTimeScale()
-    {
-        Time.timeScale = 1f;
-    }
 
     void SelectRandomTextInList()
     {
