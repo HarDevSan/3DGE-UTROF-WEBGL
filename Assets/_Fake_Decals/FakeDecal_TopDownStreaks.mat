@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1
+  version: 2
 --- !u!21 &2100000
 Material:
   serializedVersion: 6
@@ -21,12 +21,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FakeDecal_TopDownStreaks
-  m_Shader: {fileID: 4800000, guid: 8d2bb70cbf9db8d4da26e15b26e74248, type: 3}
-  m_ShaderKeywords: _RECEIVE_SHADOWS_OFF _SPECULAR_COLOR
+  m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
+  m_ShaderKeywords: _ALPHATEST_ON
   m_LightmapFlags: 6
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3050
+  m_CustomRenderQueue: 3000
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
@@ -75,7 +75,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _AlphaClip: 0
+    - _AlphaClip: 1
     - _ApplyDynScale: 0
     - _ApplyNormal: 1
     - _ApplyTopDownProjection: 1
@@ -114,8 +114,9 @@ Material:
     - _QueueOffset: 0
     - _ReadMask: 255
     - _ReceiveShadows: 0
+    - _SampleGI: 0
     - _Shininess: 0
-    - _Smoothness: 0.5
+    - _Smoothness: 0
     - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
     - _SpecSource: 0
@@ -129,9 +130,9 @@ Material:
     - _WriteMask: 255
     - _ZWrite: 0
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 0.70980394}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 0.5254902}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DistanceFade: {r: 2500, g: 0.001, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SpecColor: {r: 0.1999991, g: 0.1999991, b: 0.1999991, a: 0.5}
+    - _SpecColor: {r: 0.19999614, g: 0.19999614, b: 0.19999614, a: 0}
     - _TerrainPosition: {r: 0, g: 0, b: 0, a: 0}
