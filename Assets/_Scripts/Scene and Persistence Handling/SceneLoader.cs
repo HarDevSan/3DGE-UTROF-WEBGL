@@ -25,7 +25,8 @@ public class SceneLoader : MonoBehaviour
     public static event ScenehasUnLoaded OnScene_Has_UnLoaded;
 
     [SerializeField]
-    string lastSceneName;
+    public static string lastSceneName;
+    public static string thisSceneName;
     public CinemachineBrain brain;
 
     private void Awake()
@@ -59,22 +60,9 @@ public class SceneLoader : MonoBehaviour
         }
     }
 
-    bool CheckIfSceneHasOutdoors()
-    {
-        if (GameObject.FindWithTag("HasOutDoorScene") != null)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     //-----------Loading
     public void LoadNextScene(string name)
     {
-        Debug.Log("Scene Name param : " + name);
 
         //Start loading of next scene if the next scene is not already loaded
         if (SceneManager.GetSceneByName(name).isLoaded == false)
@@ -99,7 +87,7 @@ public class SceneLoader : MonoBehaviour
     IEnumerator WaitForSceneToFinishLoading(string name)
     {
         OnSceneStartedLoading.Invoke();
-
+        //disable Cinemachine Brain temporarily while scene has not finished loading
         brain.enabled = false;
         //Loading the nextScene and thereby create an async operation
         AsyncOperation operation = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
@@ -118,7 +106,7 @@ public class SceneLoader : MonoBehaviour
         lastSceneName = name;
         //Manually thetrahedralize Light Probes AFTER the scene is loaded
         LightProbes.TetrahedralizeAsync();
-
+        thisSceneName = name;
         OnScene_Has_Loaded.Invoke();
         brain.enabled = true;
 
