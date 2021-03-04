@@ -79,10 +79,6 @@ public class GameManager : MonoBehaviour
 
     }
 
-
-
-
-
     private void OnDisable()
     {
         SceneLoader.OnSceneIsLoading -= PlayerController.SetPlayerToUnplayableState;
