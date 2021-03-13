@@ -6,8 +6,7 @@ using UnityEngine.Events;
 
 public class AudioEventRandomPitch : MonoBehaviour
 {
-    public float interactionPromptBlendTime;
-    //public CanvasGroup backGround;
+  
 
     [Header("Bools")]
     [SerializeField]
