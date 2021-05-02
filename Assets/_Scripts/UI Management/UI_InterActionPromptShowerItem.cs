@@ -16,11 +16,13 @@ public class UI_InterActionPromptShowerItem : MonoBehaviour
 
     public virtual void ShowInteractionPrompt()
     {
-        interactionGroupGeneric.alpha = 1;
+        if (interactionGroupGeneric != null)
+            interactionGroupGeneric.alpha = 1;
     }
 
     public virtual void HideInteractionPrompt()
     {
+        if(interactionGroupGeneric != null)
         interactionGroupGeneric.alpha = 0;
     }
 
