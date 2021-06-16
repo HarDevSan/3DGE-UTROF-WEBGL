@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Shader Graphs_Glass_Fake_Refraction_LUX
   m_Shader: {fileID: 4800000, guid: be01a6202122cde4e9b0bd2e7f93a961, type: 3}
-  m_ShaderKeywords: _ENVIRONMENTREFLECTIONS_OFF _EXCLUDEFOREGROUND _NORMALMAP
+  m_ShaderKeywords: _ENVIRONMENTREFLECTIONS_OFF _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -21,7 +21,7 @@ Material:
     m_TexEnvs:
     - _BaseMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 2.87, y: 3.41}
+        m_Scale: {x: 8, y: 8}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: b40dad9a0f286a7438ec6a456d21556f, type: 3}
@@ -44,8 +44,8 @@ Material:
     - Vector1_D044E12B: 6.3
     - _ApplyNormal: 1
     - _Blend: 0
-    - _BumpRefraction: 1
-    - _BumpScale: 0.51
+    - _BumpRefraction: 0.098
+    - _BumpScale: 1
     - _Cull: 2
     - _DstBlend: 0
     - _EnableBaseMap: 0
@@ -53,7 +53,7 @@ Material:
     - _EnableMaskMap: 0
     - _EnableScreenEdgeFade: 0
     - _EnvironmentReflections: 0
-    - _ExcludeForeground: 1
+    - _ExcludeForeground: 0
     - _FinalAlpha: 0.5
     - _IOR: 0.7
     - _IsThinShell: 0.85
@@ -62,11 +62,11 @@ Material:
     - _Rim: 0
     - _RimFrequency: 0.98
     - _RimMinPower: 1.87
-    - _RimPerPositionFrequency: 0.767
+    - _RimPerPositionFrequency: 0.316
     - _RimPower: 6.07
     - _ScreenEdgeFade: 8
-    - _Smoothness: 0.912
-    - _SmoothnessBase: 0.5
+    - _Smoothness: 0.765
+    - _SmoothnessBase: 0.46
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Stencil: 0
@@ -79,6 +79,6 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.84313726, g: 0.93090385, b: 1, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _RimColor: {r: 0.07876467, g: 0.08563646, b: 0.09433961, a: 1}
-    - _SpecColor: {r: 0.33365968, g: 0.41433787, b: 0.4339623, a: 1}
+    - _RimColor: {r: 0.32800817, g: 0.34796634, b: 0.3679245, a: 1}
+    - _SpecColor: {r: 0.082102194, g: 0.084438436, b: 0.084905684, a: 1}
     - _SpecColorBase: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
