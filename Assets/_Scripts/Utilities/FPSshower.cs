@@ -11,11 +11,14 @@ using TMPro;
 public class FPSshower : MonoBehaviour
 {
     public TextMeshProUGUI fpsCounter;
+    public TextMeshProUGUI miliSeconds;
+
     int fps;
 
     public Color greaterEqual60_Color;
     public Color greaterEqual30Below60_Color;
     public Color below30_Color;
+
 
     // Update is called once per frame
     void Update()
@@ -24,23 +27,31 @@ public class FPSshower : MonoBehaviour
         //Calculate framerate and cast to int
         fps = (int)(1f / Time.smoothDeltaTime);
         fpsCounter.text = "FPS: " + fps;
+        //Calculate miliseconds and cast to float
+        miliSeconds.text = "MS: " + (float)1 / fps;
+        miliSeconds.maxVisibleCharacters = 9;
 
         //Color coding depending on fps range
         if (fps >= 59)
         {
             fpsCounter.color = greaterEqual60_Color;
+            miliSeconds.color = greaterEqual60_Color;
+
         }
         else if (fps < 60 && fps >= 30)
         {
             fpsCounter.color = greaterEqual30Below60_Color;
+            miliSeconds.color = greaterEqual30Below60_Color;
         }
         else if (fps < 30)
         {
             fpsCounter.color = below30_Color;
+            miliSeconds.color = below30_Color;
         }
         else
         {
             fpsCounter.color = below30_Color;
+            miliSeconds.color = below30_Color;
         }
 
     }
