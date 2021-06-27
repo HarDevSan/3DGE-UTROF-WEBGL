@@ -8,9 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Concrete_000
-  m_Shader: {fileID: -6465566751694194690, guid: ad03d02ea5ba82140b2ac9aa712518c1,
-    type: 3}
-  m_ShaderKeywords: _NORMALMAP _SPECULAR_COLOR
+  m_Shader: {fileID: 4800000, guid: 140c4a6e4341d3745b08198981896090, type: 3}
+  m_ShaderKeywords: _NORMALMAP _SPECULARHIGHLIGHTS_OFF _SPECULAR_COLOR _TOPDOWNPROJECTION
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -100,6 +99,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 01f3e2daf5a21b844bc5a192b2cb135e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 2800000, guid: 742aba6c8cb89e3459986da6460b3bf5, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -112,6 +115,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TopDownBaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopDownNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - Boolean_6B982720: 0
     - Boolean_B9F392B3: 0
@@ -120,6 +131,7 @@ Material:
     - Vector1_25493C56: 0.2
     - Vector1_287BF8D: 0
     - Vector1_2E84FECB: 1
+    - Vector1_344F1BB2: 1
     - Vector1_3D86CA36: 0.5
     - Vector1_3DABBFE6: 1
     - Vector1_5727F56D: 1
@@ -139,19 +151,44 @@ Material:
     - Vector1_F776731D: 1
     - Vector1_F7F1279E: 1
     - _AlphaClip: 0
+    - _ApplyDynScale: 0
+    - _ApplyFog: 0
+    - _ApplyNormal: 1
+    - _ApplyTopDownProjection: 1
     - _Blend: 0
     - _BumpScale: 10
+    - _BumpScaleDyn: 1
+    - _CombinedTexture: 0
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DecalNormal: 0
+    - _DecalNormalStrength: 0.5
     - _DstBlend: 0
+    - _Emission: 0
+    - _EnableFuzzyLighting: 0
     - _EnvironmentReflections: 1
+    - _FuzzAmbient: 1
+    - _FuzzBias: 0
+    - _FuzzPower: 4
+    - _FuzzStrength: 1
+    - _FuzzWrap: 0.5
     - _GlossMapScale: 0
+    - _GlossMapScaleDyn: 1
     - _Glossiness: 0
     - _GlossinessSource: 0
     - _GlossyReflections: 0
+    - _HeightBlendSharpness: 1
+    - _LowerNormalInfluence: 1
+    - _LowerNormalMinStrength: 0.2
+    - _MaskFromNormal: 0
     - _Metallic: 0
+    - _NormalFactor: 1
+    - _NormalLimit: 0.5
+    - _Occlusion: 1
     - _OcclusionStrength: 1
+    - _OrthoSpport: 0
     - _QueueOffset: 0
+    - _ReadMask: 255
     - _ReceiveShadows: 1
     - _Shininess: 0
     - _Smoothness: 0.812
@@ -160,22 +197,31 @@ Material:
     - _SpecSource: 0
     - _SpecularHighlights: 0
     - _SrcBlend: 1
+    - _StencilCompare: 8
+    - _StencilRef: 0
     - _Surface: 0
+    - _TopDownTiling: 1
     - _WorkflowMode: 1
+    - _WriteMask: 255
     - _ZWrite: 1
     m_Colors:
     - Color_BDF173C: {r: 1, g: 1, b: 1, a: 0}
     - Color_C58DC418: {r: 0.53773576, g: 0.53773576, b: 0.53773576, a: 0}
     - Color_F042D5A8: {r: 1, g: 1, b: 1, a: 0}
+    - Vector2_39507AC9: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_5F1EDC5B: {r: 0, g: 0, b: 0, a: 0}
     - Vector2_6C019621: {r: 1, g: 1, b: 0, a: 0}
     - Vector2_83E5D02A: {r: 3, g: 3, b: 0, a: 0}
+    - Vector2_97E0136D: {r: 0, g: 0, b: 0, a: 0}
     - Vector2_C08FE266: {r: 0.5, g: 0.5, b: 0, a: 0}
     - Vector2_EF090FA5: {r: 0.5, g: 0.5, b: 0, a: 0}
     - Vector2_EFD10014: {r: 1, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.5127714, g: 0.5894731, b: 0.6509434, a: 1}
+    - _DistanceFade: {r: 2500, g: 0.001, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999826, g: 0.19999826, b: 0.19999826, a: 0.812}
+    - _TerrainPosition: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &7546426647786462867
 MonoBehaviour:
   m_ObjectHideFlags: 11
