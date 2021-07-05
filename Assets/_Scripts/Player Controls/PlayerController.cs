@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
         SetPlayerToUnplayableState();        
     }
 
-    void Update()
+    void LateUpdate()
     {
         //Gravity needs to always be applied, even if we have no jumping but maybe some falling
         // if (isApplyGravity)
@@ -143,7 +143,7 @@ public class PlayerController : MonoBehaviour
         _characterController.Move(camForwardZeroY * inputVectorWASD.normalized.y * playerstats._walkSpeed * Time.deltaTime);
         //Strafing
         _characterController.Move(camRightZeroY * inputVectorWASD.normalized.x * playerstats._strafeSpeed * Time.deltaTime);
-        //FUNNY we could simply swap x and y here to make a classical "spellbound" like effect on the player when he is hit by some kind of poison or spell
+        //Could simply swap x and y here to make a classical "spellbound" like effect on the player when he is hit by some kind of poison or spell
 
     }
 
