@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Continously checks on movement input. Returns true ONLY if movement is input, otherwise spare the update loop
 public class InputManager : MonoBehaviour
 {
 

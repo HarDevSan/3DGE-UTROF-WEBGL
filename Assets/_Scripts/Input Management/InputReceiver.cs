@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*Checks on one hit input or continuous input of various keycodes
+ * 
+ */
 public class InputReceiver : MonoBehaviour
 {
 
@@ -11,6 +14,8 @@ public class InputReceiver : MonoBehaviour
     public static bool isRKey;
     public static bool isShiftKeyPressed;
     public static bool isEnterKeyPressed;
+    public static bool isZKeyPresssed;
+
 
     public float moveSmoothDampTime;
 
@@ -18,6 +23,8 @@ public class InputReceiver : MonoBehaviour
     Vector2 currentMoveMentInputVelocity = Vector3.zero;
 
     //-----------Events
+    public delegate void InputEvent_Z();
+    public static event InputEvent_Z On_Z_Input;
     public delegate void InputEvent_E();
     public static event InputEvent_E On_E_Input;
     public delegate void InputEvent_R();
@@ -39,7 +46,7 @@ public class InputReceiver : MonoBehaviour
 
     private void Awake()
     {
-        isMovementInput = true;
+        //isMovementInput = true;
      
     }
 
@@ -62,11 +69,6 @@ public class InputReceiver : MonoBehaviour
         //if(isMovementInput)
         movementInput = new Vector2(Input.GetAxis("Horizontal"), (Input.GetAxis("Vertical")));
 
-    }
-
-    void ClampYInput()
-    {
-        //No need, done in CineMachine FreeLook component
     }
 
     public void ClearAllInputs()
@@ -165,6 +167,17 @@ public class InputReceiver : MonoBehaviour
     public static bool CheckIf_Quit_Pressed()
     {
         if (Input.GetKeyDown(KeyCode.Q))
+        {
+            // On_E_Input.Invoke(); No Subs, yet
+            return true;
+        }
+        else
+            return false;
+    }
+
+    public static bool CheckIf_Zoom_IsPressed()
+    {
+        if (Input.GetKey(KeyCode.Z))
         {
             // On_E_Input.Invoke(); No Subs, yet
             return true;
