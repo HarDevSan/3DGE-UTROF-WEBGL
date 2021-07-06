@@ -25,6 +25,8 @@ public class InputReceiver : MonoBehaviour
     //-----------Events
     public delegate void InputEvent_Z();
     public static event InputEvent_Z On_Z_Input;
+    public delegate void InputEvent_Z_Up();
+    public static event InputEvent_Z_Up On_Z_Input_Up;
     public delegate void InputEvent_E();
     public static event InputEvent_E On_E_Input;
     public delegate void InputEvent_R();
@@ -59,6 +61,7 @@ public class InputReceiver : MonoBehaviour
         //Debug.Log("isMovementInput : " + isMovementInput);
         Check_If_PausePressed();
         CheckIf_Lighter_Pressed();
+        CheckIf_Zoom_IsPressed();
         //CheckIf_ResetPlayer_Pressed();
     }
 
@@ -168,7 +171,6 @@ public class InputReceiver : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            // On_E_Input.Invoke(); No Subs, yet
             return true;
         }
         else
@@ -177,13 +179,18 @@ public class InputReceiver : MonoBehaviour
 
     public static bool CheckIf_Zoom_IsPressed()
     {
-        if (Input.GetKey(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Z))
         {
-            // On_E_Input.Invoke(); No Subs, yet
+            isZKeyPresssed = true;
+            On_Z_Input.Invoke();
             return true;
         }
-        else
-            return false;
+        else if (Input.GetKeyUp(KeyCode.Z))
+        {
+            On_Z_Input_Up.Invoke();
+            isZKeyPresssed = false;
+        }
+        return false;
     }
 
 }
