@@ -5,7 +5,6 @@ using Cinemachine;
 
 public class CameraZoom : MonoBehaviour
 {
-    public CinemachineFreeLook zoomCam;
     public CinemachineVirtualCamera zoomCamFPS;
 
 
