@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
 
     CharacterController _characterController;
 
-    Vector3 _velocity;
+    Vector3 _gravity;
     Vector3 inputVectorWASD;
 
     public delegate void PlayerSeesSomehtingInteractable_Room();
@@ -42,11 +42,13 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         InputReceiver.On_R_Input += ResetPlayer;
+        //InputReceiver.On_Z_Input += TurnPlayer;
         //Character Controller class must be enabled/diabled inside the update function for it work
         SceneLoader.OnSceneStartedLoading += SetPlayerToUnplayableState;
         SceneLoader.OnScene_Has_Loaded += SetPlayerToPlayableState;
         GameManager.OnGameHasBeenPaused += SetPlayerToUnplayableState;
         GameManager.OnGameHasBeenResumed += SetPlayerToPlayableState;
+
     }
 
     void Start()
@@ -64,6 +66,7 @@ public class PlayerController : MonoBehaviour
         AnimatePlayer();
 
         //Set CharController enabled by member boo, cause must be done every frame
+       
 
         //Only call Movement related functions if the player does movmeent input
         if (InputManager.CheckIfAnyMovementInput())
@@ -87,6 +90,12 @@ public class PlayerController : MonoBehaviour
 
         //RayCasting
         CastRayFromFront();
+
+        //TurnPlayerWhilstZooming
+        if (InputReceiver.isZKeyPresssed)
+        {
+            TurnPlayer();
+        }
     }
 
 
@@ -95,18 +104,18 @@ public class PlayerController : MonoBehaviour
         //Check if the player is grounded and turn off the gravity in that case
         if (_characterController.isGrounded)
         {
-            _velocity = Vector3.zero;
+            _gravity = Vector3.zero;
             //Debug.Log("grounded");
         }
         else if(isApplyGravity)
         {
             //If the player is not grounded, move him downwards on the y-axis. Note this is NOT the same as applying force with a rigidbody as we are using a character controller
-            _velocity = new Vector3(_velocity.x, _velocity.y - playerstats._gravityStrength * Time.deltaTime, _velocity.z);
-            _characterController.Move(_velocity * Time.deltaTime);
+            _gravity = new Vector3(_gravity.x, _gravity.y - playerstats._gravityStrength * Time.deltaTime, _gravity.z);
+            _characterController.Move(_gravity * Time.deltaTime);
         }
         else
         {
-            _velocity = Vector3.zero;
+            _gravity = Vector3.zero;
         }
     }
 
