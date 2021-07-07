@@ -39,7 +39,6 @@ public class CameraController : MonoBehaviour
         {
             vFreeLookCam.m_XAxis.m_InputAxisName = "";
             vFreeLookCam.m_YAxis.m_InputAxisName = "";
-            Debug.Log("IS BLENDING");
         }
 
         //Check for Camera Displacement
@@ -52,7 +51,6 @@ public class CameraController : MonoBehaviour
 
         if (isCollsionGoingOn == true)
         {
-            Debug.Log("Reached Cam Collision");
             vFreeLookCam.LookAt = alternateLookAt;
         }
         else if (isCollsionGoingOn == false)
