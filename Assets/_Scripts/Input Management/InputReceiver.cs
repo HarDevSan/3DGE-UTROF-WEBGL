@@ -179,13 +179,13 @@ public class InputReceiver : MonoBehaviour
 
     public static bool CheckIf_Zoom_IsPressed()
     {
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetMouseButtonDown(1))
         {
             isZKeyPresssed = true;
             On_Z_Input.Invoke();
             return true;
         }
-        else if (Input.GetKeyUp(KeyCode.Z))
+        else if (Input.GetMouseButtonUp(1))
         {
             On_Z_Input_Up.Invoke();
             isZKeyPresssed = false;
