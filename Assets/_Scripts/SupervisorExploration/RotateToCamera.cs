@@ -16,13 +16,14 @@ public class RotateToCamera : MonoBehaviour
     void Start()
     {
         mainCamTrans = Camera.main.transform;
+        initialX = toTransform.rotation.eulerAngles.x;
+
     }
 
     //Only calculate roation when player inside trigger. Prevents use of Update.
     private void OnTriggerStay(Collider other)
     {
 
-        initialX = toTransform.rotation.eulerAngles.x;
         Quaternion newRot = new Quaternion();
 
 
