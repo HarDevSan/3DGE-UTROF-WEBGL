@@ -24,14 +24,11 @@ public class RotateToCamera : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
 
-        Quaternion newRot = new Quaternion();
-
 
         if (other.tag == "Player")
         {
 
-            newRot = Quaternion.Slerp(toTransform.rotation, Quaternion.LookRotation(mainCamTrans.forward), Time.deltaTime * rotSpeed);
-            toTransform.rotation = newRot;
+            toTransform.rotation = Quaternion.Slerp(toTransform.rotation, Quaternion.LookRotation(mainCamTrans.forward), Time.deltaTime * rotSpeed);
             toTransform.eulerAngles = new Vector3(initialX, toTransform.eulerAngles.y, 0);
         }
     }

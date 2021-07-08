@@ -21,10 +21,8 @@ public class RotateToCamPermanent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Quaternion newRot = new Quaternion();
 
-        newRot = Quaternion.Slerp(toTransform.rotation, Quaternion.LookRotation(mainCamTrans.forward), Time.deltaTime * rotSpeed);
-        toTransform.rotation = newRot;
+        toTransform.rotation = Quaternion.Slerp(toTransform.rotation, Quaternion.LookRotation(mainCamTrans.forward), Time.deltaTime * rotSpeed);
         toTransform.eulerAngles = new Vector3(initialX, toTransform.eulerAngles.y, 0);
 
     }
