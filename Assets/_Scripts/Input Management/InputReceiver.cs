@@ -63,6 +63,7 @@ public class InputReceiver : MonoBehaviour
         CheckIf_Lighter_Pressed();
         CheckIf_Zoom_IsPressed();
         //CheckIf_ResetPlayer_Pressed();
+        CheckIf_Use_Pressed();
     }
 
 
@@ -114,6 +115,7 @@ public class InputReceiver : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
+            On_E_Input.Invoke();
             return true;
         }
         else
