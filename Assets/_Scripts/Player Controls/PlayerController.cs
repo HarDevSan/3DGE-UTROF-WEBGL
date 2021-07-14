@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
-        SetPlayerToUnplayableState();        
+        SetPlayerToUnplayableState();
     }
 
     void LateUpdate()
@@ -66,7 +66,7 @@ public class PlayerController : MonoBehaviour
         AnimatePlayer();
 
         //Set CharController enabled by member boo, cause must be done every frame
-       
+
 
         //Only call Movement related functions if the player does movmeent input
         if (InputManager.CheckIfAnyMovementInput())
@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
             _gravity = Vector3.zero;
             //Debug.Log("grounded");
         }
-        else if(isApplyGravity)
+        else if (isApplyGravity)
         {
             //If the player is not grounded, move him downwards on the y-axis. Note this is NOT the same as applying force with a rigidbody as we are using a character controller
             _gravity = new Vector3(_gravity.x, _gravity.y - playerstats._gravityStrength * Time.deltaTime, _gravity.z);
@@ -159,7 +159,7 @@ public class PlayerController : MonoBehaviour
 
     public void Run()
     {
-        
+
         //Run forward
         if (InputManager.CheckIfVerticalInput())
         {
@@ -226,14 +226,22 @@ public class PlayerController : MonoBehaviour
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem))
         {
+
             //OnPlayerSeesSomethingInteractable_Item.Invoke();
+
+
             isPlayerCanInteractBecauseHeLooksAtSmth_item = true;
 
         }
         else
         {
+            //check for event not null
             if (OnPlayerDoesNotSeeSomehtingInteractable != null)
-                OnPlayerDoesNotSeeSomehtingInteractable.Invoke();
+
+
+                //OnPlayerDoesNotSeeSomehtingInteractable.Invoke();
+
+
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = false;
             isPlayerCanInteractBecauseHeLooksAtSmth_item = false;
         }
@@ -255,7 +263,7 @@ public class PlayerController : MonoBehaviour
 
     public static void SetPlayerToPlayableState()
     {
-      
+
         isApplyGravity = true;
         InputReceiver.UnBlockMovementInputs();
     }
