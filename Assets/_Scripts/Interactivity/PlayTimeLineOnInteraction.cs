@@ -8,6 +8,9 @@ public class PlayTimeLineOnInteraction : MonoBehaviour
 {
     public PlayableDirector timeLineToPlay;
 
+    //public delegate void TimeLineHasStartedPlaying();
+    //public static event TimeLineHasStartedPlaying OnTimeLineHasStartedPlaying;
+
     private void Start()
     {       
         InputReceiver.On_E_Input += PlayTimeLine;
