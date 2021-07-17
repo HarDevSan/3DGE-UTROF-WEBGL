@@ -15,10 +15,14 @@ public class PlayerController : MonoBehaviour
     public static bool isApplyGravity;
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Room;
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_item;
+    public static bool isPlayerCanInteractBecauseHeLooksAt_ScriptedEvent;
+
 
     [Header("Interaction LayerMasks")]
     public LayerMask interactionMaskRoom;
     public LayerMask interactionMaskItem;
+    public LayerMask interactionMaskScriptedEvent;
+
 
     CharacterController _characterController;
 
@@ -37,12 +41,10 @@ public class PlayerController : MonoBehaviour
 
     static bool isCharControllerEnabled;
 
-
-
     private void Awake()
     {
         InputReceiver.On_R_Input += ResetPlayer;
-        //InputReceiver.On_Z_Input += TurnPlayer;
+        InputReceiver.On_Z_Input += TurnPlayer;
         //Character Controller class must be enabled/diabled inside the update function for it work
         SceneLoader.OnSceneStartedLoading += SetPlayerToUnplayableState;
         SceneLoader.OnScene_Has_Loaded += SetPlayerToPlayableState;
@@ -226,26 +228,24 @@ public class PlayerController : MonoBehaviour
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem))
         {
-
-            //OnPlayerSeesSomethingInteractable_Item.Invoke();
-
-
+            //OnPlayerSeesSomethingInteractable_Item.Invoke(); - unneeded overhead
             isPlayerCanInteractBecauseHeLooksAtSmth_item = true;
-
+        }
+        else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskScriptedEvent))
+        {
+            isPlayerCanInteractBecauseHeLooksAt_ScriptedEvent = true;
         }
         else
         {
             //check for event not null
             if (OnPlayerDoesNotSeeSomehtingInteractable != null)
-
-
-                //OnPlayerDoesNotSeeSomehtingInteractable.Invoke();
-
+                //OnPlayerDoesNotSeeSomehtingInteractable.Invoke(); - unneeded overhead
 
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = false;
             isPlayerCanInteractBecauseHeLooksAtSmth_item = false;
+            isPlayerCanInteractBecauseHeLooksAt_ScriptedEvent = false;
         }
-        Debug.DrawRay(castRayFrom.position, castRayFrom.forward, Color.green);
+        //Debug.DrawRay(castRayFrom.position, castRayFrom.forward, Color.green);
 
     }
 
@@ -263,7 +263,6 @@ public class PlayerController : MonoBehaviour
 
     public static void SetPlayerToPlayableState()
     {
-
         isApplyGravity = true;
         InputReceiver.UnBlockMovementInputs();
     }
