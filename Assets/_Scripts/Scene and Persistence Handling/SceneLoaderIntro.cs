@@ -83,9 +83,7 @@ public class SceneLoaderIntro : MonoBehaviour
                 yield return null;
             }
         }
-        //Manually thetrahedralize Light Probes AFTER the scene is loaded
-        LightProbes.TetrahedralizeAsync();
-        //Unload old scene after new scene is loaded
+      
         OnFirstSceneHasBeenLoaded.Invoke();
         yield return new WaitForSeconds(loadDelay);
     }
