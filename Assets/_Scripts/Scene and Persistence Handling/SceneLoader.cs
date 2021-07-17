@@ -104,8 +104,6 @@ public class SceneLoader : MonoBehaviour
         }
         loadingprogress = 0;
         lastSceneName = name;
-        //Manually thetrahedralize Light Probes AFTER the scene is loaded---Deprecated, no pebaked lighting data used due to WebGL data limitations
-        //LightProbes.TetrahedralizeAsync();
         thisSceneName = name;
         //Set the loaded Scene as active
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(name));
