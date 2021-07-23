@@ -127,7 +127,6 @@ public class InputReceiver : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.F))
             {
-                Debug.Log("Hit F");
                 lighterWasPressed = true;
                 On_F_Inpu.Invoke();
                 return true;
