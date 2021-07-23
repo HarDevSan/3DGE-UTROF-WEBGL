@@ -122,7 +122,6 @@ public class SceneLoader : MonoBehaviour
         {
             while (op.isDone == false)
             {
-                Debug.Log("IsUnloading");
                 yield return null;
             }
 
