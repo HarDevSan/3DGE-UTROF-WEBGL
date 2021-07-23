@@ -223,7 +223,6 @@ public class PlayerController : MonoBehaviour
         {
             if (OnPlayerSeesSomethingInteractable_Room != null)
                 OnPlayerSeesSomethingInteractable_Room.Invoke();
-            Debug.Log("INVOKED SEEYING");
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = true;
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem))
