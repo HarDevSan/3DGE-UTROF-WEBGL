@@ -55,7 +55,6 @@ public class ScriptedEvent : MonoBehaviour
     void StartScriptedEvent()
     {
         scriptedEvent.Invoke();
-        Debug.Log("STARTEDDD");
         DeactivateThisObject();
     }
 
