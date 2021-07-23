@@ -83,6 +83,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
                 yield return null;
             }
         }
+        if(OnFirstSceneFinishedLoading != null)
         OnFirstSceneFinishedLoading.Invoke();
 
         yield break;
