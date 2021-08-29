@@ -30,8 +30,6 @@ public class FPSshower : MonoBehaviour
             counter++;
         
 
-        Debug.Log(counter);
-
         //display only every 10th frame
         if (counter == 10)
         {
