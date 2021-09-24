@@ -56,10 +56,10 @@ public class UI_DoorInteractionPromptsShower : MonoBehaviour
         PlayerController.OnPlayerSeesSomethingInteractable_Room -= ShowInteractionPrompt;
         PlayerController.OnPlayerDoesNotSeeSomehtingInteractable -= HideInteractionPrompt;
 
-        interactionGroupOpenDoor.alpha = 0;
-        interactionGroupLockedDoor.alpha = 0;
-        interactionGroupUnLockedDoor.alpha = 0;
-        interactionGroupBrokenDoor.alpha = 0;
+        //interactionGroupOpenDoor.alpha = 0;
+        //interactionGroupLockedDoor.alpha = 0;
+        //interactionGroupUnLockedDoor.alpha = 0;
+        //interactionGroupBrokenDoor.alpha = 0;
     }
 
 
