@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3831601177253523985
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 2
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: FakeDecal_Streaks_Blood_Real
+  m_Shader: {fileID: 4800000, guid: f99be0b93825ea740860fa6b3f1b94ed, type: 3}
+  m_ShaderKeywords: _ALPHATEST_ON _ENVIRONMENTREFLECTIONS_OFF _NORMALMAP _RECEIVE_SHADOWS_OFF
+    _TOPDOWNPROJECTION
+  m_LightmapFlags: 6
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - SHADOWCASTER
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 1a98f2536c6b3ff449b919ddd6d76b27, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 185bfbfa412a0464190a6218515301a0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 2800000, guid: 4bf6c059a5f9e3640af36eda97a94e51, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopDownBaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopDownNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AlphaClip: 1
+    - _ApplyDynScale: 0
+    - _ApplyFog: 0
+    - _ApplyNormal: 1
+    - _ApplyTopDownProjection: 1
+    - _Blend: 0
+    - _BumpScale: 1
+    - _BumpScaleDyn: 1
+    - _CombinedTexture: 0
+    - _Cull: 2
+    - _Cutoff: 0
+    - _DecalNormal: 0
+    - _DecalNormalStrength: 0.225
+    - _DstBlend: 10
+    - _Emission: 0
+    - _EnableFuzzyLighting: 0
+    - _EnvironmentReflections: 0
+    - _FuzzAmbient: 1
+    - _FuzzBias: 0
+    - _FuzzPower: 4
+    - _FuzzStrength: 1
+    - _FuzzWrap: 0.5
+    - _GlossMapScale: 0
+    - _GlossMapScaleDyn: 1
+    - _Glossiness: 0
+    - _GlossinessSource: 0
+    - _GlossyReflections: 0
+    - _HeightBlendSharpness: 1
+    - _LowerNormalInfluence: 1
+    - _LowerNormalMinStrength: 0.2
+    - _MaskFromNormal: 0
+    - _Metallic: 0
+    - _NormalFactor: 1
+    - _NormalLimit: 0.5
+    - _Occlusion: 1
+    - _OcclusionStrength: 1
+    - _OrthoSpport: 0
+    - _QueueOffset: 0
+    - _ReadMask: 255
+    - _ReceiveShadows: 0
+    - _SampleGI: 0
+    - _Shininess: 0
+    - _Smoothness: 1
+    - _SmoothnessSource: 0
+    - _SmoothnessTextureChannel: 0
+    - _SpecSource: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 5
+    - _StencilCompare: 8
+    - _StencilRef: 0
+    - _Surface: 1
+    - _TopDownTiling: 1
+    - _WorkflowMode: 1
+    - _WriteMask: 255
+    - _ZWrite: 0
+    m_Colors:
+    - _BaseColor: {r: 0.4339623, g: 0.2924852, b: 0.25178, a: 0.21960784}
+    - _Color: {r: 0, g: 0.0990566, b: 0.3962264, a: 0.3137255}
+    - _DistanceFade: {r: 2100, g: 0.001, b: 0, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SpecColor: {r: 0.6603774, g: 0.6603774, b: 0.6603774, a: 0}
+    - _TerrainPosition: {r: 0, g: 0, b: 0, a: 0}
