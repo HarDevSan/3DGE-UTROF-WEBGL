@@ -21,14 +21,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: AmbulanceMAster
-  m_Shader: {fileID: -6465566751694194690, guid: e39cf9ac8a901f74185302416865d892,
-    type: 3}
+  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_ShaderKeywords: _METALLICSPECGLOSSMAP _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -58,7 +58,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CoatMask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 35a3f9665ebe9bb4e8ead506d51baeef, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -82,7 +82,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SecondaryMask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: e310ea1fda004a2498ef48e837025d40, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -116,15 +116,15 @@ Material:
     - _EnableOcclusion: 0
     - _EnableParallax: 0
     - _EnableParallaxShadows: 0
-    - _EnableSecColor: 0
-    - _EnableSecondaryLobe: 0
-    - _EnableSecondaryMask: 0
+    - _EnableSecColor: 1
+    - _EnableSecondaryLobe: 1
+    - _EnableSecondaryMask: 1
     - _EnableStandardLighting: 0
     - _EnvironmentReflections: 1
-    - _FoldAdvanced: 0
+    - _FoldAdvanced: 1
     - _FoldAdvancedSurfaceInputs: 1
-    - _FoldRimLightingInputs: 0
-    - _FoldStencilOptions: 0
+    - _FoldRimLightingInputs: 1
+    - _FoldStencilOptions: 1
     - _FoldSurfaceInputs: 1
     - _FoldSurfaceOptions: 0
     - _GItoAO: 10
@@ -135,7 +135,7 @@ Material:
     - _GlossinessSource: 0
     - _GlossyReflections: 0
     - _HorizonOcclusion: 0.5
-    - _Metallic: 0.167
+    - _Metallic: 1
     - _Occlusion: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -167,6 +167,8 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
+    - Vector2_8ABAEFA3: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_F7882BF6: {r: 1, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 0.5}
     - _ClearCoatSpecular: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
