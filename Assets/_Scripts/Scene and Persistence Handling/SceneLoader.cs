@@ -33,16 +33,15 @@ public class SceneLoader : MonoBehaviour
     {
         //-- Dont forget to UNSUBSCRIBE
         //Double Check OnEnable Method to prevent double subscription
-        //SceneTransition.OnPlayerPressedEnterOnSight -= LoadNextScene;
-        //SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
-        //SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
+        SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
+        SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
         OnScene_Has_Loaded += PlayerController.SetPlayerToPlayableState;
         SceneLoaderIntro.OnFirstSceneHasBeenLoaded += FilterScenesToGetFirstSceneNameAfterIntro;
     }
 
     private void Start()
     {
-        /*There will never be more than 2 scenes in loaded at once. The Persistent scene an one additional scene.
+        /*There will never be more than 2 scenes in loaded at once. The Persistent scene and one additional scene.
          * Cause of this, we can check which scene is loaded at the start of the game
          * that is NOT named Persistent and then assign its name to the lastSceneName variable.*/
         FilterScenesToGetFirstSceneNameAfterIntro();
@@ -51,6 +50,7 @@ public class SceneLoader : MonoBehaviour
     public void FilterScenesToGetFirstSceneNameAfterIntro()
     {
         Scene[] sceneArray = SceneManager.GetAllScenes();
+
         foreach (Scene scene in sceneArray)
         {
             if (!scene.name.Equals("Persistent"))
@@ -58,21 +58,25 @@ public class SceneLoader : MonoBehaviour
                 lastSceneName = scene.name;
             }
         }
+
     }
 
     //-----------Loading
     public void LoadNextScene(string name)
     {
+        Debug.Log("thisSceneName : " + thisSceneName );
+        Debug.Log("lastSceneName : " + lastSceneName);
+
 
         //Start loading of next scene if the next scene is not already loaded
         if (SceneManager.GetSceneByName(name).isLoaded == false)
-        {
+        {          
             StartCoroutine(WaitForSceneToFinishLoading(name));
         }
     }
 
     //---------Unloading
-    void UnloadLastScene(string notNeeded)
+    void UnloadLastScene(string notNeeded) //just to match the signature of the "LoadNextScene" method, so that no new delegate needs to be created
     {
         //Only unload a scene if it's loaded. Otherwise spare the coroutine
         if (SceneManager.GetSceneByName(lastSceneName).isLoaded == true)
@@ -86,6 +90,7 @@ public class SceneLoader : MonoBehaviour
     //----------CoRoutines, managing loading progress and finish 
     IEnumerator WaitForSceneToFinishLoading(string name)
     {
+
         OnSceneStartedLoading.Invoke();
         //disable Cinemachine Brain temporarily while scene has not finished loading
         brain.enabled = false;
@@ -94,7 +99,6 @@ public class SceneLoader : MonoBehaviour
         //Check if the Async Operation has already been created before doing anything, prevents nullref 
         if (operation != null)
         {
-
             while (operation.isDone == false)
             {
                 OnSceneIsLoading.Invoke();
@@ -108,7 +112,8 @@ public class SceneLoader : MonoBehaviour
         //Set the loaded Scene as active
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(name));
         //wait one frame until scene has been activated
-        yield return new WaitForEndOfFrame();
+        //yield return new WaitForEndOfFrame();
+        yield return new WaitForSeconds(loadDelay);
         OnScene_Has_Loaded.Invoke();
         brain.enabled = true;
 
@@ -136,8 +141,9 @@ public class SceneLoader : MonoBehaviour
     }
     private void OnEnable()
     {
-        SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
-        SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
+        //this would cause adouble subscription
+        //SceneTransition.OnPlayerPressedEnterOnSight += LoadNextScene;
+        //SceneTransition.OnPlayerPressedEnterOnSight += UnloadLastScene;
     }
 }
 
