@@ -8,6 +8,13 @@ using UnityEngine.ResourceManagement.ResourceProviders;
 using System;
 using Cinemachine;
 
+/* Scene Transition is a binary state switch system similar to a flip flop, but not quite, as there are basically 3 states: A-B-C. It uses Unity internal physics
+ * components like a Box Collider, the players proximity to This scene transition visually represented by a door or similar real life objects, can be detected. When the
+ * player is not in proximity, it needs to be ensured that there is no trigger active. This is due to the component based architecture used in Unity. Methods will get
+ * called on all Game Objectsthat houses THIS script,which would cause multiple scene loading logic to execute simultaniouslysn.
+ * 
+ * Author: Hardev Sandhu
+ */
 public class SceneTransition : MonoBehaviour
 {
     [Header("SceneTRansition Couple")]
@@ -69,12 +76,13 @@ public class SceneTransition : MonoBehaviour
         It's also ok to hanlde scenetransition on playerInput instead of "OnSceneHasLoaed", OnsceneHasLoaded 
         can be used to determin when the playercontrols should be unlocked in the new scene and the blend out of UI loading sceen*/
         PlayerController.OnPlayerSeesSomethingInteractable_Room += UnlockDoorIfPlayerHasKey;
-        InputReceiver.On_E_Input += SwitchTransitionActivity;
-        InputReceiver.On_E_Input += SpawnPlayerInNewScene;
+        //InputReceiver.On_E_Input += SwitchTransitionActivity;
+        //InputReceiver.On_E_Input += SpawnPlayerInNewScene;
 
         SceneLoader.OnScene_Has_Loaded += InvokeDoorClosingSound;
     }
 
+    //Fire an event that an audio player can subscribe to and play a sound effect appropriate to the chosen door type
     void InvokeDoorClosingSound()
     {
         if (doorType == DoorEnum.DoorTypesEnum.Heavy)
@@ -107,9 +115,9 @@ public class SceneTransition : MonoBehaviour
             //Invoking player pressed used on sight, spawn player in next scene, switch trigger activity
             OnPlayerPressedEnterOnSight.Invoke(nextSceneName);
             SpawnPlayerInNewScene();
-            SwitchTransitionActivity();        
+            SwitchTransitionActivity();
         }
-        else if(PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed())
+        else if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed())
         {
             //Send door type to audio manager
             if (doorType == DoorEnum.DoorTypesEnum.Heavy)
@@ -123,6 +131,7 @@ public class SceneTransition : MonoBehaviour
         }
     }
 
+    /*------------------------------------------Checks-------------------------------------*/
     public bool CheckIfDoorUnLocked()
     {
         return isDoorUnLocked;
@@ -145,9 +154,7 @@ public class SceneTransition : MonoBehaviour
         }
     }
 
-
-
-    //---Spawning
+    /*-------------------------------------Spawning------------------------------------------------------*/
     void SpawnPlayerInNewScene()
     {
         //Debug.Log("SpawnPlayerInNewScene");
@@ -161,6 +168,8 @@ public class SceneTransition : MonoBehaviour
         charController.enabled = true;
     }
 
+    /*------------------------------------Scene Transition Activity----------------------------------*/
+
     void SwitchTransitionActivity()
     {
         //Debug.Log("SwitchTriggerCalled");
@@ -169,23 +178,23 @@ public class SceneTransition : MonoBehaviour
 
     }
 
-    //---Getter/Setters
+    /*-----------------------------------Getter/Setters-----------------------------------------------*/
     public int GetSceneTransitionSeconds()
     {
         return sceneTransitionSeconds;
     }
 
-    //--- Unsubscribe events on deactivation
+    /*------------------------------------Enable/Disable----------------------------------------------*/
     private void OnDisable()
     {
-        InputReceiver.On_E_Input -= SpawnPlayerInNewScene;
-        InputReceiver.On_E_Input -= SwitchTransitionActivity;
+        //InputReceiver.On_E_Input -= SpawnPlayerInNewScene;
+        //InputReceiver.On_E_Input -= SwitchTransitionActivity;
 
     }
     private void OnEnable()
     {
-        InputReceiver.On_E_Input += SpawnPlayerInNewScene;
-        InputReceiver.On_E_Input += SwitchTransitionActivity;
+        //InputReceiver.On_E_Input += SpawnPlayerInNewScene;
+        //InputReceiver.On_E_Input += SwitchTransitionActivity;
 
     }
 
