@@ -29,19 +29,19 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
         StartMenuManager.OnPlayButtonClicked += LoadFirstScene;
         StartMenuManager.OnPlayButtonClicked += LoadPersistentScene;
 
-        OnStartMenuFinishedUnloading += UnloadStartMenuScene;
+        OnFirstSceneFinishedLoading += UnloadStartMenuScene;
     }
 
     void LoadPersistentScene()
     {
-        //for convienence, if the persistent scene is already loaded in editor
+        //for convienence, if the persistent scene is already loaded in editor, during run time, this does not matter
         if (SceneManager.GetSceneByName(persistentSceneName).isLoaded == false)
             StartCoroutine(LoadPersistentRoutine());
     }
 
     void LoadFirstScene()
     {
-        //for convienence, if the first scene is already loaded in editor
+        //for convienence, if the first scene is already loaded in editor, during run time, this does not matter
         if (SceneManager.GetSceneByName(firstSceneName).isLoaded == false)
             StartCoroutine(LoadFirstSceneRoutine());
     }
@@ -49,7 +49,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
 
     void UnloadStartMenuScene()
     {
-        //only if startmenu scene is loaded the startmenu scene will be unloaded 
+        //only if startmenu scene is loaded the startmenu scene will be unloaded, during run time, this does not matter 
         if (SceneManager.GetSceneByName(startMenuSceneName).isLoaded == true)
             StartCoroutine(UnloadStartMenuRoutine());
     }
@@ -66,8 +66,6 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
                 yield return null;
             }
         }
-        isPersistentSceneLoaded = true;
-
         yield break;
     }
 
@@ -83,8 +81,8 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
                 yield return null;
             }
         }
-        if(OnFirstSceneFinishedLoading != null)
-        OnFirstSceneFinishedLoading.Invoke();
+        if (OnFirstSceneFinishedLoading != null)
+            OnFirstSceneFinishedLoading.Invoke();
 
         yield break;
     }
@@ -103,7 +101,6 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
 
 
         }
-        OnStartMenuFinishedUnloading.Invoke();
         yield break;
     }
 
