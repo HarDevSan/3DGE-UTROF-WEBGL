@@ -11,19 +11,19 @@ public class UI_ShowLoadingScreenAndProgress : MonoBehaviour
 
     private void Awake()
     {
-        SceneLoader.OnSceneIsLoading += UpdateLoadingBar;
+        //SceneLoader.OnSceneIsLoading += UpdateLoadingBar;
         SceneLoader.OnSceneIsLoading += ShowLoadingScreen;
 
         SceneLoader.OnScene_Has_Loaded += HideLoadingScreen;
     }
-    private void Start()
-    {
-        loadingScreenGroup.blocksRaycasts = false;
-    }
+    //private void Start()
+    //{
+    //    loadingScreenGroup.blocksRaycasts = false;
+    //}
     void ShowLoadingScreen()
     {
         loadingScreenGroup.alpha = 1;
-        loadingScreenGroup.blocksRaycasts = true; ;
+        //loadingScreenGroup.blocksRaycasts = true; ;
         InputReceiver.BlockMovementInput();
 
     }
