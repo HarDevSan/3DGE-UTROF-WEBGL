@@ -10,6 +10,7 @@ public class StartMenuManager : MonoBehaviour
     [Header("MainMenuCanvasGroup")]
     public CanvasGroup mainMenuGroup;
 
+    public Animator canvas_MainMenuAnimator;
 
     public delegate void PlayButtonClicked();
     public static event PlayButtonClicked OnPlayButtonClicked;
@@ -18,7 +19,8 @@ public class StartMenuManager : MonoBehaviour
     {
         PlayerController.SetPlayerToUnplayableState();
         Debug.Log("Play button was clicked");
-        canvasMain.alpha = 0;
+        //canvasMain.alpha = 1;
+        canvas_MainMenuAnimator.Play("BlendOutMainMenu");
         canvasMain.blocksRaycasts = false;
         OnPlayButtonClicked.Invoke();
     }
