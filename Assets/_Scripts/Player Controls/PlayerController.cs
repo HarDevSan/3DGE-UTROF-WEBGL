@@ -59,7 +59,7 @@ public class PlayerController : MonoBehaviour
         SetPlayerToUnplayableState();
     }
 
-    void LateUpdate()
+    void Update()
     {
         //Gravity needs to always be applied, even if we have no jumping but maybe some falling
         // if (isApplyGravity)
@@ -222,12 +222,14 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskRoom))
         {
             if (OnPlayerSeesSomethingInteractable_Room != null)
-                //OnPlayerSeesSomethingInteractable_Room.Invoke();
+            {
+                OnPlayerSeesSomethingInteractable_Room.Invoke();
+            }
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = true;
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem))
         {
-            //OnPlayerSeesSomethingInteractable_Item.Invoke(); - unneeded overhead
+            OnPlayerSeesSomethingInteractable_Item.Invoke(); //- unneeded overhead
             isPlayerCanInteractBecauseHeLooksAtSmth_item = true;
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskScriptedEvent))
@@ -236,9 +238,9 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            //check for event not null
+            ////check if event has subs
             if (OnPlayerDoesNotSeeSomehtingInteractable != null)
-                //OnPlayerDoesNotSeeSomehtingInteractable.Invoke(); - unneeded overhead
+                OnPlayerDoesNotSeeSomehtingInteractable.Invoke(); //- unneeded overhead
 
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = false;
             isPlayerCanInteractBecauseHeLooksAtSmth_item = false;
