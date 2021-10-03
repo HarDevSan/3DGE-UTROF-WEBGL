@@ -6,12 +6,14 @@ using TMPro;
 public class UI_DoorInteractionPromptsShower : MonoBehaviour
 {
     [Header("InteractionCanvasGroup")]
-    public CanvasGroup interactionGroupOpenDoor;
-    public CanvasGroup interactionGroupLockedDoor;
-    public CanvasGroup interactionGroupUnLockedDoor;
-    public CanvasGroup interactionGroupBrokenDoor;
+    //public CanvasGroup interactionGroupOpenDoor;
+    //public CanvasGroup interactionGroupLockedDoor;
+    //public CanvasGroup interactionGroupUnLockedDoor;
+    //public CanvasGroup interactionGroupBrokenDoor;
 
     SceneTransition attachedSceneTransition;
+
+    public Animator InteractionCanvasAnimator;
 
     private void Awake()
     {
@@ -26,40 +28,34 @@ public class UI_DoorInteractionPromptsShower : MonoBehaviour
     {
         if (attachedSceneTransition.CheckIfDoorUnLocked())
         {
-            interactionGroupLockedDoor.alpha = 0;
-            interactionGroupOpenDoor.alpha = 1;
+            InteractionCanvasAnimator.Play("Blend-In_IconUse");
         }
         else
         {
-            interactionGroupLockedDoor.alpha = 1;
-            interactionGroupOpenDoor.alpha = 0;
-            
+          
         }
 
     }
 
     public  void HideInteractionPrompt()
     {
+        InteractionCanvasAnimator.Play("Blend-Out_IconUse");
 
-        interactionGroupOpenDoor.alpha = 0;
-        interactionGroupLockedDoor.alpha = 0;
 
     }
 
     private void OnEnable()
     {
-        ShowInteractionPrompt();
+        //ShowInteractionPrompt();
     }
 
     private void OnDisable()
     {
-        PlayerController.OnPlayerSeesSomethingInteractable_Room -= ShowInteractionPrompt;
-        PlayerController.OnPlayerDoesNotSeeSomehtingInteractable -= HideInteractionPrompt;
+       // HideInteractionPrompt();
 
-        //interactionGroupOpenDoor.alpha = 0;
-        //interactionGroupLockedDoor.alpha = 0;
-        //interactionGroupUnLockedDoor.alpha = 0;
-        //interactionGroupBrokenDoor.alpha = 0;
+        //PlayerController.OnPlayerSeesSomethingInteractable_Room -= ShowInteractionPrompt;
+        //PlayerController.OnPlayerDoesNotSeeSomehtingInteractable -= HideInteractionPrompt;
+
     }
 
 
