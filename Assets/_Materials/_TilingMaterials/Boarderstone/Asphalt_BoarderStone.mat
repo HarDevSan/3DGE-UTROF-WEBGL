@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Asphalt_BoarderStone
-  m_Shader: {fileID: -6465566751694194690, guid: 4b6f4aa798c150c44bbe148624d9f4b8,
+  m_Shader: {fileID: -6465566751694194690, guid: 69ea671881144b647a61a1b5cc40254a,
     type: 3}
   m_ShaderKeywords: _NORMALMAP _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
@@ -146,7 +146,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: dd6967f6c91f7d34eb11f2ee6b411511, type: 3}
+        m_Texture: {fileID: 2800000, guid: e586ef39c4498b1469055bd3e50ee359, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -162,7 +162,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 97e81fa44cc87954e8c8f485b58dbee9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -225,12 +225,13 @@ Material:
     - _Glossiness: 0
     - _GlossinessSource: 0
     - _GlossyReflections: 0
-    - _Metallic: 0
+    - _Metallic: 1
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Shininess: 0
-    - _Smoothness: 0.5
+    - _Smoothness: 1
+    - _SmoothnessFromMetallic: 1
     - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
     - _SpecSource: 0
