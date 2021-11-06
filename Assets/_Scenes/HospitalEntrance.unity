@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 8900000, guid: 983d402de7c95ba48baf855976cf9ca3, type: 3}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.016854336, g: 0.022034883, b: 0.03891097, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1996,7 +1996,7 @@ MonoBehaviour:
   renderSettingsShowCheckerSettings: 1
   renderSettingsSamplesWarning: 1
   renderSettingsPrefabWarning: 1
-  renderSettingsSplitByScene: 0
+  renderSettingsSplitByScene: 1
   renderSettingsUVPaddingMax: 0
   renderSettingsPostPacking: 1
   renderSettingsHoleFilling: 0
@@ -3358,7 +3358,7 @@ MonoBehaviour:
   bakedScaleOffsetTerrain: []
   assetList: []
   uvOverlapAssetList: 
-  idremap: 0000000001000000020000000300000004000000050000000600000007000000
+  idremap: 0200000003000000040000000500000006000000070000000800000009000000
   usesRealtimeGI: 0
   emptyDirectionTex: {fileID: 2800000, guid: 04afea73344b7d049b5b7ac5ae315dd5, type: 3}
   anyVolumes: 0
@@ -15047,6 +15047,11 @@ PrefabInstance:
       propertyPath: m_LightmapTilingOffset.z
       value: -0.0026223485
       objectReference: {fileID: 0}
+    - target: {fileID: 2882427499988597155, guid: e604694baeef36541ad46b12e8f17475,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 106469beed4e2bf4c8ea6b9d891fed72, type: 2}
     - target: {fileID: 3090300316353166187, guid: e604694baeef36541ad46b12e8f17475,
         type: 3}
       propertyPath: m_StaticEditorFlags
@@ -23736,9 +23741,9 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1.14
+  m_IntensityMultiplier: 1
   m_BlendDistance: 1
-  m_HDR: 1
+  m_HDR: 0
   m_BoxProjection: 0
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
@@ -25015,9 +25020,9 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1.14
+  m_IntensityMultiplier: 1
   m_BlendDistance: 1
-  m_HDR: 1
+  m_HDR: 0
   m_BoxProjection: 0
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
@@ -27813,9 +27818,9 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1.14
+  m_IntensityMultiplier: 1
   m_BlendDistance: 1
-  m_HDR: 1
+  m_HDR: 0
   m_BoxProjection: 0
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
@@ -33556,9 +33561,9 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1.14
+  m_IntensityMultiplier: 1
   m_BlendDistance: 1
-  m_HDR: 1
+  m_HDR: 0
   m_BoxProjection: 0
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
@@ -34199,17 +34204,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -31.360003
+      value: -31.361
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.7800002
+      value: 1.78
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 8.84
+      value: 8.822
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b,
         type: 3}
@@ -34265,6 +34270,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b, type: 3}
@@ -43646,9 +43656,9 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1.14
+  m_IntensityMultiplier: 1
   m_BlendDistance: 1
-  m_HDR: 1
+  m_HDR: 0
   m_BoxProjection: 0
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
@@ -44557,9 +44567,9 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1.14
+  m_IntensityMultiplier: 1
   m_BlendDistance: 1
-  m_HDR: 1
+  m_HDR: 0
   m_BoxProjection: 0
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
@@ -51897,9 +51907,9 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1.14
+  m_IntensityMultiplier: 1
   m_BlendDistance: 1
-  m_HDR: 1
+  m_HDR: 0
   m_BoxProjection: 0
   m_RenderDynamicObjects: 0
   m_UseOcclusionCulling: 1
