@@ -115,6 +115,7 @@ public class InputReceiver : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
+            if(On_E_Input != null)
             On_E_Input.Invoke();
             return true;
         }
