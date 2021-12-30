@@ -8,22 +8,26 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SkyDome_Unlit_Inner
-  m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 3d9f93b924c573a4eb4ac4496f600008,
+    type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses:
   - SHADOWCASTER
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_5BBF4E6C:
+        m_Texture: {fileID: 2800000, guid: 55c471b8bd34eb549b55520cfe9a5f1c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseMap:
         m_Texture: {fileID: 2800000, guid: 71e8901ed47c20d47a3bd5d5d380d37a, type: 3}
-        m_Scale: {x: 0.64, y: 0.67}
+        m_Scale: {x: 1.44, y: 1.46}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: f942cf4a0cae2df4190373dab6d57d8e, type: 3}
@@ -39,7 +43,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 71e8901ed47c20d47a3bd5d5d380d37a, type: 3}
-        m_Scale: {x: 0.64, y: 0.67}
+        m_Scale: {x: 1.44, y: 1.46}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
@@ -54,6 +58,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - Vector1_12BC3024: 0.249
+    - Vector1_3B5224BE: 1.42
     - _AlphaClip: 0
     - _ApplyNormal: 0
     - _Blend: 2
@@ -111,7 +117,9 @@ Material:
     - _ZTest: 4
     - _ZWrite: 0
     m_Colors:
-    - _BaseColor: {r: 0.29676923, g: 0.3642399, b: 0.53773576, a: 0.14901961}
+    - Color_73D890F4: {r: 0.29803917, g: 0.36470583, b: 0.5372549, a: 0.25490198}
+    - Vector2_790A7A7F: {r: 0.02, g: -0.01, b: 0, a: 0}
+    - _BaseColor: {r: 0.2967692, g: 0.36423987, b: 0.5377357, a: 0.21960784}
     - _Color: {r: 1, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0.3764706, g: 0.41349807, b: 0.4627451, a: 1}
     - _FoamSpeed: {r: 0.1, g: 0, b: 0, a: 0}
