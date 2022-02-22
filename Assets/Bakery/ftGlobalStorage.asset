@@ -40,7 +40,18 @@ MonoBehaviour:
   - Assets/_StaticMeshes/Modular/Ceilings/Ceiling_Corridors_Quad_B.fbx
   - Assets/_StaticMeshes/Modular/Walls/Wall_Corridors_Stripped_CornerLeft.fbx
   - Assets/_StaticMeshes/Modular/Walls/Wall_Corridors_Hider_nonStrip.fbx
-  modifiedAssetPaddingHash: aaf8cc2e38ec393106a3ddde25fff1a5be4608c84adc894b8c67e2a8db4608c83d16fa44a180cfb8e55031eee1d7d655ecc1249114f33a06de09ecc05267e2a8bb4608c8f527c1151b3a803368b66f01ecc12491eb37ed04eb37ed04eec1249101b309ce2028c115ecc12491
+  - Assets/_StaticMeshes/Modular/Doors/Door_Corridors_A.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_Corridors_Cornerr_right_Medium.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_Corridors_CornerLeft.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_Corridors_Corner_AllEnds.fbx
+  - Assets/_StaticMeshes/Fillers/CeilingPlates.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_Corridors_Medium_WithWindows_4Windows.fbx
+  - Assets/_SkeletalMeshes/Tentacles/Tentacles_Jjujitus.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Corridors_1stFloor/Corridor fix.fbx
+  - Assets/_StaticMeshes/Modular/Walls/SacredPEaks/Wall_painted_orange_CornerPiece_2x2_Innward_CornerBoth.fbx
+  - Assets/_StaticMeshes/Modular/Walls/SacredPEaks/Wall_painted_orange_4x3.fbx
+  - Assets/_StaticMeshes/Modular/Walls/SacredPEaks/Wall_painted_orange_2x3_CornerRightLeft.fbx
+  modifiedAssetPaddingHash: aaf8cc2e38ec393106a3ddde25fff1a5be4608c84adc894b8c67e2a8db4608c83d16fa44a180cfb8e55031eee1d7d655ecc1249114f33a06de09ecc05267e2a8bb4608c88cdb894bb6ed3d4963af8246d7318883eb37ed04eb37ed04eec12491a9835e94f227c115d7318883cec12491d35634b7da4608c8eec12491695031eef1f23a06abdb894b82b24c0bffb209cec1d15080ce5634b7
   modifiedMeshList: []
   modifiedMeshPaddingList: 
   modifiedAssets:
@@ -534,17 +545,18 @@ MonoBehaviour:
     unwrapper: 00000000
   - meshName:
     - Ceiling_Corridors_Quad_B.015
-    padding: 15000000
-    unwrapper: 00000000
+    - Ceiling_Corridors_Quad_A
+    padding: 150000005e000000
+    unwrapper: 0000000000000000
   - meshName:
     - Reception_Wall_InbetweenDoor
     - SwingDoor_L
     - SwingDoor_R
-    padding: 180000002300000024000000
+    padding: 190000002300000024000000
     unwrapper: 000000000000000000000000
   - meshName:
     - Wall_Corridors_Hider_Strip
-    padding: 00010000
+    padding: bd000000
     unwrapper: 00000000
   - meshName:
     - Wall_Corridors_Long_Stripped
@@ -560,15 +572,69 @@ MonoBehaviour:
     unwrapper: 00000000
   - meshName:
     - Ceiling_Corridors_Quad_A.002
-    padding: 09000000
-    unwrapper: 00000000
+    - Ceiling_Corridors_Quad_B
+    padding: 09000000be000000
+    unwrapper: 0000000000000000
   - meshName:
     - Wall_Corridors_Stripped_CornerLeft
-    padding: d1000000
+    padding: 68000000
     unwrapper: 00000000
   - meshName:
     - Wall_Corridors_Hider_nonStrip
-    padding: 00010000
+    padding: bd000000
+    unwrapper: 00000000
+  - meshName:
+    - Door_Corridors_A
+    padding: 9d000000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_Corridors_Cornerr_right_Medium
+    padding: e7000000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_Corridors_CornerLeft
+    padding: d6000000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_Corridors_Corner_AllEnds
+    padding: fe000000
+    unwrapper: 00000000
+  - meshName:
+    - Plane
+    padding: 39000000
+    unwrapper: 00000000
+  - meshName:
+    - HosptialBuldingMerged_001_012.001
+    padding: 14000000
+    unwrapper: 00000000
+  - meshName:
+    - NurbsPath.001
+    padding: 42000000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_Corridors_4m_stripped_A.001
+    - Floor_Corridors_4x2.001
+    - Floor_Corridors_4x2.002
+    - Wall_Corridors_4m_stripped_A.006
+    - Wall_Corridors_4m_stripped_A.002
+    - Wall_Corridors_4m_stripped_A.003
+    - Wall_Corridors_Hider_A.002
+    - Wall_Corridors_Hider_A.001
+    - CorndeRPiece_Inward_2x2_
+    - CorndeRPiece_Inward_2x2_.001
+    padding: 590000006600000066000000590000005900000059000000e7000000e70000004c0000004c000000
+    unwrapper: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
+  - meshName:
+    - Wall_painted_orange_CornerPiece_2x2_Innward_CornerBoth
+    padding: a7000000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_painted_orange_4x3
+    padding: ae000000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_painted_orange_2x3_CornerRightLeft
+    padding: ec000000
     unwrapper: 00000000
   assetList:
   - Assets/Bakery/examples/content/sponza/bush.FBX
@@ -665,7 +731,20 @@ MonoBehaviour:
   - Assets/_StaticMeshes/Modular/Doors/Door_Corridors_A.001.fbx
   - Assets/_StaticMeshes/Modular/Doors/Wall_Corridors_Medium_CornerRight.fbx
   - Assets/_StaticMeshes/Modular/Doors/Cube.fbx
-  uvOverlapAssetList: 00000000ffffffff01010000000000000000000000000000010100000101000000000000010100000000000000000000010100000000000001010000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000101000001010000000000000101000001010000010100000101000001010000000000000000000000000000010100000000000000000000010100000000000000000000010100000000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000101000001010000010100000000000001010000000000000000000000000000010100000000000000000000000000000101000001010000000000000101000001010000010100000101000001010000010100000101000000000000010100000101000000000000000000000000000001010000ffffffff000000000000000000000000
+  - Assets/_StaticMeshes/SkyDome/SkyDomeStars.fbx
+  - Assets/_StaticMeshes/SkyDome/SkyDomeInner.fbx
+  - Assets/_StaticMeshes/Modular/Doors/Floor_Corridors_2.4mx2.4m.fbx
+  - Assets/_FBXEXport/DoorBack.fbx
+  - Assets/_StaticMeshes/Modular/Doors/Door_Slim_A.fbx
+  - Assets/_StaticMeshes/Modular/Doors/Door_Slim_A_low.fbx
+  - Assets/_StaticMeshes/Fillers/CeilingPlates.fbx
+  - Assets/_StaticMeshes/Modular/Doors/Plane.fbx
+  - Assets/_FBXEXport/HouseForWindows.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_Corridors_Medium_WithWindows.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_Corridors_Medium_WithWindows_4Windows.fbx
+  - Assets/_StaticMeshes/Modular/Walls/HosptialBuldingMerged_001_012.001.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Corridors_1stFloor/Wall_Corridors_HalfPillar_A.fbx
+  uvOverlapAssetList: 00000000ffffffff01010000000000000000000000000000010100000101000000000000010100000000000000000000010100000000000001010000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000000101000001010000000000000101000001010000010100000101000001010000000000000000000000000000010100000000000000000000010100000000000000000000010100000000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000101000001010000010100000000000001010000000000000000000000000000010100000000000000000000000000000101000001010000000000000101000001010000010100000101000001010000010100000101000000000000010100000101000000000000000000000000000001010000ffffffff00000000000000000000000001010000010100000000000000000000000000000000000000000000000000000101000001010000010100000101000000000000
   xatlasWarningShown: 0
   foundCompatibleSetup: 1
   gpuName: NVIDIA GeForce GTX 1050 Ti
@@ -751,5 +830,5 @@ MonoBehaviour:
   renderSettingsRTPVSceneView: 0
   renderSettingsRTPVWidth: 640
   renderSettingsRTPVHeight: 360
-  modifiedMeshPaddingArray: 00010000
-  modifiedMeshUnwrapperArray: 00000000
+  modifiedMeshPaddingArray: 150000005e000000
+  modifiedMeshUnwrapperArray: 0000000000000000
