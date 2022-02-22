@@ -5,10 +5,8 @@ using Cinemachine;
 
 public class CameraOcclusion : MonoBehaviour
 {
-    public CinemachineFreeLook occludedCam;
+    public CinemachineVirtualCamera occludedCam;
     public CinemachineFreeLook mainCam;
-    public CinemachineFreeLook thisCam;
-
 
     public CinemachineCollider cinemachineCollider;
 
@@ -16,18 +14,19 @@ public class CameraOcclusion : MonoBehaviour
 
     bool isPriorityChangedOnce;
 
+
     private void Update()
     {
         CheckIfCameraWasDisplaced();
-
-        if (isCameraWasDisplaced)
-        {
-            RaiseOccludedCamPrio();
-        }
-        else
-        {
-            LowerOccludedCamPrio();
-        }
+        Debug.Log(isCameraWasDisplaced);
+        //if (isCameraWasDisplaced)
+        //{
+        //    RaiseOccludedCamPrio();
+        //}
+        //else
+        //{
+        //    LowerOccludedCamPrio();
+        //}
     }
 
 
@@ -38,8 +37,7 @@ public class CameraOcclusion : MonoBehaviour
 
     void RaiseOccludedCamPrio()
     {
-
-        if (isPriorityChangedOnce == false)
+        //if (isPriorityChangedOnce == false)
         {
             occludedCam.Priority = occludedCam.Priority + 1;
             isPriorityChangedOnce = true;
