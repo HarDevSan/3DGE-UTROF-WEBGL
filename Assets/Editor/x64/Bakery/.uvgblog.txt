@@ -28611,3 +28611,584 @@ Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM
 Compressing using quality level 127
 Compressing using quality level 127
 Compressing using quality level 130
+2022-2-24
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 256 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 256 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 256 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 256 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Running ftrace.exe interactive "C:\Users\walte\AppData\Local\Temp\frender" a 4 0 0 preview.bin
+Compressing using quality level 127
+Compressing using quality level 127
+Compressing using quality level 130
+Compressing using quality level 127
+Compressing using quality level 127
+Compressing using quality level 127
+Compressing using quality level 130
+Compressing using quality level 127
+Compressing using quality level 130
+Compressing using quality level 127
+Compressing using quality level 130
+Compressing using quality level 127
+Compressing using quality level 127
+Compressing using quality level 127
+Compressing using quality level 127
+Compressing using quality level 127
+Compressing using quality level 255
+2022-2-24
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1552641860_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1552641860_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 256 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 256 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 256 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 256 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA1_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA1_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA2 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA3 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA2.lz4" 2 0 2 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA3.lz4" 2 0 3 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2_ao" 8 16 2
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3_ao" 8 16 3
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_2" 68 0 2 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_2" 68 0 2 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2" 4 0 2 comp_2.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2_lights_Dir.lz4" 64 0 2 dircomp_2.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_3" 68 0 3 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_3" 68 0 3 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3" 4 0 3 comp_3.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3_lights_Dir.lz4" 64 0 3 dircomp_3.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2_final" 68 16 2 "gi_1stFloor_Entrance_LMA20.bin" "1stFloor_Entrance_LMA2_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3_final" 68 16 3 "gi_1stFloor_Entrance_LMA30.bin" "1stFloor_Entrance_LMA3_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2_final_HDR.lz4" 4 0 2 addao_2.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "2" "1stFloor_Entrance_LMA2_final_HDR.lz4" "1stFloor_Entrance_LMA2_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3_final_HDR.lz4" 4 0 3 addao_3.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "3" "1stFloor_Entrance_LMA3_final_HDR.lz4" "1stFloor_Entrance_LMA3_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA2_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA2_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA3_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA3_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA1_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA2 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA3 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA2.lz4" 2 0 2 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA3.lz4" 2 0 3 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2_ao" 8 16 2
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3_ao" 8 16 3
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_2" 68 0 2 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_2" 68 0 2 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2" 4 0 2 comp_2.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2_lights_Dir.lz4" 64 0 2 dircomp_2.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-2078873441_3" 68 0 3 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_2133497456_3" 68 0 3 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3" 4 0 3 comp_3.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3_lights_Dir.lz4" 64 0 3 dircomp_3.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2_final" 68 16 2 "gi_1stFloor_Entrance_LMA20.bin" "1stFloor_Entrance_LMA2_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3_final" 68 16 3 "gi_1stFloor_Entrance_LMA30.bin" "1stFloor_Entrance_LMA3_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA2_final_HDR.lz4" 4 0 2 addao_2.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "2" "1stFloor_Entrance_LMA2_final_HDR.lz4" "1stFloor_Entrance_LMA2_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA3_final_HDR.lz4" 4 0 3 addao_3.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "3" "1stFloor_Entrance_LMA3_final_HDR.lz4" "1stFloor_Entrance_LMA3_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA2_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA2_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA2_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA1_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA3_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA3_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/Persistent/1stFloor_Entrance_LMA3_dir.tga" 
+2022-2-24
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-787749663_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-128234801_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-787749663_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-128234801_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Running ftrace.exe interactive "C:\Users\walte\AppData\Local\Temp\frender" a 4 0 0 preview.bin
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-1253121191_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1134864292_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-1253121191_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1134864292_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace texgi "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_diffuse" 4 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftrace texgi "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_diffuse" 4 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM01.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA11.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-1253121191_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1134864292_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-1253121191_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1134864292_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace texgi "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_diffuse" 4 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftrace texgi "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_diffuse" 4 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM01.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA11.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-1253121191_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1134864292_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-1253121191_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1134864292_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace texgi "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_diffuse" 4 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftrace texgi "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_diffuse" 4 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_diffuse0_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM01.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA11.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_dir.tga" 
+Loaded vertex shader: quad.vso
+Loaded pixel shader: skyOutput.pso
+Loaded pixel shader: cookieOutput.pso
+initShaders done
+initScene done
+Done
+Rendering UV GBuffer for 1stFloor_Entrance_LM0 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Rendering UV GBuffer for 1stFloor_Entrance_LMA1 51
+RGBA32F...RGBA8...RGBA8_SRGB...RGBA16F...states...
+Rendering UV normal...
+Rendering faceted UV normal...
+Rendering UV pos...
+Rendering smooth UV pos...
+Done
+Done
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LM0.lz4" 2 0 0 0
+Running ftrace fixpos12 "C:\Users\walte\AppData\Local\Temp\frender" "uvpos_1stFloor_Entrance_LMA1.lz4" 2 0 1 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_ao" 8 16 0
+Running ftrace ao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_ao" 8 16 1
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-1253121191_0" 68 0 0 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1134864292_0" 68 0 0 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0" 4 0 0 comp_0.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_lights_Dir.lz4" 64 0 0 dircomp_0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_-1253121191_1" 68 0 1 lights0.bin
+Running ftrace arealightdir "C:\Users\walte\AppData\Local\Temp\frender" "light_1134864292_1" 68 0 1 lights1.bin
+Running ftrace addmul "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1" 4 0 1 comp_1.bin
+Running ftrace diradd "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_lights_Dir.lz4" 64 0 1 dircomp_1.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final" 68 16 0 "gi_1stFloor_Entrance_LM00.bin" "1stFloor_Entrance_LM0_lights_HDR.lz4" vbTraceTex.bin
+Running ftrace texgidir "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final" 68 16 1 "gi_1stFloor_Entrance_LMA10.bin" "1stFloor_Entrance_LMA1_lights_HDR.lz4" vbTraceTex.bin
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LM0_final_HDR.lz4" 4 0 0 addao_0.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "0" "1stFloor_Entrance_LM0_final_HDR.lz4" "1stFloor_Entrance_LM0_final_Dir.lz4
+Running denoiserLegacy D "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" 1024 0
+Running ftrace addao "C:\Users\walte\AppData\Local\Temp\frender" "1stFloor_Entrance_LMA1_final_HDR.lz4" 4 0 1 addao_1.bin
+Running denoiserLegacy c "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" 1024 0
+Running seamfixer "C:\Users\walte\AppData\Local\Temp\frender" "1" "1stFloor_Entrance_LMA1_final_HDR.lz4" "1stFloor_Entrance_LMA1_final_Dir.lz4
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LM0_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LM0_dir.tga" 
+Running halffloat2hdr "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_HDR.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_final.hdr" 1024
+Running rgba2tga "C:\Users\walte\AppData\Local\Temp\frender/1stFloor_Entrance_LMA1_final_Dir.lz4" "C:/repos/3DGE-UTROF-WEBGL/Assets/_Scenes/1stFloor_Entrance/1stFloor_Entrance_LMA1_dir.tga" 
