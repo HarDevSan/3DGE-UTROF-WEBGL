@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0.09
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.15979888, g: 0.16333458, b: 0.1792453, a: 1}
+  m_AmbientSkyColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1.26
@@ -73,7 +73,7 @@ LightmapSettings:
     m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 0
-    m_BakeBackend: 1
+    m_BakeBackend: 2
     m_PVRSampling: 1
     m_PVRDirectSampleCount: 512
     m_PVRSampleCount: 512
@@ -98,8 +98,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000004, guid: 95a7b6425ec874240a4c31b06a963ce7,
-    type: 2}
+  m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
@@ -123,6 +122,68 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &5078028
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5078029}
+  - component: {fileID: 5078031}
+  - component: {fileID: 5078030}
+  m_Layer: 0
+  m_Name: Activator_inside
+  m_TagString: Untagged
+  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5078029
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5078028}
+  m_LocalRotation: {x: -0, y: -0.006606169, z: -0, w: 0.99997824}
+  m_LocalPosition: {x: 30.415014, y: -1.2, z: 6.3427267}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1940481642}
+  m_Father: {fileID: 1417679690}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: -0.757, z: 0}
+--- !u!65 &5078030
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5078028}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.99581456, y: 3.0110826, z: 3.869265}
+  m_Center: {x: -0.9408821, y: 0.061741114, z: 0.13751397}
+--- !u!114 &5078031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5078028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2512bbccbd58e6f498618d55ddca458e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mask:
+    serializedVersion: 2
+    m_Bits: 512
+  childTransform: {fileID: 1940481642}
 --- !u!4 &14597185 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 899296298, guid: 5d4a56c7431b7bc44826c45af1df345c,
@@ -2307,7 +2368,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 451323546}
-  m_LocalRotation: {x: -0.15160246, y: 0.7466951, z: 0.18363447, w: 0.62108094}
+  m_LocalRotation: {x: -0.15160249, y: 0.7466951, z: 0.18363447, w: 0.621081}
   m_LocalPosition: {x: -33.82215, y: -0.79108226, z: 3.0763469}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -5575,12 +5636,12 @@ PrefabInstance:
     - target: {fileID: 7498716655910853634, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.22852562
+      value: 0.2285255
       objectReference: {fileID: 0}
     - target: {fileID: 7498716655910853634, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.0155226
+      value: 0.015522591
       objectReference: {fileID: 0}
     - target: {fileID: 7498716655910853635, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
@@ -5800,7 +5861,7 @@ PrefabInstance:
     - target: {fileID: 7498716657728243656, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.88596666
+      value: 0.8859667
       objectReference: {fileID: 0}
     - target: {fileID: 7498716657728243656, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
@@ -5810,12 +5871,12 @@ PrefabInstance:
     - target: {fileID: 7498716657728243656, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.2268706
+      value: 0.22687058
       objectReference: {fileID: 0}
     - target: {fileID: 7498716657728243656, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.031528227
+      value: 0.03152822
       objectReference: {fileID: 0}
     - target: {fileID: 7498716657728243657, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
@@ -6847,6 +6908,38 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1417679689
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1417679690}
+  m_Layer: 0
+  m_Name: HospitalEntranceToFirstFloorReception (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1417679690
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1417679689}
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0.000047475092}
+  m_LocalPosition: {x: -11.186415, y: 0.22590072, z: 8.108323}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 2031468731}
+  - {fileID: 5078029}
+  m_Father: {fileID: 1441979074}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: -179.99501, z: 0}
 --- !u!1 &1441979073
 GameObject:
   m_ObjectHideFlags: 0
@@ -6875,6 +6968,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 525564282}
+  - {fileID: 1417679690}
   m_Father: {fileID: 170054267}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7197,6 +7291,75 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1553106581}
   m_CullTransparentMesh: 0
+--- !u!1 &1565895003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1565895004}
+  - component: {fileID: 1565895006}
+  - component: {fileID: 1565895005}
+  m_Layer: 0
+  m_Name: HospitalOutdoor->1stFloorReception
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1565895004
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565895003}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.9814143, y: -0.014, z: -0.07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2031468731}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1565895005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565895003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e8ac629a2a6f4f4da9502a2160b2d9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thisSceneTransition: {fileID: 1565895004}
+  nextSceneTransition: {fileID: 1940481642}
+  sceneTransitionSeconds: 1
+  charController: {fileID: 1147584068}
+  nextSceneName: 1stFloor_Entrance
+  cam: {fileID: 673421226}
+  inventorySO: {fileID: 11400000, guid: 78630d598c5b75446819c06623c1e9cf, type: 2}
+  keyName: Key
+  isDoorisNeedingKey: 0
+  isDoorUnLocked: 1
+  isPlayerCanEnterScene: 0
+  doorType: 0
+--- !u!114 &1565895006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565895003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c174944968f6f044683a1e3d14c4394d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InteractionCanvasAnimator: {fileID: 1081256840}
 --- !u!1 &1567211193
 GameObject:
   m_ObjectHideFlags: 0
@@ -8314,7 +8477,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7fa80e7116296f4eb4f49ec1544ee22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderSettingsBounces: 1
+  renderSettingsBounces: 2
   renderSettingsGISamples: 16
   renderSettingsGIBackFaceWeight: 0
   renderSettingsTileSize: 512
@@ -8344,9 +8507,9 @@ MonoBehaviour:
   renderSettingsCheckOverlaps: 0
   renderSettingsSkipOutOfBoundsUVs: 1
   renderSettingsHackEmissiveBoost: 1
-  renderSettingsHackIndirectBoost: 1
+  renderSettingsHackIndirectBoost: 2
   renderSettingsTempPath: 
-  renderSettingsOutPath: _Scenes/Persistent
+  renderSettingsOutPath: _Scenes/1stFloor_Entrance
   renderSettingsUseScenePath: 1
   renderSettingsHackAOIntensity: 1
   renderSettingsHackAOSamples: 16
@@ -8389,7 +8552,7 @@ MonoBehaviour:
   renderSettingsRTPVSceneView: 0
   renderSettingsRTPVWidth: 1541
   renderSettingsRTPVHeight: 934
-  lastBakeTime: 56
+  lastBakeTime: 71
   enlightenWarningShown: 1
   enlightenWarningShown2: 0
   lightUIDs: 
@@ -8397,9 +8560,11 @@ MonoBehaviour:
   implicitGroups: []
   implicitGroupedObjects: []
   bounds:
-  - m_Center: {x: -28.800001, y: 0.24998522, z: -2.2000008}
-    m_Extent: {x: 11.800001, y: 2.7500143, z: 10.199999}
-  hasEmissive: 01
+  - m_Center: {x: -29.238468, y: 0.4948702, z: 0.7699518}
+    m_Extent: {x: 8.238468, y: 3.0051322, z: 9.770048}
+  - m_Center: {x: -31.000284, y: 0.4316972, z: -1.7501369}
+    m_Extent: {x: 6.000387, y: 0.07336575, z: 7.2501473}
+  hasEmissive: 0101
   uvBuffOffsets: 
   uvBuffLengths: 
   uvSrcBuff: []
@@ -8411,45 +8576,141 @@ MonoBehaviour:
   lmGroupMinLOD: 
   lmGroupLODMatrix: 
   serverGetFileList: []
-  lightmapHasColor: 01
-  lightmapHasMask: 00
-  lightmapHasDir: 01
-  lightmapHasRNM: 00
+  lightmapHasColor: 0101
+  lightmapHasMask: 0000
+  lightmapHasDir: 0101
+  lightmapHasRNM: 0000
   modifiedAssetPathList:
   - Assets/_StaticMeshes/Modular/Ceilings/Ceiling_Corridors_Quad_B.fbx
-  - Assets/_StaticMeshes/Modular/Doors/Door_Glass.fbx
-  - Assets/_StaticMeshes/Fillers/CeilingPlates.fbx
-  - Assets/_StaticMeshes/Modular/Walls/SacredPEaks/Wall_painted_orange_2x3_CornerRightLeft.fbx
-  - Assets/_StaticMeshes/Modular/Walls/SacredPEaks/Wall_painted_orange_CornerPiece_2x2_Innward_CornerBoth.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_painted_orange_4x3_DarkCornersBoth_A.fbx
+  - Assets/_StaticMeshes/Modular/Columns/Wall_Corridors_Hider_A.002.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Walls_WithWindows.fbx
+  - Assets/_StaticMeshes/Modular/Ceilings/Ceiling_Corridors_Quad_A.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_painted_orange_1x3_CornerBoth.fbx
+  - Assets/_StaticMeshes/Modular/Strips/Strips_4m_Straight.fbx
+  - Assets/_StaticMeshes/Modular/Doors/Door_Glass_4x3.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_painted_orange_4x3_DarkCornersBoth_B.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_painted_orange_4x3_NoDarkCorners_A.fbx
+  - Assets/_StaticMeshes/Modular/Ceilings/Ceiling_Corridors_Quad_C.fbx
+  - Assets/_StaticMeshes/Modular/Floors/Floor_PVC__4x4.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_painted_orange_2x3_CornerBoth.fbx
+  - Assets/_StaticMeshes/Modular/Strips/Strips_4m_CornersOutWard.fbx
+  - Assets/_StaticMeshes/Modular/Strips/Strips_4m_CornersInWard.fbx
+  - Assets/_StaticMeshes/Modular/Floors/Floor_PVC_8x8.fbx
+  - Assets/_StaticMeshes/Modular/Corners/CornersPaintedOrange/Wall_painted_orange_CornerPiece_2x2_Innward_CornerBoth.fbx
+  - Assets/_StaticMeshes/Modular/Columns/Wall_painted_orange_Pillar_0.25x0.25.fbx
+  - Assets/_StaticMeshes/Modular/Walls/Wall_painted_orange_0.5x3_CornerBoth_B.fbx
+  - Assets/_StaticMeshes/Modular/Strips/Strips_4m_CornersInWard_OneSide.fbx
+  - Assets/_StaticMeshes/Modular/Doors/DOORTEST.fbx
   modifiedAssets:
   - meshName:
     - Ceiling_Corridors_Quad_A.002
     - Ceiling_Corridors_Quad_B
-    padding: 09000000be000000
+    padding: 0900000016000000
     unwrapper: 0000000000000000
   - meshName:
-    - Reception_Wall_InbetweenDoor
-    - SwingDoor_L
-    - SwingDoor_R
-    padding: 190000002300000024000000
-    unwrapper: 000000000000000000000000
-  - meshName:
-    - Plane
-    padding: 39000000
+    - Wall_painted_orange_4x3_DarkCornersBoth_A
+    padding: a7000000
     unwrapper: 00000000
   - meshName:
-    - Wall_painted_orange_2x3_CornerRightLeft
-    padding: ec000000
+    - Wall_Corridors_Hider_A.002
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_painted_orange_4x3_withWindows.003
+    - Wall_painted_orange_4x3_withWindows
+    - Wall_painted_orange_4x3_withWindows.010
+    - Wall_painted_orange_4x3_withWindows.006
+    - Wall_painted_orange_4x3_withWindows.004
+    - Wall_painted_orange_4x3_withWindows.011
+    - Wall_painted_orange_4x3_withWindows.008
+    - Wall_painted_orange_4x3_withWindows.012
+    - Wall_painted_orange_4x3_withWindows.005
+    - Wall_painted_orange_4x3_withWindows.001
+    - Wall_painted_orange_4x3_withWindows.002
+    - Wall_painted_orange_4x3_withWindows.007
+    - Wall_painted_orange_4x3_withWindows.009
+    padding: 000100007b000000000100000001000000010000000100000001000000010000bb00000000010000000100000001000000010000
+    unwrapper: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  - meshName:
+    - Ceiling_Corridors_Quad_B.015
+    - Ceiling_Corridors_Quad_A
+    padding: 1500000000010000
+    unwrapper: 0000000000000000
+  - meshName:
+    - Wall_painted_orange_1x3_CornerBoth
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - Strips_4m_Straight
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - SwingDoor_R
+    - SwingDoor_L
+    - Reception_Wall_InbetweenDoor
+    padding: f1000000f10000008c000000
+    unwrapper: 000000000000000000000000
+  - meshName:
+    - Wall_painted_orange_4x3_DarkCornersBoth_B
+    padding: a7000000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_painted_orange_4x3_NoDarkCorners_A
+    padding: a7000000
+    unwrapper: 00000000
+  - meshName:
+    - Ceiling_Corridors_Quad_C
+    padding: 15000000
+    unwrapper: 00000000
+  - meshName:
+    - Floor_PVC__4x4
+    padding: 90000000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_painted_orange_2x3_CornerBoth
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - Strips_4m_CornersOutWard
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - Strips_4m_CornersInWard
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - Floor_PVC_8x8
+    padding: 48000000
     unwrapper: 00000000
   - meshName:
     - Wall_painted_orange_CornerPiece_2x2_Innward_CornerBoth
     padding: a7000000
     unwrapper: 00000000
+  - meshName:
+    - Wall_painted_orange_Pillar_0.25x0.25
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_painted_orange_0.5x3_CornerBoth_B
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - Strips_4m_CornersInWard_OneSide
+    padding: 00010000
+    unwrapper: 00000000
+  - meshName:
+    - Wall_painted_orange_2x3_CornerBoth.001
+    - Door_Slim_A_low.001
+    padding: b900000000010000
+    unwrapper: 0000000000000000
   maps:
-  - {fileID: 2800000, guid: 3beb258f1e352464a89b053aef32a726, type: 3}
+  - {fileID: 2800000, guid: 3f4427538a51a7146be5383cc2e9cc3a, type: 3}
+  - {fileID: 2800000, guid: 5bab3d51f6a0a10409cbc2e1f3d5fae2, type: 3}
   masks: []
   dirMaps:
-  - {fileID: 2800000, guid: 909e85dcc158eec46ae54413753bf16d, type: 3}
+  - {fileID: 2800000, guid: 02668f4e4bdcc7e4f96f4e72a85366f1, type: 3}
+  - {fileID: 2800000, guid: abb860bad513e904792deb650af8a2f3, type: 3}
   rnmMaps0: []
   rnmMaps1: []
   rnmMaps2: []
@@ -8467,7 +8728,7 @@ MonoBehaviour:
   bakedScaleOffsetTerrain: []
   assetList: []
   uvOverlapAssetList: 
-  idremap: 00000000
+  idremap: 0000000001000000
   usesRealtimeGI: 0
   emptyDirectionTex: {fileID: 2800000, guid: 04afea73344b7d049b5b7ac5ae315dd5, type: 3}
   anyVolumes: 0
@@ -8475,10 +8736,12 @@ MonoBehaviour:
   sectors:
   - name: $G
     maps:
-    - {fileID: 2800000, guid: 3beb258f1e352464a89b053aef32a726, type: 3}
+    - {fileID: 2800000, guid: 3f4427538a51a7146be5383cc2e9cc3a, type: 3}
+    - {fileID: 2800000, guid: 5bab3d51f6a0a10409cbc2e1f3d5fae2, type: 3}
     masks: []
     dirMaps:
-    - {fileID: 2800000, guid: 909e85dcc158eec46ae54413753bf16d, type: 3}
+    - {fileID: 2800000, guid: 02668f4e4bdcc7e4f96f4e72a85366f1, type: 3}
+    - {fileID: 2800000, guid: abb860bad513e904792deb650af8a2f3, type: 3}
     rnmMaps0: []
     rnmMaps1: []
     rnmMaps2: []
@@ -9067,6 +9330,75 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1929718035}
   m_CullTransparentMesh: 0
+--- !u!1 &1940481641
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1940481642}
+  - component: {fileID: 1940481644}
+  - component: {fileID: 1940481643}
+  m_Layer: 0
+  m_Name: 1stFloorReception->HospitalOutDoor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1940481642
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940481641}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.897, y: -0.13599998, z: 0.036}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5078029}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1940481643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940481641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c174944968f6f044683a1e3d14c4394d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InteractionCanvasAnimator: {fileID: 1081256840}
+--- !u!114 &1940481644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940481641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e8ac629a2a6f4f4da9502a2160b2d9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thisSceneTransition: {fileID: 1940481642}
+  nextSceneTransition: {fileID: 1565895004}
+  sceneTransitionSeconds: 1
+  charController: {fileID: 1147584068}
+  nextSceneName: HospitalEntrance
+  cam: {fileID: 673421226}
+  inventorySO: {fileID: 11400000, guid: 78630d598c5b75446819c06623c1e9cf, type: 2}
+  keyName: 
+  isDoorisNeedingKey: 1
+  isDoorUnLocked: 1
+  isPlayerCanEnterScene: 0
+  doorType: 0
 --- !u!1 &1945498059
 GameObject:
   m_ObjectHideFlags: 0
@@ -9418,6 +9750,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2028799023}
   m_CullTransparentMesh: 0
+--- !u!1 &2031468730
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2031468731}
+  - component: {fileID: 2031468733}
+  - component: {fileID: 2031468732}
+  m_Layer: 0
+  m_Name: Activator_outside
+  m_TagString: Untagged
+  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2031468731
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031468730}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 31.53, y: -1.33, z: 6.696}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1565895004}
+  m_Father: {fileID: 1417679690}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2031468732
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031468730}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.0016499, y: 3.0481472, z: 3.754506}
+  m_Center: {x: -0.9947196, y: 0.15740329, z: -0.19944954}
+--- !u!114 &2031468733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031468730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2512bbccbd58e6f498618d55ddca458e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mask:
+    serializedVersion: 2
+    m_Bits: 512
+  childTransform: {fileID: 1565895004}
 --- !u!1 &2097295736
 GameObject:
   m_ObjectHideFlags: 0
