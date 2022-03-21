@@ -99,7 +99,10 @@ public class SceneTransition : MonoBehaviour
 
     private void Update()
     {
-        //When the player raycast hits something interactable and the player has pressed the use key and the door is unlocked
+        /*When the player raycast hits something interactable and the player has pressed the use key and the door is unlocked, call the events responsible for door opening.
+        This won't put a lot of load on the Update loop, cause the respective events only gets executed if the player also hits the use button in one particular frame.
+        Of course, the checking will take place every frame, but the overhead for that is negligable in this case, because there are not a lot of other checks running per frame.
+        Also doing this every frame is mandatory, as the player at any time can approach a door and use it.*/
         if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed() && CheckIfDoorUnLocked())
         {
             //Send door type to audio manager
@@ -115,6 +118,7 @@ public class SceneTransition : MonoBehaviour
             //Invoking player pressed used on sight, spawn player in next scene, switch trigger activity
             OnPlayerPressedEnterOnSight.Invoke(nextSceneName);
             SpawnPlayerInNewScene();
+            //This will switch the collider activity for Outside and Inside, like a flip flop.
             SwitchTransitionActivity();
         }
         else if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed())
