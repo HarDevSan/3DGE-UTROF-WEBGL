@@ -630,7 +630,7 @@ GameObject:
   m_Component:
   - component: {fileID: 170054267}
   m_Layer: 0
-  m_Name: RECEPTION
+  m_Name: PARENT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1423,7 +1423,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 340081964}
   m_LocalRotation: {x: -0, y: -0.006606169, z: -0, w: 0.99997824}
-  m_LocalPosition: {x: -0.571, y: 0, z: 0}
+  m_LocalPosition: {x: -0.42, y: 0, z: -0.141}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1394558366}
@@ -2712,7 +2712,7 @@ GameObject:
   - component: {fileID: 484761895}
   - component: {fileID: 484761894}
   m_Layer: 0
-  m_Name: Administration->1stFloorEntrance
+  m_Name: Cafeteria->1stFloorEntrance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2726,7 +2726,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 484761892}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.9814143, y: -0.014, z: -0.07}
+  m_LocalPosition: {x: -0.913, y: -0.014, z: 0.68}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 645175472}
@@ -2792,15 +2792,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 489606905}
-  m_LocalRotation: {x: -0, y: -0.000052779906, z: -0, w: -1}
-  m_LocalPosition: {x: -27.128242, y: -1.08, z: 11.708323}
+  m_LocalRotation: {x: -0, y: -0.7071438, z: -0, w: -0.7070699}
+  m_LocalPosition: {x: -38.8, y: -1.08, z: 5.444}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 645175472}
   - {fileID: 1313611452}
   m_Father: {fileID: 1441979074}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: -359.994, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -269.994, z: 0}
 --- !u!1 &498988495
 GameObject:
   m_ObjectHideFlags: 0
@@ -4092,7 +4092,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &758142397
 Transform:
   m_ObjectHideFlags: 0
@@ -6421,7 +6421,7 @@ PrefabInstance:
     - target: {fileID: 7498716655910853634, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.022412878
+      value: 0.022412863
       objectReference: {fileID: 0}
     - target: {fileID: 7498716655910853635, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
@@ -6586,7 +6586,7 @@ PrefabInstance:
     - target: {fileID: 7498716657109682688, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.057434555
+      value: 0.057434496
       objectReference: {fileID: 0}
     - target: {fileID: 7498716657109682689, guid: 5d4a56c7431b7bc44826c45af1df345c,
         type: 3}
@@ -7484,8 +7484,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.99581516, y: 2.2964716, z: 1.3049092}
-  m_Center: {x: -0.9408926, y: -0.2955644, z: 0.7412533}
+  m_Size: {x: 0.99581504, y: 2.2964716, z: 2.0561607}
+  m_Center: {x: -0.9408927, y: -0.2955644, z: 0.7412534}
 --- !u!114 &1313611454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7514,7 +7514,7 @@ GameObject:
   - component: {fileID: 1335191368}
   - component: {fileID: 1335191367}
   m_Layer: 0
-  m_Name: 1stFloorEntrance->Administration
+  m_Name: 1stFloorEntrance->Cafeteria
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7528,7 +7528,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1335191365}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.897, y: -0.13599998, z: 0.036}
+  m_LocalPosition: {x: -1.185, y: -0.13599998, z: 0.754}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1313611452}
@@ -7563,11 +7563,11 @@ MonoBehaviour:
   nextSceneTransition: {fileID: 484761893}
   sceneTransitionSeconds: 1
   charController: {fileID: 1147584068}
-  nextSceneName: ReceptionArea
+  nextSceneName: 1stFloor_Entrance
   cam: {fileID: 673421226}
   inventorySO: {fileID: 11400000, guid: 78630d598c5b75446819c06623c1e9cf, type: 2}
   keyName: 
-  isDoorisNeedingKey: 1
+  isDoorisNeedingKey: 0
   isDoorUnLocked: 1
   isPlayerCanEnterScene: 0
   doorType: 0
@@ -8441,7 +8441,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1605095130
 Transform:
   m_ObjectHideFlags: 0
@@ -8688,7 +8688,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1652094644}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.6582704, y: 0, z: -3.3086698}
+  m_LocalPosition: {x: 1.286, y: 0, z: 0.213}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 323222293}
