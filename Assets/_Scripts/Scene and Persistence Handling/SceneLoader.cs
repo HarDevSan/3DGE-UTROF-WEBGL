@@ -113,7 +113,7 @@ public class SceneLoader : MonoBehaviour
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(name));
         //wait one frame until scene has been activated
         //yield return new WaitForEndOfFrame();
-        yield return new WaitForSeconds(loadDelay);
+        //yield return new WaitForSeconds(loadDelay);
         OnScene_Has_Loaded.Invoke();
         brain.enabled = true;
 
