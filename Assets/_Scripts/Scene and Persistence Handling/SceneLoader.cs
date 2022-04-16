@@ -87,7 +87,7 @@ public class SceneLoader : MonoBehaviour
 
     }
 
-    //----------CoRoutines, managing loading progress and finish 
+    //----------Coroutines, managing loading progress and finish 
     IEnumerator WaitForSceneToFinishLoading(string name)
     {
 
@@ -96,7 +96,7 @@ public class SceneLoader : MonoBehaviour
         brain.enabled = false;
         //Loading the nextScene and thereby create an async operation
         AsyncOperation operation = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
-        //Check if the Async Operation has already been created before doing anything, prevents nullref 
+        //Check if the Async Operation has already been created
         if (operation != null)
         {
             while (operation.isDone == false)
@@ -106,15 +106,19 @@ public class SceneLoader : MonoBehaviour
                 yield return null;
             }
         }
+        //Reset loading bar after async isDone
         loadingprogress = 0;
+        //Assign new scene names
         lastSceneName = name;
         thisSceneName = name;
         //Set the loaded Scene as active
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(name));
         //wait one frame until scene has been activated
         //yield return new WaitForEndOfFrame();
-        //yield return new WaitForSeconds(loadDelay);
+        yield return new WaitForSeconds(loadDelay);
+        LightProbes.Tetrahedralize();
         OnScene_Has_Loaded.Invoke();
+        //Re-enable Cinemachine Brain
         brain.enabled = true;
 
     }
