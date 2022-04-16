@@ -13,7 +13,7 @@ public class UI_ShowLoadingScreenAndProgress : MonoBehaviour
     {
         //SceneLoader.OnSceneIsLoading += UpdateLoadingBar;
         SceneLoader.OnSceneIsLoading += ShowLoadingScreen;
-
+        SceneLoader.OnSceneIsLoading += UpdateLoadingBar;
         SceneLoader.OnScene_Has_Loaded += HideLoadingScreen;
     }
     //private void Start()
