@@ -216,10 +216,14 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    /* A ray is cast continously from the player characters's forward axis. If the ray intersects an object that belongs to an "Interactable" layer,
+     * all functions that are subscribed to the events that are fired in this function will get called.
+     */ 
     void CastRayFromFront()
     {
         RaycastHit hit;
-        if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskRoom))
+
+        if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskRoom)) //last param is filtering by layer
         {
             if (OnPlayerSeesSomethingInteractable_Room != null)
             {
@@ -227,12 +231,12 @@ public class PlayerController : MonoBehaviour
             }
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = true;
         }
-        else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem))
+        else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem)) //last param is filtering by layer
         {
-            OnPlayerSeesSomethingInteractable_Item.Invoke(); //- unneeded overhead
+            OnPlayerSeesSomethingInteractable_Item.Invoke(); 
             isPlayerCanInteractBecauseHeLooksAtSmth_item = true;
         }
-        else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskScriptedEvent))
+        else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskScriptedEvent)) //last param is filtering by layer
         {
             isPlayerCanInteractBecauseHeLooksAt_ScriptedEvent = true;
         }
@@ -240,7 +244,7 @@ public class PlayerController : MonoBehaviour
         {
             ////check if event has subs
             if (OnPlayerDoesNotSeeSomehtingInteractable != null)
-                OnPlayerDoesNotSeeSomehtingInteractable.Invoke(); //- unneeded overhead
+                OnPlayerDoesNotSeeSomehtingInteractable.Invoke(); 
 
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = false;
             isPlayerCanInteractBecauseHeLooksAtSmth_item = false;
