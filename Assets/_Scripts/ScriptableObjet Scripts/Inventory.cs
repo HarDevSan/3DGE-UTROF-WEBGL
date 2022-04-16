@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 [CreateAssetMenu(fileName = "Inventory", menuName = "ScriptableObjects/Inventory", order = 1)]
 public class Inventory : ScriptableObject
 {
     public List<string> itemList;
+   
 
 
     public bool SearchListFor(string name)
