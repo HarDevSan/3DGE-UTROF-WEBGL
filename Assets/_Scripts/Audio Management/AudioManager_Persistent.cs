@@ -74,6 +74,8 @@ public class AudioManager_Persistent : MonoBehaviour
 
     }
 
+    /*As the AudioMixer Component is not available in Unity for WebGL, Audio ducking needs to be integrated by hand.
+     * Function can listen to an event that is fired once. No need for a Coroutine*/
     public void TemporaryLowerTrackVolume()
     {
 
@@ -89,8 +91,6 @@ public class AudioManager_Persistent : MonoBehaviour
             trackIntroSource.volume = value;
         }
     }
-
-
 
 
 

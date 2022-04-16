@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 
+/*This is the class to replace the "AudioManager_Scene" class. By utilizing Unitys TimeLine feature, a sequencing tool to compose GameObjects behaviours,
+ *storing and calling methods to play multiple clips per scene can be simplified to playing a TimeLine via a Playable Director component.*/
 public class AudioManager_TimeLine : MonoBehaviour
 {
     [Header("initialtimeLineBathroom")]

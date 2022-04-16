@@ -8,7 +8,6 @@ public class AudioOutBlender : MonoBehaviour
 
     public AudioSource introAudioSource;
 
-
     private void Awake()
     {
         TextEvent_Sequential.OnAllTextHasBeenPrinted += BlendOutGroup;
