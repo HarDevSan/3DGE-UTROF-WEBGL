@@ -12,48 +12,66 @@ public class FPSshower : MonoBehaviour
 {
     public TextMeshProUGUI fpsCounter;
     public TextMeshProUGUI miliSeconds;
+    public TextMeshProUGUI secondsGUI;
 
-    int fps;
+    public int maxSecondsToRecalcAverage;
+
+    int avgFPS;
 
     public Color greaterEqual60_Color;
     public Color greaterEqual30Below60_Color;
     public Color below30_Color;
 
-    int counter;
+    int frameCounter;
+    int seconds;
 
+    private void Start()
+    {
+        StartCoroutine(countEverySecond());
+    }
 
-    // Update is called once per frame
     void Update()
     {
+        calcAVGFPS();
+    }
 
-            //Counter for the displaying interval
-            counter++;
-        
 
-        //display only every 10th frame
-        if (counter == 10)
+    void calcAVGFPS()
+    {
+        //Count every frame
+        frameCounter++;
+
+        //Display the seconds elapsed until next measurement interval
+        secondsGUI.text = "SEC: " + seconds;
+
+        //display only every fpsInterval frame
+        if (seconds >= maxSecondsToRecalcAverage)
         {
 
-            //Calculate framerate and cast to int
-            fps = (int)(1f / Time.smoothDeltaTime);
-            fpsCounter.text = "FPS: " + fps;
+            //Calculate current framerate and cast to int
+            //fps = (int)(1f / Time.smoothDeltaTime);
+
+            //calculate averaged framerate over maxSeconds interval
+            avgFPS = frameCounter / maxSecondsToRecalcAverage;
+            fpsCounter.text = "AVG FPS: " + avgFPS;
+
             //Calculate miliseconds and cast to float
-            miliSeconds.text = "MS: " + ((float)1 / fps) * 1000;
+            miliSeconds.text = "MS: " + ((float)1 / avgFPS) * 1000;
             miliSeconds.maxVisibleCharacters = 9;
 
+
             //Color coding depending on fps range
-            if (fps >= 59)
+            if (avgFPS >= 59)
             {
                 fpsCounter.color = greaterEqual60_Color;
                 miliSeconds.color = greaterEqual60_Color;
-
             }
-            else if (fps < 60 && fps >= 30)
+            else if (avgFPS < 60 && avgFPS >= 30)
             {
                 fpsCounter.color = greaterEqual30Below60_Color;
                 miliSeconds.color = greaterEqual30Below60_Color;
             }
-            else if (fps < 30)
+            else if (avgFPS < 30)
             {
                 fpsCounter.color = below30_Color;
                 miliSeconds.color = below30_Color;
@@ -63,11 +81,23 @@ public class FPSshower : MonoBehaviour
                 fpsCounter.color = below30_Color;
                 miliSeconds.color = below30_Color;
             }
-            //reset counter
-            counter = 0;
+            //reset counter and seconds after interval
+            frameCounter = 0;
+            seconds = 0;
         }
-        
+    }
+
+    IEnumerator countEverySecond()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1);
+            seconds++;
+        }
     }
 
 }
+
+
+
 
