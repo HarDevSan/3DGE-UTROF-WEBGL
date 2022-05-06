@@ -49,7 +49,6 @@ public class InputReceiver : MonoBehaviour
     private void Awake()
     {
         //isMovementInput = true;
-     
     }
 
     void Update()
