@@ -75,7 +75,7 @@ public class SceneTransition : MonoBehaviour
         /*Need to UNSUBSCRIBE the event , otherwise it wil lfire again even if the object is disabled
         It's also ok to hanlde scenetransition on playerInput instead of "OnSceneHasLoaed", OnsceneHasLoaded 
         can be used to determin when the playercontrols should be unlocked in the new scene and the blend out of UI loading sceen*/
-        PlayerController.OnPlayerSeesSomethingInteractable_Room += UnlockDoorIfPlayerHasKey;
+        //PlayerController.OnPlayerSeesSomethingInteractable_Room += UnlockDoorIfPlayerHasKey;
         //InputReceiver.On_E_Input += SwitchTransitionActivity;
         //InputReceiver.On_E_Input += SpawnPlayerInNewScene;
 
@@ -146,17 +146,17 @@ public class SceneTransition : MonoBehaviour
         isDoorUnLocked = true;
     }
 
-    void UnlockDoorIfPlayerHasKey()
-    {
+    //void UnlockDoorIfPlayerHasKey()
+    //{
 
-        if (inventorySO.SearchListFor(keyName))
-        {
-            UnlockDoor();
-        }
-        else
-        {
-        }
-    }
+    //    if (inventorySO.SearchListFor(keyName))
+    //    {
+    //        UnlockDoor();
+    //    }
+    //    else
+    //    {
+    //    }
+    //}
 
     /*-------------------------------------Spawning------------------------------------------------------*/
     void SpawnPlayerInNewScene()
