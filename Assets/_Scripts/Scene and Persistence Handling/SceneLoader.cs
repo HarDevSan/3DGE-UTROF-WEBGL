@@ -27,7 +27,6 @@ public class SceneLoader : MonoBehaviour
     [SerializeField]
     public static string lastSceneName;
     public static string thisSceneName;
-    public CinemachineBrain brain;
 
     private void Awake()
     {
@@ -92,8 +91,6 @@ public class SceneLoader : MonoBehaviour
     {
 
         OnSceneStartedLoading.Invoke();
-        //disable Cinemachine Brain temporarily while scene has not finished loading
-        brain.enabled = false;
         //Loading the nextScene and thereby create an async operation
         AsyncOperation operation = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
         //Check if the Async Operation has already been created
@@ -106,26 +103,24 @@ public class SceneLoader : MonoBehaviour
                 yield return null;
             }
         }
-        //Reset loading bar after async isDone
+        //Reset loading progress after async isDone
         loadingprogress = 0;
-        //Assign new scene names
+        //Assign last scene name this scene name
         lastSceneName = name;
-        thisSceneName = name;
-        //Set the loaded Scene as active
+        //Set the loaded scene as active
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(name));
-        //wait one frame until scene has been activated
-        //yield return new WaitForEndOfFrame();
+        //Equalize the min time of waiting by a delay to unify loading screen duration
         yield return new WaitForSeconds(loadDelay);
+        //Re-Tetrahedralize light probes
         LightProbes.Tetrahedralize();
+        //Broadcast that next scene has finished loading
         OnScene_Has_Loaded.Invoke();
-        //Re-enable Cinemachine Brain
-        brain.enabled = true;
 
     }
 
     IEnumerator WaitForSceneToFinishUnloading()
     {
-        //unLoading the thisScene and thereby create an async operation
+        //UnLoading this scene and thereby create an async operation
         AsyncOperation op = SceneManager.UnloadSceneAsync(lastSceneName);
         if (op != null)
         {
@@ -136,6 +131,7 @@ public class SceneLoader : MonoBehaviour
 
 
         }
+        //Broadcast that this scene has finished unloading
         OnScene_Has_UnLoaded.Invoke();
     }
     private void OnDisable()
