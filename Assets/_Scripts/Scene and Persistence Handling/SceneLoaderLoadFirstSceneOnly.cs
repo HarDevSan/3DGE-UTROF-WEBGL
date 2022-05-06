@@ -16,13 +16,16 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
     public string firstSceneName;
     [Header("StartMenuSceneName")]
     public string startMenuSceneName;
-    bool isPersistentSceneLoaded;
+    public static bool isPersistentSceneLoaded;
+    public static bool isFirstSceneLoaded;
+
 
     public delegate void FirstSceneFinishedLoading();
     public static event FirstSceneFinishedLoading OnFirstSceneFinishedLoading;
     public delegate void StartMenuFinishedUnloading();
     public static event StartMenuFinishedUnloading OnStartMenuFinishedUnloading;
-
+    public delegate void PersistentSceneFinishedLoading();
+    public static event PersistentSceneFinishedLoading OnPersistentSceneFinishedLoading;
 
     private void Start()
     {
@@ -66,6 +69,9 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
                 yield return null;
             }
         }
+        if (OnPersistentSceneFinishedLoading != null)
+            OnPersistentSceneFinishedLoading.Invoke();
+        isPersistentSceneLoaded = true;
         yield break;
     }
 
@@ -83,7 +89,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
         }
         if (OnFirstSceneFinishedLoading != null)
             OnFirstSceneFinishedLoading.Invoke();
-
+        isFirstSceneLoaded = true;
         yield break;
     }
 
