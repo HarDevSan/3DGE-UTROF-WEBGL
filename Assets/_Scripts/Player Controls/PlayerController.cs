@@ -45,12 +45,12 @@ public class PlayerController : MonoBehaviour
     {
         InputReceiver.On_R_Input += ResetPlayer;
         InputReceiver.On_Z_Input += TurnPlayer;
-        //Character Controller class must be enabled/diabled inside the update function for it work
+        //Character Controller class must be enabled/disabled inside the update function for it work
         SceneLoader.OnSceneStartedLoading += SetPlayerToUnplayableState;
         SceneLoader.OnScene_Has_Loaded += SetPlayerToPlayableState;
         GameManager.OnGameHasBeenPaused += SetPlayerToUnplayableState;
         GameManager.OnGameHasBeenResumed += SetPlayerToPlayableState;
-
+        SceneLoaderLoadFirstSceneOnly.OnPersistentSceneFinishedLoading += SetPlayerToPlayableState;
     }
 
     void Start()
@@ -66,9 +66,6 @@ public class PlayerController : MonoBehaviour
         ApplyGravity();
 
         AnimatePlayer();
-
-        //Set CharController enabled by member boo, cause must be done every frame
-
 
         //Only call Movement related functions if the player does movmeent input
         if (InputManager.CheckIfAnyMovementInput())
