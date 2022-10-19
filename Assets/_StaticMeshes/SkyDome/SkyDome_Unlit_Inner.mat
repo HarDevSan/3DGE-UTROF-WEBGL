@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -10,19 +10,19 @@ Material:
   m_Name: SkyDome_Unlit_Inner
   m_Shader: {fileID: -6465566751694194690, guid: 3d9f93b924c573a4eb4ac4496f600008,
     type: 3}
-  m_ShaderKeywords: 
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
-  disabledShaderPasses:
-  - SHADOWCASTER
+  disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - Texture2D_5BBF4E6C:
-        m_Texture: {fileID: 2800000, guid: 69c8ea9a076050d47b7c19849f3d3035, type: 3}
+        m_Texture: {fileID: 2800000, guid: 55c471b8bd34eb549b55520cfe9a5f1c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
@@ -57,6 +57,19 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - Vector1_12BC3024: 0.249
     - Vector1_3B5224BE: 1
@@ -64,6 +77,8 @@ Material:
     - _ApplyNormal: 0
     - _Blend: 2
     - _BumpScale: 1
+    - _Contrast_Alpha: 1
+    - _Contrast_Color: 1
     - _Cull: 2
     - _Culling: 0
     - _Cutoff: 0.272
@@ -87,6 +102,7 @@ Material:
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _OrthoSpport: 0
+    - _QueueControl: 0
     - _QueueOffset: 0
     - _ReadMask: 255
     - _ReceiveShadows: 0
@@ -117,7 +133,7 @@ Material:
     - _ZTest: 4
     - _ZWrite: 0
     m_Colors:
-    - Color_73D890F4: {r: 0.3711285, g: 0.42681682, b: 0.5660378, a: 0.20784314}
+    - Color_73D890F4: {r: 0.11836948, g: 0.13789994, b: 0.18867919, a: 0.80784315}
     - Vector2_790A7A7F: {r: 0.01, g: -0.01, b: 0, a: 0}
     - _BaseColor: {r: 0.2967692, g: 0.36423987, b: 0.5377357, a: 0.21960784}
     - _Color: {r: 1, g: 0, b: 0, a: 0}
@@ -127,6 +143,7 @@ Material:
     - _SecondaryTilingSpeedRefractBump: {r: 2, g: 2.3, b: 0.1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Speed: {r: 0.1, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
 --- !u!114 &5839523176870539460
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -139,4 +156,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 2
+  version: 5

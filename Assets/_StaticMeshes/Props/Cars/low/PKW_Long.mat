@@ -2,18 +2,22 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PKW_Long
-  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_ShaderKeywords: _METALLICSPECGLOSSMAP _NORMALMAP
+  m_Shader: {fileID: 4800000, guid: ee7e4c9a5f6364b688a332c67fc32cca, type: 3}
+  m_ValidKeywords:
+  - _CLEARCOATMAP
+  - _METALLICSPECGLOSSMAP
+  - _NORMALMAP
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
@@ -40,6 +44,26 @@ Material:
         m_Texture: {fileID: 2800000, guid: f57976bb956179a41a835491efb9dbd7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ClearCoatMap:
+        m_Texture: {fileID: 2800000, guid: 01e14303cb80d9e499a1f35d671a79a8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CoatMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -56,28 +80,76 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SecondaryMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - Vector1_17009F09: 1
     - Vector1_A1BAF047: 1
     - _AlphaClip: 0
+    - _ApplyNormal: 0
+    - _ApplyNormalDepthNormal: 1
     - _Blend: 0
+    - _BlendOp: 0
     - _BumpScale: 1
+    - _ClearCoat: 1
+    - _ClearCoatMask: 1
+    - _ClearCoatSmoothness: 1
+    - _ClearCoatThickness: 0.5
     - _Cull: 2
+    - _Culling: 0
     - _Cutoff: 0.5
+    - _DetailAlbedoMapScale: 1
+    - _DetailNormalMapScale: 1
+    - _DisableGBufferPass: 0
     - _DstBlend: 0
+    - _EnableBaseMap: 0
+    - _EnableCoatMask: 0
+    - _EnableSecColor: 0
+    - _EnableSecondaryLobe: 0
+    - _EnableSecondaryMask: 0
+    - _EnableStandardLighting: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossinessSource: 0
     - _GlossyReflections: 0
+    - _HelpX: 0
     - _Metallic: 1
+    - _Occlusion: 1
     - _OcclusionStrength: 0.5
+    - _Parallax: 0.005
     - _QueueOffset: 0
+    - _ReadMask: 255
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
+    - _Rim: 0
+    - _RimFrequency: 0
+    - _RimMinPower: 1
+    - _RimPerPositionFrequency: 1
+    - _RimPower: 2
     - _Shininess: 0
     - _Smoothness: 0.941
     - _SmoothnessFromMetallic: 1
@@ -86,16 +158,26 @@ Material:
     - _SpecSource: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilFail: 0
+    - _StencilOp: 0
+    - _StencilZFail: 0
     - _Surface: 0
     - _WorkflowMode: 1
+    - _WriteMask: 255
     - _ZWrite: 1
     m_Colors:
     - Vector2_8ABAEFA3: {r: 0, g: 0, b: 0, a: 0}
     - Vector2_F7882BF6: {r: 1, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ClearCoatSpecular: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _RimColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _SecondaryColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
 --- !u!114 &507265383897227397
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -108,4 +190,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 2
+  version: 5
