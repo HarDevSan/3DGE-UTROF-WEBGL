@@ -767,7 +767,7 @@ public class ftPreview : EditorWindow
 
         if (previewImageTex != null)
         {
-            previewImageTex.Resize(pwidth, pheight);
+            previewImageTex.Reinitialize(pwidth, pheight);
             previewImageTex.Apply();
         }
         else
