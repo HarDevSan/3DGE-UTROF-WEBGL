@@ -14,13 +14,23 @@ void CameraFade_float(
     out real Alpha
 
 ) {
-	#if !defined(SHADERPASS_SHADOWCASTER)
+	
+//  TODO 
+
+    #if (SHADERPASS != SHADERPASS_SHADOWCASTER)
     	Alpha = AlphaIN * saturate( (positionSP.w - CameraFadeDist) * CameraInversFadeRange - Dither32(positionSP.xy / positionSP.w * _ScreenParams.xy ) );
     #else
     	#if defined(FADESHADOWS_ON)
     		float distanceToCam = distance(positionWS, GetCameraPositionWS() );
-    		Alpha = AlphaIN * saturate( (distanceToCam - CameraFadeDist) * CameraInversFadeRange - Dither32(positionSP.xy / positionSP.w * _ScreenParams.xy ) );
-    	#else
+            // Poor, poor aprox... for shadows - but it did not branch anyway.
+    		// Alpha = AlphaIN * saturate( (distanceToCam - CameraFadeDist) * CameraInversFadeRange - Dither32(positionSP.xy / positionSP.w * _ScreenParams.xy ) );
+            
+            float4 PositionCS = TransformWorldToHClip(positionWS);
+        //  Calculate size of the shadowmap we are rendering to
+            float width = ddx(PositionCS.x);
+            float res = rcp(width);
+            Alpha = AlphaIN * saturate( (distanceToCam - CameraFadeDist) * CameraInversFadeRange - Dither32(PositionCS.xy * res.xx ));
+        #else
     		Alpha = AlphaIN;
     	#endif
     #endif

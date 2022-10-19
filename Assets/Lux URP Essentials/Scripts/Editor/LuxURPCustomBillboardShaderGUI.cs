@@ -18,7 +18,9 @@ public class LuxURPCustomBillboardShaderGUI : ShaderGUI
             material.DisableKeyword("_APPLYFOGADDITIVELY");
             if (material.GetInt("_ApplyFog") == 1) {
                 material.EnableKeyword("_APPLYFOG");
-                material.DisableKeyword("_APPLYFOGADDITIVELY");    
+            }
+            else {
+                material.DisableKeyword("_APPLYFOG");
             }
 
             material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest + QueueOffset;
@@ -28,7 +30,8 @@ public class LuxURPCustomBillboardShaderGUI : ShaderGUI
             material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
             material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
 
-            material.SetShaderPassEnabled("ShadowCaster", true);    
+            material.SetShaderPassEnabled("ShadowCaster", true);
+            material.SetShaderPassEnabled("GBuffer", true); 
         }
 
     //  Alpha Blending
@@ -73,6 +76,7 @@ public class LuxURPCustomBillboardShaderGUI : ShaderGUI
             }
 
             material.SetShaderPassEnabled("ShadowCaster", false);
+            material.SetShaderPassEnabled("GBuffer", false); 
         }
 
 

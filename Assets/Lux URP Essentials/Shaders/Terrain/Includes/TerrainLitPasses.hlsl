@@ -2,6 +2,8 @@
 #define UNIVERSAL_TERRAIN_LIT_PASSES_INCLUDED
 
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
 
     #if defined(UNITY_INSTANCING_ENABLED) && defined(_TERRAIN_INSTANCED_PERPIXEL_NORMAL)
         #define ENABLE_TERRAIN_PERPIXEL_NORMAL
@@ -20,6 +22,17 @@
         UNITY_DEFINE_INSTANCED_PROP(float4, _TerrainPatchInstanceData)  // float4(xBase, yBase, skipScale, ~)
     UNITY_INSTANCING_BUFFER_END(Terrain)
 
+    #ifdef _ALPHATEST_ON
+        // Already defined in TerrainLitinput.hlsl
+        // TEXTURE2D(_TerrainHolesTexture);
+        // SAMPLER(sampler_TerrainHolesTexture);
+        void ClipHoles(float2 uv)
+        {
+            float hole = SAMPLE_TEXTURE2D(_TerrainHolesTexture, sampler_TerrainHolesTexture, uv).r;
+            clip(hole == 0.0f ? -1 : 1);
+        }
+    #endif
+
     struct Attributes
     {
         float4 positionOS : POSITION;
@@ -37,12 +50,12 @@
     #endif
 
     #if ( defined(_NORMALMAP) || defined(_PARALLAX) ) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
-        float3 normal                   : TEXCOORD3;    // xyz: normal, w: viewDir.x
-        float4 tangent                  : TEXCOORD4;    // xyz: tangent, w: viewDir.y
-        float3 viewDir                  : TEXCOORD5;
+        half3 normal                    : TEXCOORD3;    // xyz: normal, w: viewDir.x
+        half4 tangent                   : TEXCOORD4;    // xyz: tangent, w: viewDir.y
+        half3 viewDir                   : TEXCOORD5;
     #else
-        float3 normal                   : TEXCOORD3;
-        float3 viewDir                  : TEXCOORD4;
+        half3 normal                    : TEXCOORD3;
+        half3 viewDir                   : TEXCOORD4;
         half3 vertexSH                  : TEXCOORD5; // SH
     #endif
 
@@ -234,7 +247,16 @@
 
         input.fogCoord = IN.fogFactorAndVertexLight.x;
         input.vertexLighting = IN.fogFactorAndVertexLight.yzw;
-        input.bakedGI = SAMPLE_GI(IN.uvMainAndLM.zw, SH, input.normalWS);
+        
+        #if defined(DYNAMICLIGHTMAP_ON)
+            input.bakedGI = SAMPLE_GI(IN.uvMainAndLM.zw, IN.uvMainAndLM.zw, SH, input.normalWS);
+        #else
+            input.bakedGI = SAMPLE_GI(IN.uvMainAndLM.zw, SH, input.normalWS);
+        #endif
+
+        //input.normalizedScreenSpaceUV = IN.clipPos.xy;
+        input.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.clipPos.xy);
+        input.shadowMask = SAMPLE_SHADOWMASK(IN.uvMainAndLM.zw);
     }
 
 
@@ -320,11 +342,12 @@
             normalSamples[3] = SAMPLE_TEXTURE2D(_Normal3, sampler_Normal0, uvSplat23.zw);
             
             half4 normalSample = 0;
+
             normalSample =  splatControl.r * normalSamples[0];
             normalSample += splatControl.g * normalSamples[1];
             normalSample += splatControl.b * normalSamples[2];
             normalSample += splatControl.a * normalSamples[3];
-
+            
             half3 nrm = 0.0f;
             #if BUMP_SCALE_NOT_SUPPORTED
                 nrm = UnpackNormal(normalSample);
@@ -416,10 +439,12 @@
     void SplatmapFinalColor(inout half4 color, half fogCoord)
     {
         color.rgb *= color.a;
-        #ifdef TERRAIN_SPLAT_ADDPASS
-            color.rgb = MixFogColor(color.rgb, half3(0,0,0), fogCoord);
-        #else
-            color.rgb = MixFog(color.rgb, fogCoord);
+        #ifndef TERRAIN_GBUFFER
+            #ifdef TERRAIN_SPLAT_ADDPASS
+                color.rgb = MixFogColor(color.rgb, half3(0,0,0), fogCoord);
+            #else
+                color.rgb = MixFog(color.rgb, fogCoord);
+            #endif
         #endif
     }
 
@@ -436,7 +461,7 @@
         positionOS.y = height * _TerrainHeightmapScale.y;
 
         #ifdef ENABLE_TERRAIN_PERPIXEL_NORMAL
-            normal = float3(0, 1, 0);
+            normal = half3(0, 1, 0);
         #else
             normal = _TerrainNormalmapTexture.Load(int3(sampleCoords, 0)).rgb * 2 - 1;
         #endif
@@ -467,32 +492,39 @@
         VertexPositionInputs Attributes = GetVertexPositionInputs(v.positionOS.xyz);
 
         o.uvMainAndLM.xy = v.texcoord;
-        o.uvMainAndLM.zw = v.texcoord * unity_LightmapST.xy + unity_LightmapST.zw;
+
+        #if defined(DYNAMICLIGHTMAP_ON)
+            o.uvMainAndLM.zw = v.texcoord * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+        #else
+            o.uvMainAndLM.zw = v.texcoord * unity_LightmapST.xy + unity_LightmapST.zw;
+        #endif
+    
     #ifndef TERRAIN_SPLAT_BASEPASS
-        o.uvSplat01.xy = TRANSFORM_TEX(v.texcoord, _Splat0);
+        #if defined(_PROCEDURALTEXTURING)
+            o.uvSplat01.xy = Attributes.positionWS.xz / _ProceduralTiling;       
+        #else
+            o.uvSplat01.xy = TRANSFORM_TEX(v.texcoord, _Splat0);
+        #endif
         o.uvSplat01.zw = TRANSFORM_TEX(v.texcoord, _Splat1);
         o.uvSplat23.xy = TRANSFORM_TEX(v.texcoord, _Splat2);
         o.uvSplat23.zw = TRANSFORM_TEX(v.texcoord, _Splat3);
     #endif
 
-        float3 viewDirWS = GetCameraPositionWS() - Attributes.positionWS;
-    #if !SHADER_HINT_NICE_QUALITY
-        viewDirWS = SafeNormalize(viewDirWS);
-    #endif
+        //half3 viewDirWS = SafeNormalize(GetCameraPositionWS() - Attributes.positionWS);
 
         #if ( defined(_NORMALMAP) || defined(_PARALLAX) ) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
-            float4 vertexTangent = float4(cross(float3(0, 0, 1), v.normalOS), 1.0);
+            half4 vertexTangent = half4(cross(half3(0.0h, 0.0h, 1.0h), v.normalOS), 1.0h);
             VertexNormalInputs normalInput = GetVertexNormalInputs(v.normalOS, vertexTangent);
         //  fix orientation
             normalInput.tangentWS *= -1;
             o.normal = normalInput.normalWS;
-            float sign = vertexTangent.w * GetOddNegativeScale();
-            o.tangent = float4(normalInput.tangentWS, sign);
+            real sign = vertexTangent.w * GetOddNegativeScale();
+            o.tangent = half4(normalInput.tangentWS, sign);
         #else
             o.normal = TransformObjectToWorldNormal(v.normalOS);
             o.vertexSH = SampleSH(o.normal);
         #endif
-        o.viewDir = viewDirWS;
+        //o.viewDir = viewDirWS;
 
         o.fogFactorAndVertexLight.x = ComputeFogFactor(Attributes.positionCS.z);
         o.fogFactorAndVertexLight.yzw = VertexLighting(Attributes.positionWS, o.normal.xyz);
@@ -507,9 +539,14 @@
     }
 
     // Used in Standard Terrain shader
-    half4 SplatmapFragment(Varyings IN) : SV_TARGET {
-        //UNITY_SETUP_INSTANCE_ID(input);
-        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+#ifdef TERRAIN_GBUFFER
+    FragmentOutput SplatmapFragment(Varyings IN)
+#else
+    half4 SplatmapFragment(Varyings IN) : SV_TARGET
+#endif
+    {
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
         #ifdef _ALPHATEST_ON
             half hole = SAMPLE_TEXTURE2D(_TerrainHolesTexture, sampler_TerrainHolesTexture, IN.uvMainAndLM.xy).r;
@@ -519,7 +556,7 @@
         half3 normalTS = half3(0.0h, 0.0h, 1.0h);
 
         half3x3 tangentSpaceRotation = 0;
-        half3 viewDirectionWS = SafeNormalize(IN.viewDir);
+        half3 viewDirectionWS = GetWorldSpaceNormalizeViewDir(IN.positionWS);
 
         #if defined(_NORMALMAP) || defined(_PARALLAX) || defined(TERRAIN_SPLAT_BASEPASS)
             #if !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL) && ( defined(_NORMALMAP) || defined(_PARALLAX) )
@@ -575,7 +612,7 @@
                 heights.w = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, IN.uvSplat23.zw).a;
 
                 half height;
-            //  Adjust spaltControl and calculate 1st height
+            //  Adjust splatControl and calculate 1st height
                 HeightBasedSplatModifyCombined(splatControl, heights, height);
 
             //  Parallax Extrusion
@@ -638,10 +675,60 @@
         InputData inputData;
         InitializeInputData(IN, normalTS, tangentSpaceRotation, viewDirectionWS, inputData);
 
-        half4 color = UniversalFragmentPBR(inputData, albedo, metallic, /* specular */ half3(0.0h, 0.0h, 0.0h), smoothness, occlusion, /* emission */ half3(0, 0, 0), alpha);
+    #if defined(_DBUFFER)
+        half3 specular = half3(0.0h, 0.0h, 0.0h);
+        ApplyDecal(IN.clipPos,
+            albedo,
+            specular,
+            inputData.normalWS,
+            metallic,
+            occlusion,
+            smoothness);
+    #endif
 
+    #ifdef TERRAIN_GBUFFER
+
+    //  crazy alpha
+        #ifndef TERRAIN_SPLAT_BASEPASS
+            alpha *= dot(splatControl, 1.0h);
+        #endif
+
+        BRDFData brdfData;
+        InitializeBRDFData(albedo, metallic, /* specular */ half3(0.0h, 0.0h, 0.0h), smoothness, alpha, brdfData);
+
+        // Baked lighting.
+        half4 color;
+        Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, inputData.shadowMask);
+        MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, inputData.shadowMask);
+        color.rgb = GlobalIllumination(brdfData, inputData.bakedGI, occlusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS);
+        color.a = alpha;
+        SplatmapFinalColor(color, inputData.fogCoord);
+
+        // Dynamic lighting: emulate SplatmapFinalColor() by scaling gbuffer material properties. This will not give the same results
+        // as forward renderer because we apply blending pre-lighting instead of post-lighting.
+        // Blending of smoothness and normals is also not correct but close enough?
+        brdfData.albedo.rgb *= alpha;
+        brdfData.diffuse.rgb *= alpha;
+        brdfData.specular.rgb *= alpha;
+        brdfData.reflectivity *= alpha;
+    //  We can not bend normals when using _GBUFFER_NORMALS_OCT
+        #if defined(_GBUFFER_NORMALS_OCT)
+            #if defined(TERRAIN_SPLAT_ADDPASS)
+                inputData.normalWS = 0;
+            #endif
+            inputData.normalWS = inputData.normalWS;
+        #else 
+            inputData.normalWS = inputData.normalWS * alpha;
+        #endif
+        smoothness *= alpha;
+
+        return BRDFDataToGbuffer(brdfData, inputData, smoothness, color.rgb, occlusion);
+
+    #else
+        half4 color = UniversalFragmentPBR(inputData, albedo, metallic, /* specular */ half3(0.0h, 0.0h, 0.0h), smoothness, occlusion, /* emission */ half3(0, 0, 0), alpha);
         SplatmapFinalColor(color, inputData.fogCoord);
         return half4(color.rgb, 1.0h);
+    #endif
     }
 
 
@@ -650,6 +737,7 @@
 
     // x: global clip space bias, y: normal world space bias
     float3 _LightDirection;
+    float3 _LightPosition;
 
     struct AttributesLean {
         float4 positionOS     : POSITION;
@@ -667,18 +755,25 @@
             o.uvMainAndLM.xy = v.texcoord;
             float3 positionWS = TransformObjectToWorld(v.positionOS.xyz);
             float3 normalWS = TransformObjectToWorldNormal(v.normalOS);
-            float4 clipPos = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
-            #if UNITY_REVERSED_Z
-                clipPos.z = min(clipPos.z, clipPos.w * UNITY_NEAR_CLIP_VALUE);
+
+            #if _CASTING_PUNCTUAL_LIGHT_SHADOW
+                float3 lightDirectionWS = normalize(_LightPosition - positionWS);
             #else
-                clipPos.z = max(clipPos.z, clipPos.w * UNITY_NEAR_CLIP_VALUE);
+                float3 lightDirectionWS = _LightDirection;
+            #endif
+
+            float4 clipPos = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+            #if UNITY_REVERSED_Z
+                clipPos.z = min(clipPos.z, UNITY_NEAR_CLIP_VALUE);
+            #else
+                clipPos.z = max(clipPos.z, UNITY_NEAR_CLIP_VALUE);
             #endif
             o.clipPos = clipPos;
             return o;
         }
-        half4 ShadowPassFragment(Varyings IN) : SV_TARGET {
+        half4 ShadowPassFragment(Varyings input) : SV_TARGET {
             //ClipHoles(IN.tc.xy);
-            half hole = SAMPLE_TEXTURE2D(_TerrainHolesTexture, sampler_TerrainHolesTexture, IN.uvMainAndLM.xy).r;
+            half hole = SAMPLE_TEXTURE2D(_TerrainHolesTexture, sampler_TerrainHolesTexture, input.uvMainAndLM.xy).r;
             clip(hole == 0.0h ? -1 : 1);
             return 0;
         }
@@ -689,15 +784,22 @@
             TerrainInstancing(v.positionOS, v.normalOS);
             float3 positionWS = TransformObjectToWorld(v.positionOS.xyz);
             float3 normalWS = TransformObjectToWorldNormal(v.normalOS);
-            float4 clipPos = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
-            #if UNITY_REVERSED_Z
-                clipPos.z = min(clipPos.z, clipPos.w * UNITY_NEAR_CLIP_VALUE);
+
+            #if _CASTING_PUNCTUAL_LIGHT_SHADOW
+                float3 lightDirectionWS = normalize(_LightPosition - positionWS);
             #else
-                clipPos.z = max(clipPos.z, clipPos.w * UNITY_NEAR_CLIP_VALUE);
+                float3 lightDirectionWS = _LightDirection;
+            #endif
+
+            float4 clipPos = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+            #if UNITY_REVERSED_Z
+                clipPos.z = min(clipPos.z, UNITY_NEAR_CLIP_VALUE);
+            #else
+                clipPos.z = max(clipPos.z, UNITY_NEAR_CLIP_VALUE);
             #endif
             return clipPos;
         }
-        half4 ShadowPassFragment(Varyings IN) : SV_TARGET {
+        half4 ShadowPassFragment(Varyings input) : SV_TARGET {
             return 0;
         }
     #endif
@@ -719,10 +821,10 @@
             return o;
         }
 
-        half4 DepthOnlyFragment(Varyings IN) : SV_TARGET {
+        half4 DepthOnlyFragment(Varyings input) : SV_TARGET {
             UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-            //ClipHoles(IN.tc.xy);
-            half hole = SAMPLE_TEXTURE2D(_TerrainHolesTexture, sampler_TerrainHolesTexture, IN.uvMainAndLM.xy).r;
+            //ClipHoles(input.tc.xy);
+            half hole = SAMPLE_TEXTURE2D(_TerrainHolesTexture, sampler_TerrainHolesTexture, input.uvMainAndLM.xy).r;
             clip(hole == 0.0h ? -1 : 1);
             return 0;
         }
@@ -739,10 +841,210 @@
             return o;
         }
 
-        half4 DepthOnlyFragment(Varyings IN) : SV_TARGET {
+        half4 DepthOnlyFragment(Varyings input) : SV_TARGET {
             UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
             return 0;
         }
     #endif
+
+    // -----------------------------------------------------------------------------
+    // DepthNormal pass
+    
+    struct AttributesDepthNormal
+    {
+        float4 positionOS : POSITION;
+        float3 normalOS : NORMAL;
+        float2 texcoord : TEXCOORD0;
+        UNITY_VERTEX_INPUT_INSTANCE_ID
+    };
+
+    struct VaryingsDepthNormal
+    {
+        float4 uvMainAndLM                  : TEXCOORD0; // xy: control, zw: lightmap
+        #ifndef TERRAIN_SPLAT_BASEPASS
+            float4 uvSplat01                : TEXCOORD1; // xy: splat0, zw: splat1
+            float4 uvSplat23                : TEXCOORD2; // xy: splat2, zw: splat3
+        #endif
+
+        #if defined(_NORMALMAP) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
+            half3 normal                   : TEXCOORD3;   
+            half4 tangent                  : TEXCOORD4;  
+        #else
+            half3 normal                   : TEXCOORD3;
+        #endif
+
+        float3 positionWS                  : TEXCOORD6;
+
+        float4 clipPos                     : SV_POSITION;
+        UNITY_VERTEX_OUTPUT_STEREO
+    };
+
+    VaryingsDepthNormal DepthNormalOnlyVertex(AttributesDepthNormal v)
+    {
+        VaryingsDepthNormal o = (VaryingsDepthNormal)0;
+
+        UNITY_SETUP_INSTANCE_ID(v);
+        UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+        TerrainInstancing(v.positionOS, v.normalOS, v.texcoord);
+
+        VertexPositionInputs Attributes = GetVertexPositionInputs(v.positionOS.xyz);
+
+        o.uvMainAndLM.xy = v.texcoord;
+        o.uvMainAndLM.zw = v.texcoord * unity_LightmapST.xy + unity_LightmapST.zw;
+        #ifndef TERRAIN_SPLAT_BASEPASS
+            o.uvSplat01.xy = TRANSFORM_TEX(v.texcoord, _Splat0);
+            o.uvSplat01.zw = TRANSFORM_TEX(v.texcoord, _Splat1);
+            o.uvSplat23.xy = TRANSFORM_TEX(v.texcoord, _Splat2);
+            o.uvSplat23.zw = TRANSFORM_TEX(v.texcoord, _Splat3);
+        #endif
+
+        #if defined(_NORMALMAP) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL) && defined(_NORMALINDEPTHNORMALPASS)
+            float4 vertexTangent = float4(cross(float3(0, 0, 1), v.normalOS), 1.0);
+            VertexNormalInputs normalInput = GetVertexNormalInputs(v.normalOS, vertexTangent);
+            o.normal = normalInput.normalWS;
+            real sign = vertexTangent.w * GetOddNegativeScale();
+            o.tangent = half4(normalInput.tangentWS, sign);
+        #else
+            o.normal = TransformObjectToWorldNormal(v.normalOS);
+        #endif
+
+        o.positionWS = Attributes.positionWS;
+        o.clipPos = Attributes.positionCS;
+        return o;
+    }
+
+    half4 DepthNormalOnlyFragment(VaryingsDepthNormal IN) : SV_TARGET
+    {
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
+
+        #ifdef _ALPHATEST_ON
+            ClipHoles(IN.uvMainAndLM.xy);
+        #endif
+
+    //  -----
+
+        half3 fnormalWS;
+        half3 normalTS = half3(0.0h, 0.0h, 1.0h);
+        half3x3 tangentSpaceRotation = 0;
+        half3 viewDirectionWS = GetWorldSpaceNormalizeViewDir(IN.positionWS);
+
+        #if defined(_NORMALINDEPTHNORMALPASS)
+            #if defined(_NORMALMAP) || defined(_PARALLAX) || defined(TERRAIN_SPLAT_BASEPASS)
+                #if !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL) && ( defined(_NORMALMAP) || defined(_PARALLAX) )
+                //  Same matrix we need to transfer the normalTS
+                    half3 bitangentWS = cross(IN.normal, IN.tangent.xyz) * -1;
+                    tangentSpaceRotation =  half3x3(IN.tangent.xyz, bitangentWS, IN.normal.xyz);
+                    half3 tangentWS = IN.tangent.xyz;
+                    half3 viewDirTS = normalize( mul(tangentSpaceRotation, viewDirectionWS ) );
+                #elif defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
+                    float2 sampleCoords = (IN.uvMainAndLM.xy / _TerrainHeightmapRecipSize.zw + 0.5f) * _TerrainHeightmapRecipSize.xy;
+                    half3 normalWS = TransformObjectToWorldNormal(normalize(SAMPLE_TEXTURE2D(_TerrainNormalmapTexture, sampler_TerrainNormalmapTexture, sampleCoords).rgb * 2 - 1));
+                //  fix orientation
+                    half3 tangentWS = cross( /*GetObjectToWorldMatrix()._13_23_33*/ half3(0, 0, 1), normalWS) * -1;
+                //  Ups: * -1?
+                    half3 bitangentWS = cross(normalWS, tangentWS) * -1;
+                    tangentSpaceRotation =  half3x3(tangentWS, bitangentWS, normalWS);
+                    half3 viewDirTS = normalize( mul(tangentSpaceRotation, viewDirectionWS) );
+                #endif
+            #endif
+        #endif
+
+        #if defined(TERRAIN_SPLAT_BASEPASS) || !defined(_NORMALINDEPTHNORMALPASS) || !defined(_NORMALMAP)
+            fnormalWS = IN.normal;
+        #else
+            half4 splatControl;
+            half weight;
+            half4 mixedDiffuse;
+            half4 defaultSmoothness;
+
+            float2 splatUV = (IN.uvMainAndLM.xy * (_Control_TexelSize.zw - 1.0f) + 0.5f) * _Control_TexelSize.xy;
+            splatControl = SAMPLE_TEXTURE2D(_Control, sampler_Control, splatUV);
+
+        //  Sample heights
+            #ifdef _TERRAIN_BLEND_HEIGHT
+                half4 heights;
+                #if defined(_PROCEDURALTEXTURING)
+                    half proceduralHeight;
+                    float2 uv1, uv2, uv3;
+                    half w1, w2, w3;
+                    float2 duvdx, duvdy;
+                    GetProceduralBaseSample(_HeightMaps, sampler_Splat0, IN.uvSplat01.xy, proceduralHeight, uv1, uv2, uv3, w1, w2, w3, duvdx, duvdy);
+                    heights.x = proceduralHeight;
+                #else
+                    heights.x = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, IN.uvSplat01.xy).r;
+                #endif
+                heights.y = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, IN.uvSplat01.zw).g;
+                heights.z = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, IN.uvSplat23.xy).b;
+                heights.w = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, IN.uvSplat23.zw).a;
+
+                half height;
+            //  Adjust splatControl and calculate 1st height
+                HeightBasedSplatModifyCombined(splatControl, heights, height);
+
+            //  Parallax Extrusion
+                #if defined(_PARALLAX)
+                    float3 v = viewDirTS;
+                    v.z += 0.42;
+                    v.xy /= v.z;
+                    half halfParallax = _Parallax * 0.5h;
+                    
+                    half parallax = height * _Parallax - halfParallax;
+                    float2 offset1 =  parallax * v.xy;
+
+                    float4 splatUV1 = IN.uvSplat01 + offset1.xyxy;
+                    float4 splatUV2 = IN.uvSplat23 + offset1.xyxy;
+
+                    #if defined(_PROCEDURALTEXTURING)
+                        uv1 += offset1.xy;
+                        uv2 += offset1.xy;
+                        uv2 += offset1.xy;
+                        heights.x = sampleProceduralHalf(_HeightMaps, sampler_Splat0, splatUV1.xy, uv1, uv2, uv3, w1, w2, w3, duvdx, duvdy);
+                    #else
+                        heights.x = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, splatUV1.xy).r;
+                    #endif
+                    heights.y = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, splatUV1.zw).g;
+                    heights.z = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, splatUV2.xy).b;
+                    heights.w = SAMPLE_TEXTURE2D(_HeightMaps, sampler_Splat0, splatUV2.zw).a;
+
+                //  Calculate 2nd height
+                    half height1 = max( max(heights.x, heights.y), max(heights.z, heights.w) );
+                    parallax = height1 * _Parallax - halfParallax;
+                    float2 offset2 =  parallax * v.xy;
+                    
+                    offset1 = (offset1 + offset2) * 0.5;
+                    IN.uvSplat01 = IN.uvSplat01 + offset1.xyxy * float4(1,1,1,1);
+                    IN.uvSplat23 = IN.uvSplat23 + offset1.xyxy * float4(1,1,1,1);
+
+                #endif
+            #endif
+
+            #if defined(_PROCEDURALTEXTURING)
+                #ifdef _TERRAIN_BLEND_HEIGHT
+                    SplatmapMixProcedural(IN.uvMainAndLM, IN.uvSplat01, IN.uvSplat23, splatControl, weight, mixedDiffuse, defaultSmoothness, normalTS,
+                    uv1, uv2, uv3, w1, w2, w3, duvdx, duvdy);
+                #else
+                    SplatmapMix(IN.uvMainAndLM, IN.uvSplat01, IN.uvSplat23, splatControl, weight, mixedDiffuse, defaultSmoothness, normalTS);
+                #endif
+            #else
+                SplatmapMix(IN.uvMainAndLM, IN.uvSplat01, IN.uvSplat23, splatControl, weight, mixedDiffuse, defaultSmoothness, normalTS);
+            #endif
+        
+            fnormalWS = TransformTangentToWorld(normalTS, tangentSpaceRotation);
+
+        #endif
+
+    //  -----
+
+        #if defined(_GBUFFER_NORMALS_OCT)
+            fnormalWS = normalize(fnormalWS);
+            float2 octNormalWS = PackNormalOctQuadEncode(fnormalWS);           // values between [-1, +1], must use fp32 on some platforms.
+            float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   // values between [ 0,  1]
+            half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      // values between [ 0,  1]
+            return half4(packedNormalWS, 0.0);
+        #else
+            fnormalWS = NormalizeNormalPerPixel(fnormalWS);
+            return half4(fnormalWS, 0.0);
+        #endif
+    }
 
 #endif

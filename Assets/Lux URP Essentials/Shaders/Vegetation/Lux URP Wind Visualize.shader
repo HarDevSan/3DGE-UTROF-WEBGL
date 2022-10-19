@@ -3,6 +3,7 @@
     Properties
     {
         [Header(Select Mode)]
+        [Space(8)]
         [KeywordEnum(Combined Wind, Wind Strength, Wind Gust)]
         _Visualize ("Visualize", Float) = 0
     }
@@ -49,8 +50,8 @@ Blend SrcAlpha OneMinusSrcAlpha
                 float _Visualize;
             CBUFFER_END
 
-            TEXTURE2D(_LuxLWRPWindRT); SAMPLER(sampler_LuxLWRPWindRT); float4 _LuxLWRPWindRT_TexelSize;
-            float4 _LuxLWRPWindDirSize;
+            TEXTURE2D(_LuxURPWindRT); SAMPLER(sampler_LuxURPWindRT); float4 _LuxURPWindRT_TexelSize;
+            float4 _LuxURPWindDirSize;
 
             
             struct VertexInput
@@ -101,7 +102,7 @@ Blend SrcAlpha OneMinusSrcAlpha
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-                half4 sample = SAMPLE_TEXTURE2D(_LuxLWRPWindRT, sampler_LuxLWRPWindRT, input.positionWS.xz * _LuxLWRPWindDirSize.w);
+                half4 sample = SAMPLE_TEXTURE2D(_LuxURPWindRT, sampler_LuxURPWindRT, input.positionWS.xz * _LuxURPWindDirSize.w);
                 half3 finalCol = getResult(sample);
 
                 return half4(finalCol, .5);

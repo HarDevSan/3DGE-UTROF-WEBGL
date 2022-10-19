@@ -8,6 +8,8 @@ public class LuxURPCustomSingleSidedShaderGUI : ShaderGUI
         base.OnGUI(materialEditor, properties);
 
     	Material material = materialEditor.target as Material;
+
+    //  Old signature
     	if (material.HasProperty("_Culling")) {
 	    	var _Culling = ShaderGUI.FindProperty("_Culling", properties);
 			if(_Culling.floatValue == 0.0f) {
@@ -17,6 +19,32 @@ public class LuxURPCustomSingleSidedShaderGUI : ShaderGUI
         		material.doubleSidedGI = true;
         	}
 	    }
+    //  Handle both cases
+        if (material.HasProperty("_Cull")) {
+            var _Cull = ShaderGUI.FindProperty("_Cull", properties);
+            if(_Cull.floatValue == 0.0f) {
+                if (material.doubleSidedGI == false) {
+                    Debug.Log ("Double Sided Global Illumination enabled.");
+                }
+                material.doubleSidedGI = true;
+            }
+        }
+
+        if (material.HasProperty("_AlphaClip")) {
+            var _AlphaClip = ShaderGUI.FindProperty("_AlphaClip", properties);
+            if(_AlphaClip.floatValue == 1.0f) {
+                material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+                material.SetOverrideTag("RenderType", "TransparentCutout");
+            }
+            else {
+                material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry;
+                material.SetOverrideTag("RenderType", "Opaque");
+            //  In case alpha testing is disabled we also want to disable alpha to coverage.
+                if(material.HasProperty("_Coverage")) {
+                    material.SetFloat("_Coverage", 0.0f);
+                }
+            }
+        }
 
         //material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
         //material.SetOverrideTag("RenderType", "TransparentCutout");

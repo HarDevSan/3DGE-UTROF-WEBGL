@@ -18,24 +18,20 @@
 
 //  Material Inputs
     CBUFFER_START(UnityPerMaterial)
-        float _Shift;
-        half _BlendWidth;
-        half _BlendSharpness;
-
-        half _AlphaShift;
-        half _AlphaWidth;
+        float   _Shift;
+        half    _BlendWidth;
+        half    _BlendSharpness;
+        half    _AlphaShift;
+        half    _AlphaWidth;
         float   _ShadowShiftThreshold;
         float   _ShadowShift;
         float   _ShadowShiftView;
-
-        half _BumpScale;
-
+        half    _BumpScale;
         half4   _BaseColor;
         half    _Cutoff;
         float4  _BaseMap_ST;
         half    _Smoothness;
-        half3   _SpecColor;
-
+        half4   _SpecColor;
         half    _OcclusionStrength;
     CBUFFER_END
 

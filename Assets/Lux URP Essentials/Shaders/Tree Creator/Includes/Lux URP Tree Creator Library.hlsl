@@ -120,20 +120,20 @@ void TreeVertBark (inout VertexInput v)
     v.positionOS.xyz *= UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceScale.xyz);
     v.positionOS = AnimateVertex(v.positionOS, v.normalOS, float4(v.color.xy, v.texcoord1.xy));
     v.positionOS = Squash(v.positionOS);
-    v.color.rgb = UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceColor.rgb) * _Color.rgb;
+    //v.color.rgb = UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceColor.rgb) * _Color.rgb;
     //v.normalOS = normalize(v.normalOS);
     //v.tangentOS.xyz = normalize(v.tangentOS.xyz);
 }
 
-void TreeVertLeaf (inout VertexInput v)
+void TreeVertLeaf (inout Attributes v)
 {
     ExpandBillboard (UNITY_MATRIX_IT_MV, v.positionOS, v.normalOS, v.tangentOS);
     v.positionOS.xyz *= UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceScale.xyz);
     v.positionOS = AnimateVertex (v.positionOS, v.normalOS, float4(v.color.xy, v.texcoord1.xy));
     v.positionOS = Squash(v.positionOS);
-    v.color.rgb = UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceColor.rgb) * _Color.rgb;
-//    v.normalOS = normalize(v.normalOS);
-//    v.tangentOS.xyz = normalize(v.tangentOS.xyz);
+    // v.color.rgb = UNITY_ACCESS_INSTANCED_PROP(Props, _TreeInstanceColor.rgb) * _Color.rgb;
+    // v.normalOS = normalize(v.normalOS);
+    // v.tangentOS.xyz = normalize(v.tangentOS.xyz);
 }
 
 half ScreenDitherToAlpha(float x, float y, float c0)

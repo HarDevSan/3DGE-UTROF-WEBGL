@@ -14,8 +14,6 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
-// --------- rename!!!!!!!!!
-
 // Ref: https://knarkowicz.wordpress.com/2018/01/04/cloth-shading/
 real D_CharlieNoPI_Lux(real NdotH, real roughness)
 {
@@ -64,10 +62,11 @@ struct AdditionalData {
 half3 DirectBDRF_LuxCloth(BRDFData brdfData, AdditionalData addData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS, half NdotL)
 {
 #ifndef _SPECULARHIGHLIGHTS_OFF
-    float3 halfDir = SafeNormalize(lightDirectionWS + viewDirectionWS);
+    float3 lightDirectionWSFloat3 = float3(lightDirectionWS);
+    float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(viewDirectionWS));
 
-    float NoH = saturate(dot(normalWS, halfDir));
-    half LoH = saturate(dot(lightDirectionWS, halfDir));
+    float NoH = saturate(dot(float3(normalWS), halfDir));
+    half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
 
     half NdotV = saturate(dot(normalWS, viewDirectionWS ));
 
@@ -111,9 +110,6 @@ half3 DirectBDRF_LuxCloth(BRDFData brdfData, AdditionalData addData, half3 norma
 
         return specularLighting + brdfData.diffuse;
     #endif
-
-    
-
     //half3 color = specularTerm * brdfData.specular + brdfData.diffuse;
     //return color;
 #else
@@ -123,7 +119,6 @@ half3 DirectBDRF_LuxCloth(BRDFData brdfData, AdditionalData addData, half3 norma
 
 half3 LightingPhysicallyBased_LuxCloth(BRDFData brdfData, AdditionalData addData, half3 lightColor, half3 lightDirectionWS, half lightAttenuation, half3 normalWS, half3 viewDirectionWS, half NdotL)
 {
-    //half NdotL = saturate(dot(normalWS, lightDirectionWS));
     half3 radiance = lightColor * (lightAttenuation * NdotL);
     return DirectBDRF_LuxCloth(brdfData, addData, normalWS, lightDirectionWS, viewDirectionWS, NdotL) * radiance;
 }
@@ -135,27 +130,36 @@ half3 LightingPhysicallyBased_LuxCloth(BRDFData brdfData, AdditionalData addData
 
 
 
-half4 LuxLWRPClothFragmentPBR(InputData inputData, half3 albedo, half metallic, half3 specular,
-    half smoothness, half occlusion, half3 emission, half alpha, half3 tangentWS, half3 bitangentWS, half anisotropy, half3 sheenColor, half4 translucency)
+half4 LuxURPClothFragmentPBR(InputData inputData, SurfaceData surfaceData, half3 tangentWS, half anisotropy, half3 sheenColor, half4 translucency)
 {
     
     #if defined(_COTTONWOOL)
-        smoothness = lerp(0.0h, 0.6h, smoothness);
+        surfaceData.smoothness = lerp(0.0h, 0.6h, surfaceData.smoothness);
     #endif
 
-
     BRDFData brdfData;
-    InitializeBRDFData(albedo, metallic, specular, smoothness, alpha, brdfData);
+    InitializeBRDFData(surfaceData, brdfData);
 
 //  Do not apply energy conservtion
-    brdfData.diffuse = albedo;
-    brdfData.specular = specular;
+    brdfData.diffuse = surfaceData.albedo;
+    brdfData.specular = surfaceData.specular;
+
+//  Debugging
+    #if defined(DEBUG_DISPLAY)
+        half4 debugColor;
+        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
+        {
+            return debugColor;
+        }
+    #endif
 
     AdditionalData addData;
-//  The missing bits - checked with per vertex bitangent and tangent    
-    addData.bitangentWS = normalize( -cross(inputData.normalWS, tangentWS) ); //bitangentWS;
-//  We can get away with a single normalize here
-    addData.tangentWS = cross(inputData.normalWS, addData.bitangentWS); // tangentWS;
+//  Adjust tangentWS in case normal mapping is active
+    #if defined(_NORMALMAP)   
+        tangentWS = Orthonormalize(tangentWS, inputData.normalWS);
+    #endif            
+    addData.tangentWS = tangentWS;
+    addData.bitangentWS = cross(inputData.normalWS, tangentWS);
 
 //  We do not apply ClampRoughnessForAnalyticalLights here
     addData.roughnessT = brdfData.roughness * (1 + anisotropy);
@@ -168,7 +172,7 @@ half4 LuxLWRPClothFragmentPBR(InputData inputData, half3 albedo, half metallic, 
         addData.partLambdaV = GetSmithJointGGXAnisoPartLambdaV(TdotV, BdotV, NdotV, addData.roughnessT, addData.roughnessB);
 
     //  Set reflection normal and roughness – derived from GetGGXAnisotropicModifiedNormalAndRoughness
-        half3 grainDirWS = (anisotropy >= 0.0) ? bitangentWS : tangentWS;
+        half3 grainDirWS = (anisotropy >= 0.0) ? addData.bitangentWS : addData.tangentWS;
         half stretch = abs(anisotropy) * saturate(1.5h * sqrt(brdfData.perceptualRoughness));
         addData.anisoReflectionNormal = GetAnisotropicModifiedNormal(grainDirWS, inputData.normalWS, inputData.viewDirectionWS, stretch);
         half iblPerceptualRoughness = brdfData.perceptualRoughness * saturate(1.2 - abs(anisotropy));
@@ -193,50 +197,76 @@ half4 LuxLWRPClothFragmentPBR(InputData inputData, half3 albedo, half metallic, 
     #endif
     addData.sheenColor = sheenColor;
 
-    Light mainLight = GetMainLight(inputData.shadowCoord);
-    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
+    half4 shadowMask = CalculateShadowMask(inputData);
+    AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+    uint meshRenderingLayers = GetMeshRenderingLightLayer();
 
-    half NdotL = saturate(dot(inputData.normalWS, mainLight.direction ));
-    half3 color = GlobalIllumination(brdfData, inputData.bakedGI, occlusion, addData.anisoReflectionNormal, inputData.viewDirectionWS);
-    color += LightingPhysicallyBased_LuxCloth(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+    Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
+    half3 mainLightColor = mainLight.color;
+
+    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
+
+    LightingData lightingData = CreateLightingData(inputData, surfaceData);
+
+    lightingData.giColor = GlobalIllumination(
+        brdfData,
+        brdfData, // brdfDataClearCoat
+        0, // surfaceData.clearCoatMask,
+        inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
+        inputData.normalWS, inputData.viewDirectionWS
+    );
+
+    half NdotL;
+    
+#if defined(_LIGHT_LAYERS)
+    if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+    {
+#endif
+    NdotL = saturate(dot(inputData.normalWS, mainLight.direction ));
+    lightingData.mainLightColor = LightingPhysicallyBased_LuxCloth(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
 
     #if defined(_SCATTERING)
         half transPower = translucency.y;
         half3 transLightDir = mainLight.direction + inputData.normalWS * translucency.w;
         half transDot = dot( transLightDir, -inputData.viewDirectionWS );
         transDot = exp2(saturate(transDot) * transPower - transPower);
-        color += brdfData.diffuse * transDot * (1.0 - NdotL) * mainLight.color * lerp(1.0h, mainLight.shadowAttenuation, translucency.z) * translucency.x * 4;
+        lightingData.mainLightColor += brdfData.diffuse * transDot * (1.0h - NdotL) * mainLightColor * lerp(1.0h, mainLight.shadowAttenuation, translucency.z) * translucency.x * 4;
     #endif
-
+#if defined(_LIGHT_LAYERS)
+    }
+#endif
 
     #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i)
-        {
-            Light light = GetAdditionalLight(i, inputData.positionWS);
-            NdotL = saturate(dot(inputData.normalWS, light.direction ));
-            color += LightingPhysicallyBased_LuxCloth(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
-        //  translucency
-        #if defined(_SCATTERING)
-            transPower = translucency.y;
-            transLightDir = light.direction + inputData.normalWS * translucency.w;
-            transDot = dot( transLightDir, -inputData.viewDirectionWS );
-            transDot = exp2(saturate(transDot) * transPower - transPower);
-            color += brdfData.diffuse * transDot * (1.0 - NdotL) * light.color * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation  * translucency.x * 4;
+        uint pixelLightCount = GetAdditionalLightsCount();
+        
+        LIGHT_LOOP_BEGIN(pixelLightCount)
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            {
         #endif
-
-
-
-        }
+                half3 lightColor = light.color;
+                NdotL = saturate(dot(inputData.normalWS, light.direction ));
+                lightingData.additionalLightsColor += LightingPhysicallyBased_LuxCloth(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+            //  translucency
+                #if defined(_SCATTERING)
+                    half transPowerA = translucency.y;
+                    half3 transLightDirA = light.direction + inputData.normalWS * translucency.w;
+                    half transDotA = dot( transLightDirA, -inputData.viewDirectionWS );
+                    transDotA = exp2(saturate(transDotA) * transPowerA - transPowerA);
+                    lightingData.additionalLightsColor += brdfData.diffuse * transDotA * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation * translucency.x * 4;
+                #endif
+        #if defined(_LIGHT_LAYERS)
+            }
+        #endif
+        LIGHT_LOOP_END
     #endif
 
     #ifdef _ADDITIONAL_LIGHTS_VERTEX
-        color += inputData.vertexLighting * brdfData.diffuse;
+        lightingData.vertexLightingColor += inputData.vertexLighting * brdfData.diffuse;
     #endif
 
-    color += emission;
-    return half4(color, alpha);
+    return CalculateFinalColor(lightingData, surfaceData.alpha);
 }
-
 
 #endif

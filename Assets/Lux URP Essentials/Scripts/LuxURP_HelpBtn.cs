@@ -24,10 +24,12 @@ namespace LuxURPEssentials
         }
 
         override public void OnGUI(Rect position) {
-            Color helpCol = new Color(0.30f,0.47f,1.0f,1.0f); // matches highlight blue //new Color(1.0f,0.3f,0.0f,1.0f); // Orange
+            float brightness = 1.45f;
             if (!EditorGUIUtility.isProSkin) {
-                helpCol = Color.blue;
+                brightness = 1.0f;
             }
+            Color helpCol = new Color(0.32f * brightness, 0.50f * brightness, 1.0f * brightness, 1.0f * brightness);
+
             GUIStyle myMiniHelpBtn = new GUIStyle(EditorStyles.miniButton);
             myMiniHelpBtn.padding = new RectOffset(0, 0, 2, 2);
             myMiniHelpBtn.normal.background = null;
@@ -37,9 +39,9 @@ namespace LuxURPEssentials
             myMiniHelpBtn.onActive.textColor = helpCol;
             myMiniHelpBtn.focused.textColor = helpCol;
             myMiniHelpBtn.onFocused.textColor = helpCol;
-            position.x = position.x + position.width - 34;
+            position.x = position.x + position.width - 36;
             position.y += 8;
-            position.width = 34;
+            position.width = 36;
             if (GUI.Button(position, "Help", myMiniHelpBtn)) {
                 Application.OpenURL(baseURL + help.URL);
             }

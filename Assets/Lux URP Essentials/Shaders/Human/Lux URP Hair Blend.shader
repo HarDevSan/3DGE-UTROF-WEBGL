@@ -10,7 +10,7 @@ Shader "Lux URP/Human/Hair Blend"
         [HeaderHelpLuxURP_URL(7a3r84ualf3h)]
         
         [Header(Surface Options)]
-        [Space(5)]
+        [Space(8)]
         [Enum(UnityEngine.Rendering.CullMode)]
         _Cull                       ("Culling", Float) = 0
         [Toggle(_ENABLEVFACE)]
@@ -20,11 +20,14 @@ Shader "Lux URP/Human/Hair Blend"
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
 
+        [Toggle(_RECEIVEDECALS)]
+        _ReceiveDecals              ("Receive Decals", Float) = 1.0
+
         //[NoScaleOffset] 
         //_Dither                   ("Blue Noise (A)", 2D) = "black" {}
 
         [Header(Surface Inputs)]
-        [Space(5)]
+        [Space(8)]
         [MainColor]
         _BaseColor                  ("Base Color", Color) = (1,1,1,1)
         _SecondaryColor             ("Secondary Color", Color) = (1,1,1,1)
@@ -50,7 +53,7 @@ Shader "Lux URP/Human/Hair Blend"
 
         
         [Header(Hair Lighting)]
-        [Space(5)]
+        [Space(8)]
         [KeywordEnum(Bitangent,Tangent)]
         _StrandDir                  ("Strand Direction", Float) = 0
 
@@ -73,7 +76,7 @@ Shader "Lux URP/Human/Hair Blend"
 
 
         [Header(Rim Lighting)]
-        [Space(5)]
+        [Space(8)]
         [Toggle(_RIMLIGHTING)]
         _Rim                        ("Enable Rim Lighting", Float) = 0
         [HDR] _RimColor             ("Rim Color", Color) = (0.5,0.5,0.5,1)
@@ -84,7 +87,7 @@ Shader "Lux URP/Human/Hair Blend"
 
 
         [Header(Advanced)]
-        [Space(5)]
+        [Space(8)]
         //[ToggleOff]
         //_SpecularHighlights       ("Enable Specular Highlights", Float) = 1.0
         [ToggleOff]
@@ -95,7 +98,7 @@ Shader "Lux URP/Human/Hair Blend"
 
 
         [Header(Stencil)]
-        [Space(5)]
+        [Space(8)]
         [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
         [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
         [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
@@ -114,18 +117,150 @@ Shader "Lux URP/Human/Hair Blend"
     //  Lightmapper and outline selection shader need _MainTex, _Color and _Cutoff
         [HideInInspector] _MainTex  ("Albedo", 2D) = "white" {}
         [HideInInspector] _Color    ("Color", Color) = (1,1,1,1)
+
+    //  URP 10.1. needs this for the depthnormal pass 
+        [HideInInspector] _Surface("__surface", Float) = 1.0
         
     }
+
+        SubShader
+    {
+        Tags
+        {
+            "Queue" = "Transparent"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "Lit"
+            "IgnoreProjector" = "True"
+            "ShaderModel"="4.5"
+        }
+        LOD 300
+
+        Pass
+        {
+            Name "ForwardLit"
+            Tags{"LightMode" = "UniversalForwardOnly"}
+
+            Stencil {
+                Ref   [_Stencil]
+                ReadMask [_ReadMask]
+                WriteMask [_WriteMask]
+                Comp  [_StencilComp]
+                Pass  [_StencilOp]
+                Fail  [_StencilFail]
+                ZFail [_StencilZFail]
+            }
+
+            Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
+            ZTest [_ZTest]
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #define _SPECULAR_SETUP 1
+
+            #pragma shader_feature_local _ENABLEVFACE
+
+            #pragma shader_feature_local_fragment _STRANDDIR_BITANGENT
+            #pragma shader_feature_local_fragment _MASKMAP
+            #pragma shader_feature_local_fragment _SECONDARYLOBE
+
+            #pragma shader_feature _NORMALMAP
+            #pragma shader_feature_local_fragment _RIMLIGHTING
+
+            //#pragma shader_feature _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
+
+// If defined we won't get decals, screen space shadows
+// #define _SURFACE_TYPE_TRANSPARENT
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            //#pragma multi_compile _ DOTS_INSTANCING_ON
+
+        //  Include base inputs and all other needed "base" includes
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Includes/Lux URP Hair ForwardLit Pass.hlsl"
+
+            #pragma vertex LitPassVertex
+            #pragma fragment LitPassFragment
+
+            ENDHLSL
+        }
+
+    //  Meta -----------------------------------------------------
+        Pass
+        {
+            Tags{"LightMode" = "Meta"}
+
+            Cull Off
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+
+            #pragma vertex UniversalVertexMeta
+            #pragma fragment UniversalFragmentMetaLit
+
+            #define _SPECULAR_SETUP
+
+        //  First include all our custom stuff
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Includes/Lux URP Hair Meta Pass.hlsl"
+
+        //  Finally include the meta pass related stuff  
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
+
+            ENDHLSL
+        }
+    }
+
+// ------------------------------------------------------------------------------
 
     SubShader
     {
         Tags
         {
-            "RenderPipeline" = "UniversalPipeline"
-            "RenderType" = "Transparent"
             "Queue" = "Transparent"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "Lit"
+            "IgnoreProjector" = "True"
+            "ShaderModel"="2.0"
         }
-        LOD 100
+        LOD 300
 
         Pass
         {
@@ -148,12 +283,13 @@ Shader "Lux URP/Human/Hair Blend"
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 3.0
 
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
-            #pragma target 2.0
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
 
             // -------------------------------------
             // Material Keywords
@@ -161,40 +297,48 @@ Shader "Lux URP/Human/Hair Blend"
 
             #pragma shader_feature_local _ENABLEVFACE
 
-            #pragma shader_feature_local _STRANDDIR_BITANGENT
-            #pragma shader_feature_local _MASKMAP
-            #pragma shader_feature_local _SECONDARYLOBE
+            #pragma shader_feature_local_fragment _STRANDDIR_BITANGENT
+            #pragma shader_feature_local_fragment _MASKMAP
+            #pragma shader_feature_local_fragment _SECONDARYLOBE
 
             #pragma shader_feature _NORMALMAP
-            #pragma shader_feature_local _RIMLIGHTING
+            #pragma shader_feature_local_fragment _RIMLIGHTING
 
             //#pragma shader_feature _SPECULARHIGHLIGHTS_OFF
-            #pragma shader_feature _ENVIRONMENTREFLECTIONS_OFF
-            #pragma shader_feature _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
+
+// If defined we won't get decals, screen space shadows
+// #define _SURFACE_TYPE_TRANSPARENT
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-//  We know we are transparent. So no cascades
-//          #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
 
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_fog
-
-            //--------------------------------------
-            // GPU Instancing
-            #pragma multi_compile_instancing
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Hair Inputs.hlsl"
-            #include "Includes/Lux URP Hair Core.hlsl"
+            #include "Includes/Lux URP Hair ForwardLit Pass.hlsl"
 
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
@@ -203,7 +347,6 @@ Shader "Lux URP/Human/Hair Blend"
         }
 
     //  Meta -----------------------------------------------------
-        
         Pass
         {
             Tags{"LightMode" = "Meta"}
@@ -215,37 +358,19 @@ Shader "Lux URP/Human/Hair Blend"
             #pragma prefer_hlslcc gles
 
             #pragma vertex UniversalVertexMeta
-            #pragma fragment UniversalFragmentMeta
+            #pragma fragment UniversalFragmentMetaLit
 
             #define _SPECULAR_SETUP
 
         //  First include all our custom stuff
             #include "Includes/Lux URP Hair Inputs.hlsl"
-
-        //--------------------------------------
-        //  Fragment shader and functions
-
-            inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfaceData)
-            {
-                half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
-                outSurfaceData.alpha = 1;
-                outSurfaceData.albedo = albedoAlpha.rgb;
-                outSurfaceData.metallic = 0;
-                outSurfaceData.specular = _SpecColor;
-                outSurfaceData.smoothness = _Smoothness;
-                outSurfaceData.normalTS = half3(0,0,1);
-                outSurfaceData.occlusion = 1;
-                outSurfaceData.emission = 0;
-            }
+            #include "Includes/Lux URP Hair Meta Pass.hlsl"
 
         //  Finally include the meta pass related stuff  
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
 
             ENDHLSL
         }
-
-    //  End Passes -----------------------------------------------------
-    
     }
     CustomEditor "LuxURPUniversalCustomShaderGUI"
     FallBack "Hidden/InternalErrorShader"

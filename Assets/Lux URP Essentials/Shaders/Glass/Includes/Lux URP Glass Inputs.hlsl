@@ -20,45 +20,37 @@
     CBUFFER_START(UnityPerMaterial)
 
         half    _FinalAlpha;
-
-        half3   _GlassTint;
-        float   _RayLength;
+        //half3   _GlassTint;
+        //float   _RayLength;
         float   _IOR;
         half    _BumpRefraction;
         float   _IsThinShell;
-        float   _PixelDepth;
+        //float   _PixelDepth;
 
         half4   _BaseColor;
         half    _Smoothness;
-        half    _Metallic;
-        half3   _SpecColor;
+        //half    _Metallic;
+        half4   _SpecColor;
 
-float _ScreenEdgeFade;
-
+        float   _ScreenEdgeFade;
 
     //  None glass
         half    _SmoothnessBase;
-        half3   _SpecColorBase;    
-
-        half    _Cutoff;
-
-        half    _ShadowOffset;
+        half4   _SpecColorBase;    
+        //half    _Cutoff;
+        //half    _ShadowOffset;
 
     //  Needed by LitMetaPass
         float4  _BaseMap_ST;
- 
         float4  _BumpMap_ST;
         half    _BumpScale;
         float4  _MaskMap_ST;
 
-        half    _Occlusion;
-
-        half    _TranslucencyPower;
-        half    _TranslucencyStrength;
-        half    _ShadowStrength;
-        half    _Distortion;
-
-        half    _CustomWrap;
+        //half    _Occlusion;
+        //half    _TranslucencyPower;
+        //half    _TranslucencyStrength;
+        //half    _ShadowStrength;
+        //half    _Distortion;
 
         half4   _RimColor;
         half    _RimPower;
@@ -113,10 +105,10 @@ float _ScreenEdgeFade;
             //#ifdef _ADDITIONAL_LIGHTS
                 float3 positionWS           : TEXCOORD2;
             //#endif
-            float3 normalWS                 : TEXCOORD3;
-            float3 viewDirWS                : TEXCOORD4;
+            half3 normalWS                  : TEXCOORD3;
+            //float3 viewDirWS              : TEXCOORD4;
             #if defined(_NORMALMAP)
-                float4 tangentWS            : TEXCOORD5;
+                half4 tangentWS             : TEXCOORD5;
             #endif
             half4 fogFactorAndVertexLight   : TEXCOORD6;
             #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)

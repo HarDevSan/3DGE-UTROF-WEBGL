@@ -8,7 +8,7 @@ Shader "Lux URP/Simple Fuzz"
         [HeaderHelpLuxURP_URL(oln7rjvorl9x)]
 
         [Header(Surface Options)]
-        [Space(5)]
+        [Space(8)]
         [Enum(UnityEngine.Rendering.CullMode)]
         _Cull                       ("Culling", Float) = 2
         [Toggle(_ALPHATEST_ON)]
@@ -20,31 +20,44 @@ Shader "Lux URP/Simple Fuzz"
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
         _ShadowOffset               ("Shadow Offset", Float) = 1.0
+        
+        [Toggle(_NORMALINDEPTHNORMALPASS)]
+        _ApplyNormalDepthNormal     ("Enable Normal in Depth Normal Pass", Float) = 1.0
+        
+        [Toggle(_RECEIVEDECALS)]
+        _ReceiveDecals              ("Receive Decals", Float) = 1.0
 
 
         [Header(Fuzz Lighting)]
-        [Space(5)]
+        [Space(8)]
         [Toggle(_SIMPLEFUZZ)]
         _EnableFuzzyLighting        ("Enable Fuzzy Lighting", Float) = 1.0
-        _FuzzWrap                   ("     Diffuse Wrap", Range(0, 1)) = 0.5 
+        _FuzzWrap                   ("     Diffuse Wrap*", Range(0, 1)) = 0.5 
         _FuzzStrength               ("     Fuzz Strength", Range(0, 8)) = 2 
         _FuzzPower                  ("     Fuzz Power", Range(1, 16)) = 4        
         _FuzzBias                   ("     Fuzz Bias", Range(0, 1)) = 0
-        _FuzzAmbient                ("     Ambient Strength", Range(0, 1)) = 1
+        _FuzzAmbient                ("     Ambient Strength*", Range(0, 1)) = 1
+        [Space(4)]
+        [LuxURPHelpDrawer]
+        _HelpA ("* Only used in forward rendering.", Float) = 0.0
         
 
         [Header(Transmission)]
-        [Space(5)]
+        [Space(8)]
         [Toggle(_SCATTERING)]
-        _UseScattering              ("Enable Transmission", Float) = 0.0
+        _UseScattering              ("Enable Transmission*", Float) = 0.0
         _TranslucencyPower          ("     Power", Range(0.0, 32.0)) = 7.0
         _TranslucencyStrength       ("     Strength", Range(0.0, 1.0)) = 1.0
         _ShadowStrength             ("     Shadow Strength", Range(0.0, 1.0)) = 0.7
         _Distortion                 ("     Distortion", Range(0.0, 0.1)) = 0.01
-
+        _DecalTransmission          ("     Decal Transmission", Range(0.0, 1)) = 1
+        [Space(4)]
+        [LuxURPHelpDrawer]
+        _HelpB ("* Only used in forward rendering.", Float) = 0.0
+       
 
         [Header(Surface Inputs)]
-        [Space(5)]
+        [Space(8)]
         [MainColor]
         _BaseColor                  ("Color", Color) = (1,1,1,1)
         [MainTexture]
@@ -64,12 +77,13 @@ Shader "Lux URP/Simple Fuzz"
         [Space(5)]
         [Toggle(_MASKMAP)]
         _EnableMaskMap              ("Enable Mask Map", Float) = 0.0
+        [NoScaleOffset]
         _MaskMap                    ("     FuzzMask (R) Thickness (G) Occlusion (B) Alpha (A)", 2D) = "white" {}
         _OcclusionStrength          ("     Occlusion", Range(0.0, 1.0)) = 1
         
 
         [Header(Rim Lighting)]
-        [Space(5)]
+        [Space(8)]
         [Toggle(_RIMLIGHTING)]
         _Rim                        ("Enable Rim Lighting", Float) = 0
         [HDR] _RimColor             ("Rim Color", Color) = (0.5,0.5,0.5,1)
@@ -80,7 +94,7 @@ Shader "Lux URP/Simple Fuzz"
 
 
         [Header(Stencil)]
-        [Space(5)]
+        [Space(8)]
         [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
         [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
         [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
@@ -95,7 +109,7 @@ Shader "Lux URP/Simple Fuzz"
 
 
         [Header(Advanced)]
-        [Space(5)]
+        [Space(8)]
         [ToggleOff]
         _SpecularHighlights         ("Enable Specular Highlights", Float) = 1.0
         [ToggleOff]
@@ -106,7 +120,7 @@ Shader "Lux URP/Simple Fuzz"
 
 
         [Header(Render Queue)]
-        [Space(5)]
+        [Space(8)]
         [IntRange] _QueueOffset     ("Queue Offset", Range(-50, 50)) = 0
 
 
@@ -114,20 +128,351 @@ Shader "Lux URP/Simple Fuzz"
         [HideInInspector] _Culling  ("Culling", Float) = 0.0
         [HideInInspector] _AlphaFromMaskMap  ("AlphaFromMaskMap", Float) = 1.0
 
-    //  Lightmapper and outline selection shader need _MainTex, _Color and _Cutoff
-        [HideInInspector] _MainTex  ("Albedo", 2D) = "white" {}
-        [HideInInspector] _Color    ("Color", Color) = (1,1,1,1)
+    //  URP 10.+
+        [HideInInspector] _Surface("__surface", Float) = 0.0 
+
+    //  ObsoleteProperties
+        [HideInInspector] _MainTex("BaseMap", 2D) = "white" {}
+        [HideInInspector] _Color("Base Color", Color) = (1, 1, 1, 1)
+        [HideInInspector] _GlossMapScale("Smoothness", Float) = 0.0
+        [HideInInspector] _Glossiness("Smoothness", Float) = 0.0
+        [HideInInspector] _GlossyReflections("EnvironmentReflections", Float) = 0.0
+
+        [HideInInspector][NoScaleOffset]unity_Lightmaps("unity_Lightmaps", 2DArray) = "" {}
+        [HideInInspector][NoScaleOffset]unity_LightmapsInd("unity_LightmapsInd", 2DArray) = "" {}
+        [HideInInspector][NoScaleOffset]unity_ShadowMasks("unity_ShadowMasks", 2DArray) = "" {}
+
     }
+
+// ---------------------------------------------------------------------
 
     SubShader
     {
         Tags
         {
-            "RenderPipeline" = "UniversalPipeline"
             "RenderType" = "Opaque"
-            "Queue" = "Geometry"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "Lit"
+            "IgnoreProjector" = "True"
+            "ShaderModel"="4.5"
         }
-        LOD 100
+        LOD 300
+
+        Pass
+        {
+            Name "ForwardLit"
+            Tags{"LightMode" = "UniversalForward"}
+
+            Stencil {
+                Ref   [_Stencil]
+                ReadMask [_ReadMask]
+                WriteMask [_WriteMask]
+                Comp  [_StencilComp]
+                Pass  [_StencilOp]
+                Fail  [_StencilFail]
+                ZFail [_StencilZFail]
+            }
+            
+            ZWrite On
+            Cull [_Cull]
+            AlphaToMask [_Coverage]
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            // -------------------------------------
+            // Material Keywords
+            #define _SPECULAR_SETUP 1
+
+            #pragma shader_feature_local _NORMALMAP
+
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+            #pragma shader_feature_local_fragment _SIMPLEFUZZ
+
+            #pragma shader_feature_local _MASKMAP               // not per fragment!
+            #pragma shader_feature_local_fragment _SCATTERING
+            #pragma shader_feature_local_fragment _RIMLIGHTING
+
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+
+            #pragma vertex LitPassVertex
+            #pragma fragment LitPassFragment
+
+        //  Include base inputs and all other needed "base" includes
+            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #include "Includes/Lux URP Simple Fuzz ForwardLit Pass.hlsl"
+
+            ENDHLSL
+        }
+
+    //  Shadows -----------------------------------------------------
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _ALPHATEST_ON          // not per fragment
+            #pragma shader_feature_local _MASKMAP               // not per fragment
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            
+            // -------------------------------------
+            // Universal Pipeline keywords
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+        //  Include base inputs and all other needed "base" includes
+            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #include "Includes/Lux URP Simple Fuzz ShadowCaster Pass.hlsl"
+
+            ENDHLSL
+        }
+
+    //  GBuffer ---------------------------------------------------
+        Pass
+        {
+            Name "GBuffer"
+            Tags{"LightMode" = "UniversalGBuffer"}
+
+            ZWrite On
+            ZTest LEqual
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #define _SPECULAR_SETUP 1
+
+            #pragma shader_feature_local _NORMALMAP
+
+            #pragma shader_feature_local _ALPHATEST_ON
+            #pragma shader_feature_local_fragment _SIMPLEFUZZ
+
+            #pragma shader_feature_local _MASKMAP               // not per fragment!
+            #pragma shader_feature_local_fragment _RIMLIGHTING
+
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            //#pragma multi_compile _ DOTS_INSTANCING_ON
+
+            #pragma vertex LitGBufferPassVertex
+            #pragma fragment LitGBufferPassFragment
+
+            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #include "Includes/Lux URP Simple Fuzz GBuffer Pass.hlsl"
+            
+            ENDHLSL
+        }
+
+    //  Depth -----------------------------------------------------
+        Pass
+        {
+            Name "DepthOnly"
+            Tags{"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _ALPHATEST_ON     // not per fragment
+            #pragma shader_feature_local _MASKMAP          // not per fragment
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+            
+            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #include "Includes/Lux URP Simple Fuzz DepthOnly Pass.hlsl"
+            
+            ENDHLSL
+        }
+
+    //  Depth Normal ---------------------------------------------
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _ALPHATEST_ON      // not per fragment!
+            #pragma shader_feature_local _MASKMAP           // not per fragment!
+
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
+
+            // -------------------------------------
+            // Unity defined keywords
+//  Breaks decals
+//          #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+            
+            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #include "Includes/Lux URP Simple Fuzz DepthNormal Pass.hlsl"
+
+            ENDHLSL
+        }
+
+    //  Meta -----------------------------------------------------
+        Pass
+        {
+            Tags{"LightMode" = "Meta"}
+
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            #pragma vertex UniversalVertexMeta
+            #pragma fragment UniversalFragmentMetaLit
+
+            #define _SPECULAR_SETUP
+
+        //  First include all our custom stuff
+            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+
+        //--------------------------------------
+        //  Fragment shader and functions
+
+            inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfaceData)
+            {
+                half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
+                outSurfaceData.alpha = 1;
+                outSurfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
+                outSurfaceData.metallic = 0;
+                outSurfaceData.specular = _SpecColor;
+                outSurfaceData.smoothness = _Smoothness;
+                outSurfaceData.normalTS = half3(0,0,1);
+                outSurfaceData.occlusion = 1;
+                outSurfaceData.emission = 0;
+
+                outSurfaceData.clearCoatMask = 0;
+                outSurfaceData.clearCoatSmoothness = 0;
+            }
+
+        //  Finally include the meta pass related stuff  
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
+
+            ENDHLSL
+        }
+    }
+
+// ---------------------------------------------------------------------
+
+    SubShader
+    {
+        Tags
+        {
+            "RenderType" = "Opaque"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "Lit"
+            "IgnoreProjector" = "True"
+            "ShaderModel"="2.0"
+        }
+        LOD 300
 
         Pass
         {
@@ -150,241 +495,67 @@ Shader "Lux URP/Simple Fuzz"
             AlphaToMask [_Coverage]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
+            #pragma only_renderers gles gles3 glcore d3d11
             #pragma target 2.0
 
             // -------------------------------------
             // Material Keywords
             #define _SPECULAR_SETUP 1
 
-            #pragma shader_feature _ALPHATEST_ON
-            #pragma shader_feature_local _SIMPLEFUZZ
+            #pragma shader_feature_local _NORMALMAP
 
-            #pragma shader_feature_local _MASKMAP
-            #pragma shader_feature_local _SCATTERING
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+            #pragma shader_feature_local_fragment _SIMPLEFUZZ
 
-            #pragma shader_feature _NORMALMAP
-            #pragma shader_feature_local _RIMLIGHTING
+            #pragma shader_feature_local _MASKMAP               // not per fragment!
+            #pragma shader_feature_local_fragment _SCATTERING
+            #pragma shader_feature_local_fragment _RIMLIGHTING
 
-            #pragma shader_feature _SPECULARHIGHLIGHTS_OFF
-            #pragma shader_feature _ENVIRONMENTREFLECTIONS_OFF
-            #pragma shader_feature _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
 
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-
-        //  Include base inputs and all other needed "base" includes
-            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #pragma instancing_options renderinglayer
 
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
 
-        //--------------------------------------
-        //  Vertex shader
-
-
-            VertexOutput LitPassVertex(VertexInput input)
-            {
-                VertexOutput output = (VertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                VertexPositionInputs vertexInput; // 
-                vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-                VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-
-                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
-                half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
-                half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
-
-                output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
-                #if defined(_MASKMAP)
-                    output.uv.zw = TRANSFORM_TEX(input.texcoord, _MaskMap);
-                #endif
-
-                output.normalWS = normalInput.normalWS;
-                output.viewDirWS = viewDirWS;
-
-                #ifdef _NORMALMAP
-                    float sign = input.tangentOS.w * GetOddNegativeScale();
-                    output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
-                #endif
-
-                OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
-                OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
-                
-                output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
-
-                #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-                    output.positionWS = vertexInput.positionWS;
-                #endif
-
-                #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-                    output.shadowCoord = GetShadowCoord(vertexInput);
-                #endif
-                output.positionCS = vertexInput.positionCS;
-
-                return output;
-            }
-
-        //--------------------------------------
-        //  Fragment shader and functions
-
-            inline void InitializeSurfaceData(
-                #if defined(_MASKMAP)
-                    float4 uv,
-                #else
-                    float2 uv,
-                #endif
-                out SurfaceDescription outSurfaceData)
-            {
-                half4 albedoSmoothness = SampleAlbedoAlpha(uv.xy, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
-
-                #if defined(_MASKMAP)
-                    half4 maskSample = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv.zw);
-                    outSurfaceData.fuzzMask = maskSample.r;
-                    outSurfaceData.translucency = maskSample.g;
-                    //outSurfaceData.skinMask = SSSAOSample.r;
-                    outSurfaceData.occlusion = lerp(1.0h, maskSample.b, _OcclusionStrength);
-                    
-                #else
-                    outSurfaceData.fuzzMask = 1;
-                    outSurfaceData.translucency = 1;
-                    outSurfaceData.occlusion = 1;
-                #endif 
-
-                #if defined(_ALPHATEST_ON) && defined(_MASKMAP)
-                    outSurfaceData.alpha = Alpha(maskSample.a, 1, _Cutoff);
-                #else
-                    outSurfaceData.alpha = 1;
-                #endif
-                
-                outSurfaceData.albedo = albedoSmoothness.rgb * _BaseColor.rgb;
-                outSurfaceData.metallic = 0;
-                outSurfaceData.specular = _SpecColor;
-                outSurfaceData.smoothness = albedoSmoothness.a * _Smoothness;
-            
-            //  Normal Map
-                #if defined (_NORMALMAP)
-                    outSurfaceData.normalTS = SampleNormal(uv.xy, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale);
-                #else
-                    outSurfaceData.normalTS = half3(0,0,1);
-                #endif
-
-                outSurfaceData.emission = 0;
-            }
-
-            void InitializeInputData(VertexOutput input, half3 normalTS, half facing, out InputData inputData)
-            {
-                inputData = (InputData)0;
-                #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-                    inputData.positionWS = input.positionWS;
-                #endif
-
-                half3 viewDirWS = SafeNormalize(input.viewDirWS);
-                #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
-                    normalTS.z *= facing;
-                    float sgn = input.tangentWS.w;      // should be either +1 or -1
-                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz));
-                #else
-                    inputData.normalWS = input.normalWS * facing;
-                #endif
-
-                inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                inputData.viewDirectionWS = viewDirWS;
-                
-                #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-                    inputData.shadowCoord = input.shadowCoord;
-                #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-                    inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
-                #else
-                    inputData.shadowCoord = float4(0, 0, 0, 0);
-                #endif
-                inputData.fogCoord = input.fogFactorAndVertexLight.x;
-                inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
-                inputData.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH, inputData.normalWS);
-            }
-
-            half4 LitPassFragment(VertexOutput input, half facing : VFACE) : SV_Target
-            {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-
-            //  Get the surface description
-                SurfaceDescription surfaceData;
-                InitializeSurfaceData(input.uv, surfaceData);
-
-            //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
-                InputData inputData;
-                InitializeInputData(input, surfaceData.normalTS, facing, inputData);
-
-                #if defined(_RIMLIGHTING)
-                    half rim = saturate(1.0h - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
-                    half power = _RimPower;
-                    UNITY_BRANCH if(_RimFrequency > 0 ) {
-                        half perPosition = lerp(0.0h, 1.0h, dot(1.0h, frac(UNITY_MATRIX_M._m03_m13_m23) * 2.0h - 1.0h ) * _RimPerPositionFrequency ) * 3.1416h;
-                        power = lerp(power, _RimMinPower, (1.0h + sin(_Time.y * _RimFrequency + perPosition) ) * 0.5h );
-                    }
-                    surfaceData.emission += pow(rim, power) * _RimColor.rgb * _RimColor.a;
-                #endif
-
-            //  Apply lighting
-                half4 color = LuxURPSimpleFuzzFragmentPBR(
-                    inputData, 
-                    surfaceData.albedo,
-                    surfaceData.metallic, 
-                    surfaceData.specular, 
-                    surfaceData.smoothness, 
-                    surfaceData.occlusion, 
-                    surfaceData.emission, 
-                    surfaceData.alpha,
-
-                    #if defined(_SCATTERING)
-                        half4(surfaceData.translucency * _TranslucencyStrength, _TranslucencyPower, _ShadowStrength, _Distortion),
-                    #else
-                        half4(0,0,0,0),
-                    #endif
-
-                    surfaceData.fuzzMask, // Fuzzmask
-                    _FuzzPower,
-                    _FuzzBias,
-                    _FuzzWrap,
-                    _FuzzStrength * PI,
-                    _FuzzAmbient
-                );    
-            //  Add fog
-                color.rgb = MixFog(color.rgb, inputData.fogCoord);
-                return color;
-            }
+        //  Include base inputs and all other needed "base" includes
+            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #include "Includes/Lux URP Simple Fuzz ForwardLit Pass.hlsl"
 
             ENDHLSL
         }
 
-
     //  Shadows -----------------------------------------------------
-        
         Pass
         {
             Name "ShadowCaster"
@@ -392,136 +563,104 @@ Shader "Lux URP/Simple Fuzz"
 
             ZWrite On
             ZTest LEqual
-            Cull Off
+            ColorMask 0
+            Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            #pragma only_renderers gles gles3 glcore d3d11
             #pragma target 2.0
 
             // -------------------------------------
             // Material Keywords
-            #pragma shader_feature _ALPHATEST_ON
-            #pragma shader_feature_local _MASKMAP
-
+            #pragma shader_feature_local _ALPHATEST_ON          // not per fragment
+            #pragma shader_feature_local _MASKMAP               // not per fragment
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            
+            // -------------------------------------
+            // Universal Pipeline keywords
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
-            
-        //  Shadow caster specific input
-            float3 _LightDirection;
+            #include "Includes/Lux URP Simple Fuzz ShadowCaster Pass.hlsl"
 
-            VertexOutput ShadowPassVertex(VertexInput input)
-            {
-                VertexOutput output = (VertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-
-                #if defined(_ALPHATEST_ON) && defined(_MASKMAP)
-                    output.uv.xy = TRANSFORM_TEX(input.texcoord, _MaskMap);
-                #endif
-
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                float3 normalWS = TransformObjectToWorldDir(input.normalOS);
-
-                output.positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS * _ShadowOffset, _LightDirection));
-                #if UNITY_REVERSED_Z
-                    output.positionCS.z = min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #else
-                    output.positionCS.z = max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #endif
-                return output;
-            }
-
-            half4 ShadowPassFragment(VertexOutput input) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-
-                #if defined(_ALPHATEST_ON) && defined(_MASKMAP)
-                    half mask = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, input.uv).a;
-                    clip (mask - _Cutoff);
-                #endif
-
-
-                return 0;
-            }
             ENDHLSL
         }
 
     //  Depth -----------------------------------------------------
-
         Pass
         {
+            Name "DepthOnly"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
             ColorMask 0
-            Cull Off
+            Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            #pragma only_renderers gles gles3 glcore d3d11
             #pragma target 2.0
-
-            #pragma vertex DepthOnlyVertex
-            #pragma fragment DepthOnlyFragment
 
             // -------------------------------------
             // Material Keywords
-            #pragma shader_feature _ALPHATEST_ON
-            #pragma shader_feature_local _MASKMAP
+            #pragma shader_feature_local _ALPHATEST_ON     // not per fragment
+            #pragma shader_feature_local _MASKMAP          // not per fragment
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
             
-            #define DEPTHONLYPASS
             #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #include "Includes/Lux URP Simple Fuzz DepthOnly Pass.hlsl"
+            
+            ENDHLSL
+        }
 
-            VertexOutput DepthOnlyVertex(VertexInput input)
-            {
-                VertexOutput output = (VertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+    //  Depth Normal ---------------------------------------------
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
 
-                #if defined(_ALPHATEST_ON) && defined(_MASKMAP)
-                    output.uv.xy = TRANSFORM_TEX(input.texcoord, _MaskMap);
-                #endif
+            ZWrite On
+            Cull[_Cull]
 
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
-                return output;
-            }
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
 
-            half4 DepthOnlyFragment(VertexOutput input) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _ALPHATEST_ON      // not per fragment!
+            #pragma shader_feature_local _MASKMAP           // not per fragment!
 
-                #if defined(_ALPHATEST_ON) && defined(_MASKMAP)
-                    half mask = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, input.uv.xy).a;
-                    clip (mask - _Cutoff);
-                #endif
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
 
-                return 0;
-            }
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+            
+            #include "Includes/Lux URP Simple Fuzz Inputs.hlsl"
+            #include "Includes/Lux URP Simple Fuzz DepthNormal Pass.hlsl"
 
             ENDHLSL
         }
 
     //  Meta -----------------------------------------------------
-        
         Pass
         {
             Tags{"LightMode" = "Meta"}
@@ -529,11 +668,11 @@ Shader "Lux URP/Simple Fuzz"
             Cull Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
 
             #pragma vertex UniversalVertexMeta
-            #pragma fragment UniversalFragmentMeta
+            #pragma fragment UniversalFragmentMetaLit
 
             #define _SPECULAR_SETUP
 
@@ -554,6 +693,9 @@ Shader "Lux URP/Simple Fuzz"
                 outSurfaceData.normalTS = half3(0,0,1);
                 outSurfaceData.occlusion = 1;
                 outSurfaceData.emission = 0;
+
+                outSurfaceData.clearCoatMask = 0;
+                outSurfaceData.clearCoatSmoothness = 0;
             }
 
         //  Finally include the meta pass related stuff  
@@ -561,10 +703,8 @@ Shader "Lux URP/Simple Fuzz"
 
             ENDHLSL
         }
-
-    //  End Passes -----------------------------------------------------
-    
     }
+
     FallBack "Hidden/InternalErrorShader"
     CustomEditor "LuxURPUniversalCustomShaderGUI"
 }

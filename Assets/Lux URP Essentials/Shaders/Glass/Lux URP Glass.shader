@@ -8,7 +8,7 @@ Shader "Lux URP/Glass"
         [HeaderHelpLuxURP_URL(3fte1chjgh54)]
 
         [Header(Surface Options)]
-        [Space(5)]
+        [Space(8)]
         [Enum(Off,0,On,1)]_ZWrite   ("ZWrite", Float) = 1.0
         [Enum(UnityEngine.Rendering.CullMode)]
         _Cull                       ("Culling", Float) = 2
@@ -20,7 +20,7 @@ Shader "Lux URP/Glass"
 
 
         [Header(Surface Inputs)]
-        [Space(5)]
+        [Space(8)]
         [MainColor]
         _BaseColor                  ("Color (RGB) Alpha (A)", Color) = (1,1,1,0)
         [Toggle(_BASEMAP)]
@@ -47,7 +47,7 @@ Shader "Lux URP/Glass"
 
 
         [Header(Refrection)]
-        [Space(5)]
+        [Space(8)]
         [Toggle(_GEOREFRACTIONS)]
         _EnableGeoRefr              ("Enable geometric Refractions", Float) = 1.0
         _IOR                        ("     Index of Refraction", Float) = 1.33
@@ -67,7 +67,7 @@ Shader "Lux URP/Glass"
 
         
         [Header(Rim Lighting)]
-        [Space(5)]
+        [Space(8)]
         [Toggle(_RIMLIGHTING)]
         _Rim                        ("Enable Rim Lighting", Float) = 0
         [HDR] _RimColor             ("Rim Color", Color) = (0.5,0.5,0.5,1)
@@ -78,7 +78,7 @@ Shader "Lux URP/Glass"
 
 
         [Header(Stencil)]
-        [Space(5)]
+        [Space(8)]
         [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
         [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
         [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
@@ -93,7 +93,7 @@ Shader "Lux URP/Glass"
 
 
         [Header(Advanced)]
-        [Space(5)]
+        [Space(8)]
         [ToggleOff]
         _SpecularHighlights         ("Enable Specular Highlights", Float) = 1.0
         [ToggleOff]
@@ -141,8 +141,6 @@ Shader "Lux URP/Glass"
             // Required to compile gles 2.0 with standard SRP library
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
-
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
             #pragma target 2.0
 
             // -------------------------------------
@@ -153,32 +151,33 @@ Shader "Lux URP/Glass"
 
             #define _ALPHAPREMULTIPLY_ON
 
-            #pragma shader_feature_local _GEOREFRACTIONS
-            #pragma shader_feature_local _SCREENEDGEFADE
+            #pragma shader_feature_local _NORMALMAP
 
-            #pragma shader_feature_local _FINALALPHA
-            #pragma shader_feature_local _ADDITIVE
+            #pragma shader_feature_local_fragment _GEOREFRACTIONS
+            #pragma shader_feature_local_fragment _SCREENEDGEFADE
 
-            #pragma shader_feature_local _BASEMAP
-            #pragma shader_feature_local _MASKMAP
-            #pragma shader_feature _NORMALMAP
-            #pragma shader_feature_local _EXCLUDEFOREGROUND
-            
-            #pragma shader_feature_local _RIMLIGHTING
+            #pragma shader_feature_local_fragment _FINALALPHA
+            #pragma shader_feature_local_fragment _ADDITIVE
+            #pragma shader_feature_local_fragment _BASEMAP
+            #pragma shader_feature_local_fragment _MASKMAP
+            #pragma shader_feature_local_fragment _EXCLUDEFOREGROUND
+            #pragma shader_feature_local_fragment _RIMLIGHTING
 
-            #pragma shader_feature _SPECULARHIGHLIGHTS_OFF
-            #pragma shader_feature _ENVIRONMENTREFLECTIONS_OFF
-            #pragma shader_feature _RECEIVE_SHADOWS_OFF
-
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
 
             // -------------------------------------
             // Unity defined keywords
@@ -189,6 +188,7 @@ Shader "Lux URP/Glass"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Glass Inputs.hlsl"
@@ -211,18 +211,18 @@ Shader "Lux URP/Glass"
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
-                float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+                //float3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
                 output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
 
                 output.normalWS = normalInput.normalWS; //NormalizeNormalPerVertex(normalInput.normalWS);
-                output.viewDirWS = viewDirWS;
+                //output.viewDirWS = viewDirWS;
                 
                 #ifdef _NORMALMAP
-                    float sign = input.tangentOS.w * GetOddNegativeScale();
-                    output.tangentWS = float4(normalInput.tangentWS.xyz, sign);
+                    real sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = half4(normalInput.tangentWS.xyz, sign);
                 #endif
 
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
@@ -244,10 +244,12 @@ Shader "Lux URP/Glass"
                 output.projectionCoord.z = LinearEyeDepth(output.projectionCoord.z / output.projectionCoord.w, _ZBufferParams);
 
                 float3 scale;
-                scale.x = length(float3(UNITY_MATRIX_MV[0].x, UNITY_MATRIX_MV[1].x, UNITY_MATRIX_MV[2].x));
-                scale.y = length(float3(UNITY_MATRIX_MV[0].y, UNITY_MATRIX_MV[1].y, UNITY_MATRIX_MV[2].y));
-                scale.z = length(float3(UNITY_MATRIX_MV[0].z, UNITY_MATRIX_MV[1].z, UNITY_MATRIX_MV[2].z));
+                float4x4 MV = mul(UNITY_MATRIX_V, UNITY_MATRIX_M);
+                scale.x = length(float3(MV[0].x, MV[1].x, MV[2].x));
+                scale.y = length(float3(MV[0].y, MV[1].y, MV[2].y));
+                scale.z = length(float3(MV[0].z, MV[1].z, MV[2].z));
                 output.scale = max(scale.x, max(scale.y, scale.z));
+
 
                 return output;
             }
@@ -335,7 +337,7 @@ Shader "Lux URP/Glass"
                     float fadeRcpLength = _ScreenEdgeFade;
                     float2 t = Remap10(abs(coordCS), fadeRcpLength, fadeRcpLength);
                     float weight = Smoothstep01(t.x) * Smoothstep01(t.y);
-                    screenUV.xy = lerp(projectionCoord.xy/projectionCoord.w, screenUV.xy, weight);
+                    screenUV.xy = lerp(projectionCoord.xy * rcp(projectionCoord.w), screenUV.xy, weight);
                 #endif
 
             //  Fix screenUV for Single Pass Stereo Rendering
@@ -359,7 +361,7 @@ Shader "Lux URP/Glass"
                     #if defined(UNITY_SINGLE_PASS_STEREO)
                         UnityStereoTransformScreenSpaceTex(projectionCoord.xy/projectionCoord.w),
                     #else
-                        projectionCoord.xy/projectionCoord.w,
+                        projectionCoord.xy * rcp(projectionCoord.w),
                     #endif
                         screenUV.xy, refractionOffsetMultiplier);
                 #endif
@@ -381,7 +383,7 @@ Shader "Lux URP/Glass"
             
             //  Tint glass
                 half3 glassTint = outSurfaceData.albedo;
-                outSurfaceData.emission = RefractionSample * glassTint * max(0.5h, 1.0h - F_Schlick(_SpecColor, NdotV)) * (1.0h - outSurfaceData.alpha);
+                outSurfaceData.emission = RefractionSample * glassTint * max(0.5h, 1.0h - F_Schlick(_SpecColor.rgb, NdotV)) * (1.0h - outSurfaceData.alpha);
 
                 //outSurfaceData.emission = weight;
 
@@ -395,7 +397,7 @@ Shader "Lux URP/Glass"
 
             //  Lerp between glass and opaque properties
                 outSurfaceData.smoothness = lerp(outSurfaceData.smoothness, _SmoothnessBase, outSurfaceData.alpha);
-                outSurfaceData.specular = lerp(_SpecColor, _SpecColorBase, outSurfaceData.alpha);
+                outSurfaceData.specular = lerp(_SpecColor.rgb, _SpecColorBase.rgb, outSurfaceData.alpha.xxx);
 
                 outSurfaceData.metallic = 0;
                 outSurfaceData.occlusion = 1;
@@ -441,7 +443,7 @@ Shader "Lux URP/Glass"
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
             //  We need viewDirWS and normalWS already in the surface function, so we get them up front
-                half3 viewDirWS = SafeNormalize(input.viewDirWS);
+                half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 input.normalWS.xyz = NormalizeNormalPerPixel(input.normalWS.xyz);
 
             //  Get the surface description
@@ -456,7 +458,7 @@ Shader "Lux URP/Glass"
                 #if defined(_RIMLIGHTING)
                     half rim = saturate(1.0h - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
                     half power = _RimPower;
-                    UNITY_BRANCH if(_RimFrequency > 0 ) {
+                    if(_RimFrequency > 0 ) {
                         half perPosition = lerp(0.0h, 1.0h, dot(1.0h, frac(UNITY_MATRIX_M._m03_m13_m23) * 2.0h - 1.0h ) * _RimPerPositionFrequency ) * 3.1416h;
                         power = lerp(power, _RimMinPower, (1.0h + sin(_Time.y * _RimFrequency + perPosition) ) * 0.5h );
                     }
@@ -464,7 +466,7 @@ Shader "Lux URP/Glass"
                 #endif
 
             //  Apply lighting
-                half4 color = LuxLWRPTransparentFragmentPBR (
+                half4 color = LuxURPTransparentFragmentPBR (
                     inputData, 
                     surfaceData.albedo,
                     surfaceData.metallic, 
@@ -505,7 +507,7 @@ Shader "Lux URP/Glass"
             #pragma prefer_hlslcc gles
 
             #pragma vertex UniversalVertexMeta
-            #pragma fragment UniversalFragmentMeta
+            #pragma fragment UniversalFragmentMetaLit
 
             #define _SPECULAR_SETUP
 
@@ -521,11 +523,14 @@ Shader "Lux URP/Glass"
                 outSurfaceData.alpha = 1;
                 outSurfaceData.albedo = _BaseColor.rgb;
                 outSurfaceData.metallic = 0;
-                outSurfaceData.specular = _SpecColor;
+                outSurfaceData.specular = _SpecColor.rgb;
                 outSurfaceData.smoothness = _Smoothness;
                 outSurfaceData.normalTS = half3(0,0,1);
                 outSurfaceData.occlusion = 1;
                 outSurfaceData.emission = 0;
+
+                outSurfaceData.clearCoatMask = 0;
+                outSurfaceData.clearCoatSmoothness = 0;
             }
 
         //  Finally include the meta pass related stuff  

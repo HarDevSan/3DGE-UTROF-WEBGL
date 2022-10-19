@@ -39,7 +39,7 @@
         half    _Cutoff;
         float4  _BaseMap_ST;
         half    _Smoothness;
-        half3   _SpecColor;
+        half4   _SpecColor;
         //half    _OcclusionStrength;
         
     CBUFFER_END

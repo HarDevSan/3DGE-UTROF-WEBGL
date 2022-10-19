@@ -64,6 +64,7 @@ v2f vert (appdata_full v) {
 
         // wrap-around diffuse
         nl = max (0, nl * 0.6 + 0.4);
+//nl = saturate(nl);        
         o.nl[j] = nl;
 
         half3 h = normalize (lightDir + viewDir);

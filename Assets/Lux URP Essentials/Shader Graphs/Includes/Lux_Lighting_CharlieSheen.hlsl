@@ -1,3 +1,12 @@
+// We have to mute URP's default decal implementation as it would tweak our albedo - which needs to be pure black
+// as otherwise default lighting would no be stripped by the shader compiler.
+// This mean that decals will use our custom lighting as well.
+
+#ifdef _DBUFFER
+    #undef _DBUFFER
+    #define _CUSTOMDBUFFER
+#endif
+
 #if !defined(SHADERGRAPH_PREVIEW) || defined(LIGHTWEIGHT_LIGHTING_INCLUDED)
 
 //  As we do not have access to the vertex lights we will make the shader always sample add lights per pixel
@@ -48,9 +57,12 @@
         half3 DirectBDRF_LuxCharlieSheen(BRDFData brdfData, AdditionalData addData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS, half NdotL)
         {
         #ifndef _SPECULARHIGHLIGHTS_OFF
-            float3 halfDir = SafeNormalize(lightDirectionWS + viewDirectionWS);
-            float NoH = saturate(dot(normalWS, halfDir));
-            half LoH = saturate(dot(lightDirectionWS, halfDir));
+            float3 lightDirectionWSFloat3 = float3(lightDirectionWS);
+            float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(viewDirectionWS));
+            
+            float NoH = saturate(dot(float3(normalWS), halfDir));
+            half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
+            
             half NdotV = saturate(dot(normalWS, viewDirectionWS ));
 
         //  Charlie Sheen
@@ -97,6 +109,7 @@ void Lighting_half(
 
 //  Base inputs
     float3 positionWS,
+    float4 positionSP,
     half3 viewDirectionWS,
 
 //  Normal inputs    
@@ -126,21 +139,29 @@ void Lighting_half(
 
 //  Lightmapping
     float2 lightMapUV,
+    float2 dynamicLightMapUV,
 
 //  Final lit color
     out half3 MetaAlbedo,
     out half3 FinalLighting,
-    out half3 MetaSpecular
+    out half3 MetaSpecular, 
+    out half  MetaSmoothness,
+    out half  MetaOcclusion,
+    out half3 MetaNormal
 )
 {
 #if defined(SHADERGRAPH_PREVIEW) || ( !defined(LIGHTWEIGHT_LIGHTING_INCLUDED) && !defined(UNIVERSAL_LIGHTING_INCLUDED) )
     FinalLighting = albedo;
     MetaAlbedo = half3(0,0,0);
     MetaSpecular = half3(0,0,0);
+    MetaSmoothness = 0;
+    MetaOcclusion = 0;
+    MetaNormal = half3(0,0,1);
 #else
 
 
-//  Real Lighting ----------
+//  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  Real Lighting
 
 //  Charlie Sheen specific:
     smoothness = lerp(0.0h, 0.6h, smoothness);
@@ -155,92 +176,187 @@ void Lighting_half(
     half3 bakedGI;
     #ifdef LIGHTMAP_ON
         lightMapUV = lightMapUV * unity_LightmapST.xy + unity_LightmapST.zw;
-        bakedGI = SAMPLE_GI(lightMapUV, half3(0,0,0), normalWS);
+        #if defined(DYNAMICLIGHTMAP_ON)
+            dynamicLightMapUV = dynamicLightMapUV * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+            bakedGI = SAMPLE_GI(lightMapUV, dynamicLightMapUV, half3(0,0,0), normalWS);
+        #else
+            bakedGI = SAMPLE_GI(lightMapUV, half3(0,0,0), normalWS);
+        #endif
     #else
         bakedGI = SampleSH(normalWS); 
     #endif
 
-    BRDFData brdfData;
-    InitializeBRDFData(albedo, metallic, specular, smoothness, alpha, brdfData);
-
-//  Do not apply energy conservation
-    brdfData.diffuse = albedo;
-    brdfData.specular = specular;
-
-    AdditionalData addData;
-    //addData.tangentWS = tangentWS;
-    //addData.bitangentWS = bitangentWS;
-
-//  Charlie Sheen
-    //addData.partLambdaV = 0.0h;
-    //addData.anisoReflectionNormal = normalWS;
-    float NdotV = dot(normalWS, viewDirectionWS);
-    addData.sheenColor = sheenColor;
-
-//  Get Shadow Sampling Coords / Unfortunately per pixel...
-    #if SHADOWS_SCREEN
-        float4 clipPos = TransformWorldToHClip(positionWS);
-        float4 shadowCoord = ComputeScreenPos(clipPos);
-    #else
-        float4 shadowCoord = TransformWorldToShadowCoord(positionWS);
-    #endif
-
-    Light mainLight = GetMainLight(shadowCoord);
-    MixRealtimeAndBakedGI(mainLight, normalWS, bakedGI, half4(0, 0, 0, 0));
-
-//  GI
-    FinalLighting = GlobalIllumination(brdfData, bakedGI, occlusion, normalWS, viewDirectionWS);
-
-//  Main Light
-    half NdotL = saturate(dot(normalWS, mainLight.direction));
-    FinalLighting += LightingPhysicallyBased_LuxCharlieSheen(brdfData, addData, mainLight, normalWS, viewDirectionWS, NdotL);
-//  transmission
-    if (enableTransmission) {
-        half3 transLightDir = mainLight.direction + normalWS * transmissionDistortion;
-        half transDot = dot( transLightDir, -viewDirectionWS );
-        transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
-        FinalLighting += brdfData.diffuse * transDot * (1.0 - NdotL) * mainLight.color * lerp(1.0h, mainLight.shadowAttenuation, transmissionShadowstrength) * transmissionStrength * 4;
+//  Fill standard URP structs so we can use the built in functions
+    InputData inputData = (InputData)0;
+    {
+        inputData.positionWS = positionWS;
+        inputData.normalWS = normalWS;
+        inputData.viewDirectionWS = viewDirectionWS;
+        inputData.bakedGI = bakedGI;
+        #if _MAIN_LIGHT_SHADOWS_SCREEN
+        //  Here we need raw
+            inputData.shadowCoord = positionSP;
+        #else
+            inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
+        #endif
+        //  Apply perspective division
+        inputData.normalizedScreenSpaceUV = positionSP.xy * rcp(positionSP.w);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(lightMapUV);
     }
+    SurfaceData surfaceData = (SurfaceData)0;
+    {
+        surfaceData.alpha = alpha;
+        surfaceData.albedo = albedo;
+        surfaceData.metallic = metallic;
+        surfaceData.specular = specular;
+        surfaceData.smoothness = smoothness;
+        surfaceData.occlusion = occlusion;   
+    }
+//  END: structs
 
-//  Handle additional lights
-    #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i) {
-            Light light = GetAdditionalLight(i, positionWS);
-            NdotL = saturate(dot(normalWS, light.direction ));
-            FinalLighting += LightingPhysicallyBased_LuxCharlieSheen(brdfData, addData, light, normalWS, viewDirectionWS, NdotL);
-        //  transmission
-            if (enableTransmission) {
-                half3 transLightDir = light.direction + normalWS * transmissionDistortion;
-                half transDot = dot( transLightDir, -viewDirectionWS );
-                transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
-                NdotL = saturate(dot(normalWS, light.direction));
-                FinalLighting += brdfData.diffuse * transDot * (1.0 - NdotL) * light.color * lerp(1.0h, light.shadowAttenuation, transmissionShadowstrength) * light.distanceAttenuation * transmissionStrength * 4;
-            }
+//  Decals
+    #if defined(_CUSTOMDBUFFER)
+        float2 positionCS = inputData.normalizedScreenSpaceUV * _ScreenSize.xy;
+        ApplyDecalToSurfaceData(float4(positionCS, 0, 0), surfaceData, inputData);
+    #endif
+
+//  From here on we rely on surfaceData and inputData only! (except debug which outputs the original values)
+
+    BRDFData brdfData;
+    InitializeBRDFData(surfaceData, brdfData);
+
+//  Debugging
+    #if defined(DEBUG_DISPLAY)
+        half4 debugColor;
+        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
+        {
+            //return debugColor;
+            FinalLighting = debugColor;
+            MetaAlbedo = debugColor;
+            MetaSpecular = specular;
+            MetaSmoothness = smoothness;
+            MetaOcclusion = occlusion;
+            MetaNormal = normalTS;
         }
-    #endif
-
-//  Set Albedo for meta pass
-    #if defined(LIGHTWEIGHT_META_PASS_INCLUDED) || defined(UNIVERSAL_META_PASS_INCLUDED)
-        FinalLighting = half3(0,0,0);
-        MetaAlbedo = albedo;
-        MetaSpecular = specular;
     #else
-        MetaAlbedo = half3(0,0,0);
-        MetaSpecular = half3(0,0,0);
-    #endif
+//  Debugging
 
-//  End Real Lighting ----------
+    //  Do not apply energy conservation
+        brdfData.diffuse = surfaceData.albedo;
+        brdfData.specular = surfaceData.specular;
+
+        AdditionalData addData;
+        //addData.tangentWS = tangentWS;
+        //addData.bitangentWS = bitangentWS;
+
+    //  Charlie Sheen
+        //addData.partLambdaV = 0.0h;
+        //addData.anisoReflectionNormal = normalWS;
+        float NdotV = dot(normalWS, viewDirectionWS);
+        addData.sheenColor = sheenColor;
+
+
+        half4 shadowMask = CalculateShadowMask(inputData);
+        AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+
+        Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
+        half3 mainLightColor = mainLight.color;
+
+        MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
+
+        LightingData lightingData = CreateLightingData(inputData, surfaceData);
+
+    //  In order to use probe blending and proper AO we have to use the new GlobalIllumination function
+        lightingData.giColor = GlobalIllumination(
+            brdfData,
+            brdfData,   // brdfDataClearCoat,
+            0,          // surfaceData.clearCoatMask
+            inputData.bakedGI,
+            aoFactor.indirectAmbientOcclusion,
+            inputData.positionWS,
+            inputData.normalWS,
+            inputData.viewDirectionWS
+        );
+
+        half NdotL;
+
+    //  Main Light
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+            {
+        #endif
+                NdotL = saturate(dot(inputData.normalWS, mainLight.direction));
+                lightingData.mainLightColor = LightingPhysicallyBased_LuxCharlieSheen(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+
+            //  Transmission
+                if (enableTransmission) {
+                    half3 transLightDir = mainLight.direction + inputData.normalWS * transmissionDistortion;
+                    half transDot = dot( transLightDir, -inputData.viewDirectionWS );
+                    transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
+                    lightingData.mainLightColor += brdfData.diffuse * transDot * (1.0h - NdotL) * mainLightColor * lerp(1.0h, mainLight.shadowAttenuation, transmissionShadowstrength) * transmissionStrength * 4;
+                }
+        #if defined(_LIGHT_LAYERS)
+            }
+        #endif
+
+        #ifdef _ADDITIONAL_LIGHTS
+            uint pixelLightCount = GetAdditionalLightsCount();
+
+            LIGHT_LOOP_BEGIN(pixelLightCount)    
+                    Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+                #if defined(_LIGHT_LAYERS)
+                    if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                    {
+                #endif
+                        half3 lightColor = light.color;
+                        NdotL = saturate(dot(inputData.normalWS, light.direction ));
+                        lightingData.additionalLightsColor += LightingPhysicallyBased_LuxCharlieSheen(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+
+                    //  Transmission
+                        if (enableTransmission) {
+                            half3 transLightDir = light.direction + normalWS * transmissionDistortion;
+                            half transDot = dot( transLightDir, -viewDirectionWS );
+                            transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
+                            lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, transmissionShadowstrength) * light.distanceAttenuation * transmissionStrength * 4;
+                        }
+                #if defined(_LIGHT_LAYERS)
+                    }
+                #endif
+            LIGHT_LOOP_END
+        #endif
+
+        FinalLighting = CalculateFinalColor(lightingData, surfaceData.alpha).xyz;
+
+    //  Set Albedo for meta pass
+        #if defined(UNIVERSAL_META_PASS_INCLUDED)
+            FinalLighting = half3(0,0,0);
+            MetaAlbedo = albedo;
+            MetaSpecular = specular;
+            MetaSmoothness = 0;
+            MetaOcclusion = 0;
+            MetaNormal = half3(0,0,1);
+        #else
+            MetaAlbedo = half3(0,0,0);
+            MetaSpecular = half3(0,0,0);
+            MetaSmoothness = 0;
+            MetaOcclusion = 0;
+        //  Needed by DepthNormalOnly pass
+            MetaNormal = normalTS;
+        #endif
+
+    //  End Real Lighting
+
+    #endif // end debug
 
 #endif
 }
-
-// Unity 2019.1. needs a float version
 
 void Lighting_float(
 
 //  Base inputs
     float3 positionWS,
+    float4 positionSP,
     half3 viewDirectionWS,
 
 //  Normal inputs    
@@ -270,16 +386,20 @@ void Lighting_float(
 
 //  Lightmapping
     float2 lightMapUV,
+    float2 dynamicLightMapUV,
 
 //  Final lit color
     out half3 MetaAlbedo,
     out half3 FinalLighting,
-    out half3 MetaSpecular
+    out half3 MetaSpecular, 
+    out half  MetaSmoothness,
+    out half  MetaOcclusion,
+    out half3 MetaNormal
 )
 {
     Lighting_half(
-        positionWS, viewDirectionWS, normalWS, tangentWS, bitangentWS, enableNormalMapping, normalTS, 
+        positionWS, positionSP, viewDirectionWS, normalWS, tangentWS, bitangentWS, enableNormalMapping, normalTS, 
         albedo, metallic, specular, smoothness, occlusion, alpha,
         sheenColor, enableTransmission, transmissionStrength, transmissionPower, transmissionDistortion, transmissionShadowstrength,
-        lightMapUV, MetaAlbedo, FinalLighting, MetaSpecular);
+        lightMapUV, dynamicLightMapUV, MetaAlbedo, FinalLighting, MetaSpecular, MetaSmoothness, MetaOcclusion, MetaNormal);
 }

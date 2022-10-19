@@ -91,8 +91,8 @@ void Lighting_half(
 
 //  Handle additional lights
     #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i) {
+        uint pixelLightCount = GetAdditionalLightsCount();
+        for (uint i = 0u; i < pixelLightCount; ++i) {
             Light light = GetAdditionalLight(i, positionWS);
             FinalLighting += LightingPhysicallyBased(brdfData, light, normalWS, viewDirectionWS);
         }

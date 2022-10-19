@@ -5,7 +5,7 @@
         [HeaderHelpLuxURP_URL(gpukpasbzt01)]
         
         [Header(Surface Options)]
-        [Space(5)]
+        [Space(8)]
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTest", Int) = 4
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Culling", Float) = 2
 
@@ -16,6 +16,7 @@
 
 
         [Header(Outline)]
+        [Space(8)]
         _Color ("Color", Color) = (1,1,1,1)
         _Border ("Width", Float) = 3
 
@@ -28,12 +29,13 @@
         {
             "RenderPipeline" = "UniversalPipeline"
             "RenderType"="Opaque"
+            "IgnoreProjector" = "True"
             "Queue"= "Transparent+59" // +59 smalltest to get drawn on top of transparents
         }
+
         Pass
         {
-            Name "StandardUnlit"
-            Tags{"LightMode" = "UniversalForward"}
+            Name "Unlit"
 
             Stencil {
                 Ref      [_StencilRef]
@@ -100,8 +102,6 @@
                 #if defined(_APPLYFOG)
                     half fogCoord : TEXCOORD0;
                 #endif
-
-                UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -109,7 +109,6 @@
             {
                 VertexOutput o = (VertexOutput)0;
                 UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
                 o.position = TransformObjectToHClip(v.vertex.xyz);
@@ -118,8 +117,8 @@
                 #endif
             //  Extrude
                 if (_Border > 0.0h) {
-                    float3 normal = mul(UNITY_MATRIX_MVP, float4(v.normal, 0)).xyz; // to clip space
-                    //float3 normal = mul(GetWorldToHClipMatrix(), mul(GetObjectToWorldMatrix(), float4(v.normal, 0.0)));
+                    //float3 normal = mul(UNITY_MATRIX_MVP, float4(v.normal, 0)).xyz; // to clip space
+                    float3 normal = mul(GetWorldToHClipMatrix(), mul(GetObjectToWorldMatrix(), float4(v.normal, 0.0))).xyz;
                     float2 offset = normalize(normal.xy);
                     float2 ndc = _ScreenParams.xy * 0.5;
                     o.position.xy += ((offset * _Border) / ndc * o.position.w);
@@ -129,7 +128,6 @@
 
             half4 frag (VertexOutput input ) : SV_Target
             {
-                UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
                 #if defined(_APPLYFOG)

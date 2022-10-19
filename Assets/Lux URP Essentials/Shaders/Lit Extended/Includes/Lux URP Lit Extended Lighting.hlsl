@@ -15,10 +15,14 @@ half LuxGetHorizonOcclusion(half3 R, half3 normalWS, half3 vertexNormal, half ho
 }
   
 
-half3 LuxExtended_GlobalIllumination(BRDFData brdfData, half3 bakedGI, half occlusion, half3 normalWS, half3 viewDirectionWS,   half GItoAO, half GItoAOBias, half3 bentNormal, half3 geoNormalWS, half horizonOcllusion)
+
+
+half3 LuxExtended_GlobalIllumination(BRDFData brdfData, half3 bakedGI, half occlusion, float3 positionWS, half3 normalWS, half3 viewDirectionWS, half GItoAO, half GItoAOBias, half3 bentNormal, half3 geoNormalWS, half horizonOcllusion)
 {
     half3 reflectVector = reflect(-viewDirectionWS, normalWS);
-    half fresnelTerm = Pow4(1.0 - saturate(dot(normalWS, viewDirectionWS)));
+    half NoV = saturate(dot(normalWS, viewDirectionWS));
+    half fresnelTerm = Pow4(1.0 - NoV);
+
     half3 indirectDiffuse = bakedGI * occlusion;
 
     half reflOcclusion = 1;
@@ -40,44 +44,136 @@ half3 LuxExtended_GlobalIllumination(BRDFData brdfData, half3 bakedGI, half occl
 //  AO from lightmap
     #if defined(LIGHTMAP_ON) && defined(_ENABLE_AO_FROM_GI)
         half specOcclusion = saturate( GI_Luminance(bakedGI) * GItoAO + GItoAOBias);
-        half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, reflOcclusion * occlusion   *   specOcclusion  );
+        half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, 1.0h) * reflOcclusion * occlusion * specOcclusion;
     #else
-        half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, reflOcclusion * occlusion);
+        half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, 1.0h) * reflOcclusion * occlusion;
     #endif
 
-    return EnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);
+    half3 color = EnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);
 
+//  Debug
+    if (IsOnlyAOLightingFeatureEnabled())
+    {
+        color = occlusion.xxx; // "Base white" for AO debug lighting mode // Lux: We return occlusion here
+    }
+
+    return color;
 }
 
 
 
-half4 LuxExtended_UniversalFragmentPBR(InputData inputData, half3 albedo, half metallic, half3 specular,
-    half smoothness, half occlusion, half3 emission, half alpha,
+half4 LuxExtended_UniversalFragmentPBR(InputData inputData, SurfaceData surfaceData,
     half GItoAO, half GItoAOBias, half3 bentNormal, half3 geoNormalWS, half horizonOcllusion
     )
 {
+    #if defined(_SPECULARHIGHLIGHTS_OFF)
+    bool specularHighlightsOff = true;
+    #else
+    bool specularHighlightsOff = false;
+    #endif
     BRDFData brdfData;
-    InitializeBRDFData(albedo, metallic, specular, smoothness, alpha, brdfData);
+    
+    InitializeBRDFData(surfaceData, brdfData);
 
-    Light mainLight = GetMainLight(inputData.shadowCoord);
-    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
+    #if defined(DEBUG_DISPLAY)
+    half4 debugColor;
 
-    half3 color = LuxExtended_GlobalIllumination(brdfData, inputData.bakedGI, occlusion, inputData.normalWS, inputData.viewDirectionWS,  GItoAO, GItoAOBias, bentNormal, geoNormalWS, horizonOcllusion);
-    color += LightingPhysicallyBased(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS);
-
-#ifdef _ADDITIONAL_LIGHTS
-    uint pixelLightCount = GetAdditionalLightsCount();
-    for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
+    if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
     {
-        Light light = GetAdditionalLight(lightIndex, inputData.positionWS);
-        color += LightingPhysicallyBased(brdfData, light, inputData.normalWS, inputData.viewDirectionWS);
+        return debugColor;
     }
-#endif
+    #endif
 
-#ifdef _ADDITIONAL_LIGHTS_VERTEX
-    color += inputData.vertexLighting * brdfData.diffuse;
-#endif
+    BRDFData brdfDataClearCoat = (BRDFData)0;
+    half4 shadowMask = CalculateShadowMask(inputData);
+    AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 
-    color += emission;
-    return half4(color, alpha);
+    // NOTE: We don't apply AO to the GI here because it's done in the lighting calculation below...
+    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
+
+    LightingData lightingData = CreateLightingData(inputData, surfaceData);
+
+    // lightingData.giColor = GlobalIllumination(brdfData, brdfDataClearCoat, surfaceData.clearCoatMask,
+    //                                            inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
+    //                                            inputData.normalWS, inputData.viewDirectionWS);
+
+    lightingData.giColor = LuxExtended_GlobalIllumination(
+        brdfData,
+        inputData.bakedGI,
+        aoFactor.indirectAmbientOcclusion,
+        inputData.positionWS,
+        inputData.normalWS,
+        inputData.viewDirectionWS,
+
+        GItoAO, GItoAOBias, bentNormal, geoNormalWS, horizonOcllusion
+    );
+
+
+    if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+    {
+        lightingData.mainLightColor = LightingPhysicallyBased(brdfData, brdfDataClearCoat,
+                                                              mainLight,
+                                                              inputData.normalWS, inputData.viewDirectionWS,
+                                                              surfaceData.clearCoatMask, specularHighlightsOff);
+    }
+
+    #if defined(_ADDITIONAL_LIGHTS)
+    uint pixelLightCount = GetAdditionalLightsCount();
+
+    #if USE_CLUSTERED_LIGHTING
+    for (uint lightIndex = 0; lightIndex < min(_AdditionalLightsDirectionalCount, MAX_VISIBLE_LIGHTS); lightIndex++)
+    {
+        Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+        if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        {
+            lightingData.additionalLightsColor += LightingPhysicallyBased(brdfData, brdfDataClearCoat, light,
+                                                                          inputData.normalWS, inputData.viewDirectionWS,
+                                                                          surfaceData.clearCoatMask, specularHighlightsOff);
+        }
+    }
+    #endif
+
+    LIGHT_LOOP_BEGIN(pixelLightCount)
+        Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+        if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        {
+            lightingData.additionalLightsColor += LightingPhysicallyBased(brdfData, brdfDataClearCoat, light,
+                                                                          inputData.normalWS, inputData.viewDirectionWS,
+                                                                          surfaceData.clearCoatMask, specularHighlightsOff);
+        }
+    LIGHT_LOOP_END
+    #endif
+
+    #if defined(_ADDITIONAL_LIGHTS_VERTEX)
+    lightingData.vertexLightingColor += inputData.vertexLighting * brdfData.diffuse;
+    #endif
+
+    return CalculateFinalColor(lightingData, surfaceData.alpha);
+
+
+//     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
+
+//     half3 color = LuxExtended_GlobalIllumination(brdfData, inputData.bakedGI, occlusion, inputData.normalWS, inputData.viewDirectionWS,  GItoAO, GItoAOBias, bentNormal, geoNormalWS, horizonOcllusion);
+//     color += LightingPhysicallyBased(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS);
+
+// #ifdef _ADDITIONAL_LIGHTS
+//     uint pixelLightCount = GetAdditionalLightsCount();
+//     for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
+//     {
+//     //  Light light = GetAdditionalLight(lightIndex, inputData.positionWS);
+//     //  URP 10: We have to use the new GetAdditionalLight function
+//         Light light = GetAdditionalLight(lightIndex, inputData.positionWS, shadowMask);
+//         color += LightingPhysicallyBased(brdfData, light, inputData.normalWS, inputData.viewDirectionWS);
+//     }
+// #endif
+
+// #ifdef _ADDITIONAL_LIGHTS_VERTEX
+//     color += inputData.vertexLighting * brdfData.diffuse;
+// #endif
+//     color += emission;
+//     return half4(color, alpha);
 }

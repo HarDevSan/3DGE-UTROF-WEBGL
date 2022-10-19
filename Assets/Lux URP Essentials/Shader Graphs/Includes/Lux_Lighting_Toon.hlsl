@@ -1,5 +1,5 @@
 
-#if !defined(SHADERGRAPH_PREVIEW) || ( defined(LIGHTWEIGHT_LIGHTING_INCLUDED) || defined(UNIVERSAL_LIGHTING_INCLUDED) )
+#if !defined(SHADERGRAPH_PREVIEW) || defined(UNIVERSAL_LIGHTING_INCLUDED)
 
 //  As we do not have access to the vertex lights we will make the shader always sample add lights per pixel
     #if defined(_ADDITIONAL_LIGHTS_VERTEX)
@@ -7,7 +7,7 @@
         #define _ADDITIONAL_LIGHTS
     #endif
 
-    #if defined(LIGHTWEIGHT_LIGHTING_INCLUDED) || defined(UNIVERSAL_LIGHTING_INCLUDED)
+    #if defined(UNIVERSAL_LIGHTING_INCLUDED)
 
         half3 LightingSpecular_Toon (Light light, half lightingRemap, half3 normalWS, half3 viewDirectionWS, half3 specular, half specularSmoothness, half smoothness, half specularStep, half specularUpper){
             half3 halfVec = SafeNormalize(light.direction + viewDirectionWS);
@@ -76,7 +76,7 @@ void Lighting_half(
 )
 {
 
-#if defined(SHADERGRAPH_PREVIEW) || ( !defined(LIGHTWEIGHT_LIGHTING_INCLUDED) && !defined(UNIVERSAL_LIGHTING_INCLUDED) )
+#if defined(SHADERGRAPH_PREVIEW) || !defined(UNIVERSAL_LIGHTING_INCLUDED)
     Lighting = albedo;
     MetaAlbedo = half3(0,0,0);
     MetaSpecular = half3(0,0,0);
@@ -115,7 +115,8 @@ void Lighting_half(
     #endif
 
     Light mainLight = GetMainLight(shadowCoord);
-    mainLight.shadowAttenuation = smoothstep(0.0h, shadowFalloff, mainLight.shadowAttenuation);
+    //mainLight.shadowAttenuation = smoothstep(0.0h, shadowFalloff, mainLight.shadowAttenuation);
+    mainLight.shadowAttenuation = smoothstep( (1 - shadowFalloff) * shadowFalloff, shadowFalloff, mainLight.shadowAttenuation);
 
     MixRealtimeAndBakedGI(mainLight, normalWS, bakedGI, half4(0, 0, 0, 0));
 
@@ -130,6 +131,10 @@ void Lighting_half(
 //  Main Light
     half NdotL = saturate(dot(normalWS, mainLight.direction)); 
     NdotL = smoothstep(diffuseStep, diffuseUpper, NdotL);
+//  NdotL = (dot(normalWS, mainLight.direction));
+//  NdotL = (NdotL + 1) * 0.5;
+//  NdotL = floor(NdotL * 4) * 0.25;
+
     half atten = NdotL * mainLight.distanceAttenuation * saturate(shadowBiasDirectional + mainLight.shadowAttenuation);
 
     if (colorizeMainLight) {
@@ -163,10 +168,11 @@ void Lighting_half(
 
 //  Handle additional lights
     #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i) {
+        uint pixelLightCount = GetAdditionalLightsCount();
+        for (uint i = 0u; i < pixelLightCount; ++i) {
             Light light = GetAdditionalLight(i, positionWS);
-            light.shadowAttenuation = smoothstep(0.0h, shadowFalloff, light.shadowAttenuation);
+            //light.shadowAttenuation = smoothstep(0.0h, shadowFalloff, light.shadowAttenuation);
+            light.shadowAttenuation = smoothstep( (1 - shadowFalloff) * shadowFalloff, shadowFalloff, light.shadowAttenuation);
 
             NdotL = saturate(dot(normalWS, light.direction)); 
             NdotL = smoothstep(diffuseStep, diffuseUpper, NdotL);
@@ -192,7 +198,7 @@ void Lighting_half(
     half3 litAlbedo = lerp(shadedAlbedo, albedo, saturate(lightIntensity.xxx) );
     Lighting =
     //  ambient diffuse lighting
-        bakedGI * litAlbedo
+        bakedGI * albedo 			// litAlbedo // used to use this?
     //  direct diffuse lighting
         + litAlbedo * lightColor
         + (specularLighting * lightIntensity
@@ -202,7 +208,7 @@ void Lighting_half(
 
 
 //  Set Albedo for meta pass
-    #if defined(LIGHTWEIGHT_META_PASS_INCLUDED) || defined(UNIVERSAL_META_PASS_INCLUDED)
+    #if defined(UNIVERSAL_META_PASS_INCLUDED)
         Lighting = half3(0,0,0);
         MetaAlbedo = albedo;
         MetaSpecular = half3(0.02,0.02,0.02);

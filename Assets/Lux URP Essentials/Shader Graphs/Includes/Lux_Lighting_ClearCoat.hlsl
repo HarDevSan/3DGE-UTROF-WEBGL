@@ -1,3 +1,13 @@
+// We have to mute URP's default decal implementation as it would tweak our albedo - which needs to be pure black
+// as otherwise default lighting would no be stripped by the shader compiler.
+// This mean that decals will use our custom lighting as well.
+
+#ifdef _DBUFFER
+    #undef _DBUFFER
+    #define _CUSTOMDBUFFER
+#endif
+
+
 #if !defined(SHADERGRAPH_PREVIEW) || defined(LIGHTWEIGHT_LIGHTING_INCLUDED)
 
 //  As we do not have access to the vertex lights we will make the shader always sample add lights per pixel
@@ -27,48 +37,43 @@
         half3 DirectBDRF_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS, half NdotL)
         {
         #ifndef _SPECULARHIGHLIGHTS_OFF
+            float3 lightDirectionWSFloat3 = float3(lightDirectionWS);
+            float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(viewDirectionWS));
             
-            float3 halfDir = SafeNormalize(lightDirectionWS + viewDirectionWS);
-            half LoH = saturate(dot(lightDirectionWS, halfDir));
+            half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
 
         //  Base Lobe
-            float NoH = saturate(dot(normalWS, halfDir));
+            float NoH = saturate(dot(float3(normalWS), halfDir));
             float d = NoH * NoH * brdfData.roughness2MinusOne + 1.00001f;
+            half d2 = half(d * d);
+
             half LoH2 = LoH * LoH;
             LoH2 = max(0.1h, LoH2); // as we can reuse it
-            half specularTerm = brdfData.roughness2 / ((d * d) * LoH2 /* max(0.1h, LoH2) */ * brdfData.normalizationTerm);
-        #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
-            specularTerm = specularTerm - HALF_MIN;
-            specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
-        #endif
+            half specularTerm = brdfData.roughness2 / (d2 * max(half(0.1), LoH2) * brdfData.normalizationTerm);
+        
+            #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+                specularTerm = specularTerm - HALF_MIN;
+                specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+            #endif
 
             half3 spec = specularTerm * brdfData.specular * NdotL;
 
         //  Coat Lobe
-
         //  From HDRP: Scale base specular
-
-            //#if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
-            //    [branch]
-            //    if (addData.coatThickness > 0.0h) {
-            //#endif
-                    half coatF = F_Schlick(addData.reflectivity /*addData.coatSpecular*/ /*CLEAR_COAT_F0*/, LoH) * addData.coatThickness;
-                    spec *= Sq(1.0h - coatF);
-                    //spec *= (1.0h - coatF); // as used by filament, na, not really
-                    NoH = saturate(dot(addData.normalWS, halfDir));
-                    d = NoH * NoH * addData.roughness2MinusOne + 1.00001f;
-                    //LoH2 = LoH * LoH; no need to recalculate LoH2!
-                    specularTerm = addData.roughness2 / ((d * d) * LoH2 /* max(0.1h, LoH2) */ * addData.normalizationTerm);
-                #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
-                    specularTerm = specularTerm - HALF_MIN;
-                    specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
-                #endif
-                    spec += specularTerm * addData.coatSpecular * saturate(dot(addData.normalWS, lightDirectionWS));
-            //#if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
-            //    }
-            //#endif
-
-            half3 color = spec + brdfData.diffuse * NdotL; // * lerp(1.0h, 1.0h - coatF, addData.coatThickness);
+            half coatF = F_Schlick(addData.reflectivity /*addData.coatSpecular*/ /*CLEAR_COAT_F0*/, LoH) * addData.coatThickness;
+            spec *= Sq(1.0h - coatF);
+            //spec *= (1.0h - coatF); // as used by filament, na, not really
+            NoH = saturate(dot(float3(addData.normalWS), halfDir));
+            d = NoH * NoH * addData.roughness2MinusOne + 1.00001f;
+            d2 = half(d * d);
+            //LoH2 = LoH * LoH; no need to recalculate LoH2!
+            specularTerm = addData.roughness2 / (d2 * max(half(0.1), LoH2) * addData.normalizationTerm);
+            #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+                specularTerm = specularTerm - HALF_MIN;
+                specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+            #endif
+            spec += specularTerm * addData.coatSpecular * saturate(dot(addData.normalWS, lightDirectionWS));
+            half3 color = spec + brdfData.diffuse * NdotL; // from HDRP (but does not do much?) * lerp(1.0h, 1.0h - coatF, addData.coatThickness);
             return color;
         #else
             return brdfData.diffuse * NdotL;
@@ -96,30 +101,29 @@
         }
 
 
-        half3 GlobalIllumination_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 bakedGI, half occlusion, half3 normalWS, half3 baseNormalWS, half3 viewDirectionWS, half NdotV)
+        half3 GlobalIllumination_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 bakedGI, half occlusion, float3 positionWS, half3 normalWS, half3 baseNormalWS, half3 viewDirectionWS, half NdotV)
         {
             half3 reflectVector = reflect(-viewDirectionWS, normalWS);
             half fresnelTerm = Pow4(1.0 - NdotV);
 
             half3 indirectDiffuse = bakedGI * occlusion; 
-            half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, addData.perceptualRoughness, addData.specOcclusion);
+            half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, addData.perceptualRoughness, addData.specOcclusion);
+
             half3 res = EnvironmentBRDF_LuxClearCoat(brdfData, addData, indirectDiffuse, indirectSpecular, fresnelTerm);
 
-            //#if defined(_SECONDARYLOBE)
-            if (addData.enableSecondaryLobe) {
+            #if defined(_SECONDARYLOBE)
                 #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
                     [branch]
                     if (addData.coatThickness > 0.0h) {
                 #endif
                         reflectVector = reflect(-viewDirectionWS, baseNormalWS);
-                        indirectSpecular = GlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, 1);
+                        indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, occlusion);
                         float surfaceReduction = 1.0 / (brdfData.roughness2 + 1.0);
                         res += NdotV * surfaceReduction * indirectSpecular * lerp(brdfData.specular, brdfData.grazingTerm, fresnelTerm);
                 #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
                     }
                 #endif
-            //#endif
-            }
+            #endif
             return res;
         }
 
@@ -142,6 +146,7 @@ void Lighting_half(
 
 //  Base inputs
     float3 positionWS,
+    float4 positionSP,
     half3 viewDirectionWS,
 
 //  Normal inputs    
@@ -171,11 +176,15 @@ void Lighting_half(
 
 //  Lightmapping
     float2 lightMapUV,
+    float2 dynamicLightMapUV,
 
 //  Final lit color
     out half3 MetaAlbedo,
     out half3 FinalLighting,
-    out half3 MetaSpecular
+    out half3 MetaSpecular,
+    out half  MetaSmoothness,
+    out half  MetaOcclusion,
+    out half3 MetaNormal
 )
 {
 
@@ -184,6 +193,9 @@ void Lighting_half(
     FinalLighting = albedo;
     MetaAlbedo = half3(0,0,0);
     MetaSpecular = half3(0,0,0);
+    MetaSmoothness = 0;
+    MetaOcclusion = 0;
+    MetaNormal = half3(0,0,1);
 #else
 
 
@@ -201,14 +213,18 @@ void Lighting_half(
 //  GI Lighting
     half3 bakedGI;
     #ifdef LIGHTMAP_ON
-        lightMapUV = lightMapUV * unity_LightmapST.xy + unity_LightmapST.zw;
-        bakedGI = SAMPLE_GI(lightMapUV, half3(0,0,0), normalWS);
+        #if defined(DYNAMICLIGHTMAP_ON)
+            dynamicLightMapUV = dynamicLightMapUV * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+            bakedGI = SAMPLE_GI(lightMapUV, dynamicLightMapUV, half3(0,0,0), normalWS);
+        #else
+            lightMapUV = lightMapUV * unity_LightmapST.xy + unity_LightmapST.zw;
+            bakedGI = SAMPLE_GI(lightMapUV, half3(0,0,0), normalWS);
+        #endif
     #else
         bakedGI = SampleSH(normalWS); 
     #endif
 
-//  Clear Coat Lighting
-    
+//  ClearCoat
     half NdotV = saturate( dot(vertexNormalWS, viewDirectionWS) );
     #if !defined(LIGHTWEIGHT_META_PASS_INCLUDED) && !defined(UNIVERSAL_META_PASS_INCLUDED)
         if(enableSecondaryColor) {
@@ -216,70 +232,149 @@ void Lighting_half(
         }
     #endif
 
+//  Fill standard URP structs so we can use the built in functions
+    InputData inputData = (InputData)0;
+    {
+        inputData.positionWS = positionWS;
+        inputData.normalWS = normalWS;
+        inputData.viewDirectionWS = viewDirectionWS;
+        inputData.bakedGI = bakedGI;
+        #if _MAIN_LIGHT_SHADOWS_SCREEN
+        //  Here we need raw
+            inputData.shadowCoord = positionSP;
+        #else
+            inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
+        #endif
+        //  Apply perspective division
+        inputData.normalizedScreenSpaceUV = positionSP.xy * rcp(positionSP.w);
+        inputData.shadowMask = SAMPLE_SHADOWMASK(lightMapUV);
+    }
+    SurfaceData surfaceData = (SurfaceData)0;
+    {
+        surfaceData.alpha = alpha;
+        surfaceData.albedo = albedo;
+        surfaceData.metallic = metallic;
+        surfaceData.specular = specular;
+        surfaceData.smoothness = smoothness;
+        surfaceData.occlusion = occlusion;
+        surfaceData.normalTS = normalTS;   
+    }
+//  END: structs
+
+//  Decals
+    #if defined(_CUSTOMDBUFFER)
+        float2 positionCS = inputData.normalizedScreenSpaceUV * _ScreenSize.xy;
+        ApplyDecalToSurfaceData(float4(positionCS, 0, 0), surfaceData, inputData);
+    #endif
+
+//  From here on we rely on surfaceData and inputData only! (except debug which outputs the original values)
+
     BRDFData brdfData;
-    InitializeBRDFData(albedo, metallic, specular, smoothness, alpha, brdfData);
+    InitializeBRDFData(surfaceData, brdfData);
 
-//  Adjust specular as we have a transition from coat to material and not air to material
-    brdfData.specular = lerp(brdfData.specular, f0ClearCoatToSurface_Lux(brdfData.specular), clearcoatThickness);
-
-
-    AdditionalData addData;
-    addData.coatThickness = clearcoatThickness;
-    addData.coatSpecular = clearcoatSpecular;
-    addData.normalWS = vertexNormalWS;
-    addData.perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(clearcoatSmoothness);
-    addData.roughness = PerceptualRoughnessToRoughness(addData.perceptualRoughness);
-    addData.roughness2 = addData.roughness * addData.roughness;
-    addData.normalizationTerm = addData.roughness * 4.0h + 2.0h;
-    addData.roughness2MinusOne = addData.roughness2 - 1.0h;
-    addData.reflectivity = ReflectivitySpecular(clearcoatSpecular);
-    addData.grazingTerm = saturate(clearcoatSmoothness + addData.reflectivity);
-    addData.specOcclusion = 1;
-
-    addData.enableSecondaryLobe = enableSecondaryLobe;
-
-
-//  Get Shadow Sampling Coords / Unfortunately per pixel...
-    #if SHADOWS_SCREEN
-        float4 clipPos = TransformWorldToHClip(positionWS);
-        float4 shadowCoord = ComputeScreenPos(clipPos);
-    #else
-        float4 shadowCoord = TransformWorldToShadowCoord(positionWS);
-    #endif
-
-    Light mainLight = GetMainLight(shadowCoord);
-    MixRealtimeAndBakedGI(mainLight, normalWS, bakedGI, half4(0, 0, 0, 0));
-
-//  Approximation of refraction on BRDF
-    half refractionScale = ((NdotV * 0.5 + 0.5) * NdotV - 1.0) * saturate(1.25 - 1.25 * (1.0 - clearcoatSmoothness)) + 1;
-    brdfData.diffuse = lerp(brdfData.diffuse, brdfData.diffuse * refractionScale, clearcoatThickness);
-
-//  GI
-    FinalLighting = GlobalIllumination_LuxClearCoat(brdfData, addData, bakedGI, occlusion, addData.normalWS, normalWS, viewDirectionWS, NdotV);
-
-//  Main Light
-    FinalLighting += LightingPhysicallyBased_LuxClearCoat(brdfData, addData, mainLight, normalWS, viewDirectionWS);
-
-//  Handle additional lights
-    #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i) {
-            Light light = GetAdditionalLight(i, positionWS);
-            FinalLighting += LightingPhysicallyBased_LuxClearCoat(brdfData, addData, light, normalWS, viewDirectionWS);
+//  Debugging
+    #if defined(DEBUG_DISPLAY)
+        half4 debugColor;
+        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
+        {
+            //return debugColor;
+            FinalLighting = debugColor;
+            MetaAlbedo = debugColor;
+            MetaSpecular = specular;
+            MetaSmoothness = smoothness;
+            MetaOcclusion = occlusion;
+            MetaNormal = normalTS;
         }
-    #endif
-
-//  Set Albedo for meta pass
-    #if defined(LIGHTWEIGHT_META_PASS_INCLUDED) || defined(UNIVERSAL_META_PASS_INCLUDED)
-        FinalLighting = half3(0,0,0);
-        MetaAlbedo = albedo;
-        MetaSpecular = specular;
     #else
-        MetaAlbedo = half3(0,0,0);
-        MetaSpecular = half3(0,0,0);
-    #endif
+
+    //  Clear Coat Lighting
+
+        half4 shadowMask = CalculateShadowMask(inputData);
+        AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        
+    //  Adjust specular as we have a transition from coat to material and not air to material
+        brdfData.specular = lerp(brdfData.specular, f0ClearCoatToSurface_Lux(brdfData.specular), clearcoatThickness);
+
+        AdditionalData addData;
+        addData.coatThickness = clearcoatThickness;
+        addData.coatSpecular = clearcoatSpecular;
+        addData.normalWS = vertexNormalWS;
+        addData.perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(clearcoatSmoothness);
+        addData.roughness = PerceptualRoughnessToRoughness(addData.perceptualRoughness);
+        addData.roughness2 = addData.roughness * addData.roughness;
+        addData.normalizationTerm = addData.roughness * 4.0h + 2.0h;
+        addData.roughness2MinusOne = addData.roughness2 - 1.0h;
+        addData.reflectivity = ReflectivitySpecular(clearcoatSpecular);
+        addData.grazingTerm = saturate(clearcoatSmoothness + addData.reflectivity);
+    //  This contain ssao only
+        addData.specOcclusion = aoFactor.indirectAmbientOcclusion;
+
+        addData.enableSecondaryLobe = enableSecondaryLobe;
+  
+        
+
+        Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
+
+        MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
+        LightingData lightingData = CreateLightingData(inputData, surfaceData);
+
+    //  Approximation of refraction on BRDF
+        half refractionScale = ((NdotV * 0.5 + 0.5) * NdotV - 1.0) * saturate(1.25 - 1.25 * (1.0 - clearcoatSmoothness)) + 1;
+        brdfData.diffuse = lerp(brdfData.diffuse, brdfData.diffuse * refractionScale, clearcoatThickness);
+
+    //  GI
+        lightingData.giColor = GlobalIllumination_LuxClearCoat(brdfData, addData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS, addData.normalWS, inputData.normalWS, inputData.viewDirectionWS, NdotV);
+
+    //  Main Light
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+            {
+        #endif
+                lightingData.mainLightColor = LightingPhysicallyBased_LuxClearCoat(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS); 
+        #if defined(_LIGHT_LAYERS)
+            }
+        #endif
+
+    //  Handle additional lights
+        #ifdef _ADDITIONAL_LIGHTS
+            uint pixelLightCount = GetAdditionalLightsCount();
+            LIGHT_LOOP_BEGIN(pixelLightCount)    
+                    Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+                #if defined(_LIGHT_LAYERS)
+                    if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                    {
+                #endif
+                        lightingData.additionalLightsColor += LightingPhysicallyBased_LuxClearCoat(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS);
+                #if defined(_LIGHT_LAYERS)
+                    }
+                #endif
+            LIGHT_LOOP_END
+        #endif
+
+        FinalLighting = CalculateFinalColor(lightingData, surfaceData.alpha).xyz;
+
+    //  Set Albedo for meta pass
+        #if defined(LIGHTWEIGHT_META_PASS_INCLUDED) || defined(UNIVERSAL_META_PASS_INCLUDED)
+            FinalLighting = half3(0,0,0);
+            MetaAlbedo = albedo;
+            MetaSpecular = specular;
+            MetaSmoothness = 0;
+            MetaOcclusion = 0;
+            MetaNormal = half3(0,0,1);
+        #else
+            MetaAlbedo = half3(0,0,0);
+            MetaSpecular = half3(0,0,0);
+            MetaSmoothness = 0;
+            MetaOcclusion = 0;
+        //  Needed by DepthNormalOnly pass
+        //  Here we pass the flat coat normal
+            MetaNormal = half3(0,0,1);
+        #endif
 
 //  End Real Lighting ----------
+
+    #endif // End Debug
 
 #endif
 }
@@ -290,6 +385,7 @@ void Lighting_float(
 
 //  Base inputs
     float3 positionWS,
+    float4 positionSP,
     half3 viewDirectionWS,
 
 //  Normal inputs    
@@ -319,16 +415,20 @@ void Lighting_float(
 
 //  Lightmapping
     float2 lightMapUV,
+    float2 dynamicLightMapUV,
 
 //  Final lit color
     out half3 MetaAlbedo,
     out half3 FinalLighting,
-    out half3 MetaSpecular
+    out half3 MetaSpecular,
+    out half  MetaSmoothness,
+    out half  MetaOcclusion,
+    out half3 MetaNormal
 )
 {
     Lighting_half(
-        positionWS, viewDirectionWS, normalWS, tangentWS, bitangentWS, enableNormalMapping, normalTS, 
+        positionWS, positionSP, viewDirectionWS, normalWS, tangentWS, bitangentWS, enableNormalMapping, normalTS, 
         albedo, metallic, specular, smoothness, occlusion, alpha,
         clearcoatSmoothness, clearcoatThickness, clearcoatSpecular, secondaryColor, enableSecondaryColor, enableSecondaryLobe,
-        lightMapUV, MetaAlbedo, FinalLighting, MetaSpecular);
+        lightMapUV, dynamicLightMapUV, MetaAlbedo, FinalLighting, MetaSpecular, MetaSmoothness, MetaOcclusion, MetaNormal);
 }

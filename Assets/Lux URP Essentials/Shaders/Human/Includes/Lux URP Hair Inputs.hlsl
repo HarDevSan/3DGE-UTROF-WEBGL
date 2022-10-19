@@ -6,6 +6,13 @@
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"  
 //  defines SurfaceData, textures and the functions Alpha, SampleAlbedoAlpha, SampleNormal, SampleEmission
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
+
+    struct AdditionalSurfaceData
+    {
+        half shift;
+    };
+
+
 //  defines e.g. "DECLARE_LIGHTMAP_OR_SH"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
  
@@ -16,37 +23,34 @@
 
 //  Material Inputs
     CBUFFER_START(UnityPerMaterial)
+        float4  _BaseMap_ST;
+        half4   _BaseColor;
+        half4   _SecondaryColor;
+        half    _Cutoff;
+        half    _Smoothness;
+        half4   _SpecColor;
+        half    _BumpScale;
+        half    _StrandDir;
+        half    _SpecularShift;
+        half4   _SpecularTint;
+        half    _SpecularExponent;
+        half    _SecondarySpecularShift;
+        half4   _SecondarySpecularTint;
+        half    _SecondarySpecularExponent;
+        half    _RimTransmissionIntensity;
+        half    _AmbientReflection;
+        //half  _OcclusionStrength;
+        //float2 _DistanceFade;
 
-        float4 _BaseMap_ST;
-        
-        half4 _BaseColor;
-        half4 _SecondaryColor;
-        half _Cutoff;
+        half4   _RimColor;
+        half    _RimPower;
+        half    _RimMinPower;
+        half    _RimFrequency;
+        half    _RimPerPositionFrequency;
 
-        half _Smoothness;
-        half3 _SpecColor;
-        
-        half _BumpScale;
+    //  Needed by URP 10.1. depthnormal
+        half _Surface;
 
-        half _StrandDir;
-        half _SpecularShift;
-        half3 _SpecularTint;
-        half _SpecularExponent;
-        half _SecondarySpecularShift;
-        half3 _SecondarySpecularTint;
-        half _SecondarySpecularExponent;
-        half _RimTransmissionIntensity;
-        half _AmbientReflection;
-        half _OcclusionStrength;
-        float2 _DistanceFade;
-
-        #if defined(_RIMLIGHTING)
-            half4 _RimColor;
-            half _RimPower;
-            half _RimMinPower;
-            half _RimFrequency;
-            half _RimPerPositionFrequency;
-        #endif
     CBUFFER_END
 
 //  Additional textures

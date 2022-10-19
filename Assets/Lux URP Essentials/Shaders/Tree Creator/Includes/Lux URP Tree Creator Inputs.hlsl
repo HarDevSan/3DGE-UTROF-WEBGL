@@ -1,8 +1,6 @@
 #ifndef INPUT_LUXLWRP_BASE_INCLUDED
 #define INPUT_LUXLWRP_BASE_INCLUDED
 
-
-
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 //  defines a bunch of helper functions (like lerpwhiteto)
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"  
@@ -13,35 +11,26 @@
  
     #include "../Includes/Lux URP Tree Creator Lighting.hlsl"
 
-
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
 //  Material Inputs
     CBUFFER_START(UnityPerMaterial)
-
         half4   _Color;
         half    _Smoothness;
         half    _Metallic;
-        half3   _SpecColor;
-
+        half4   _SpecColor;
         half    _Cutoff;
         float4  _MainTex_ST;
-
     //  needed by meta pass
         float4  _BaseMap_ST;
-        
         float4  _BumpMap_ST;
-
         half3   _TranslucencyColor;
         half    _TranslucencyViewDependency;
-
         half    _ShadowStrength;
-
-        #if defined (DUMMYSHADER)
-            half    _Shininess;
-        #endif
-
+        //#if defined (DUMMYSHADER)
+        half    _Shininess;
+        //#endif
     CBUFFER_END
 
 //  These can't be per material...
@@ -126,6 +115,12 @@
         half3 specular;
         half gloss;
         half occlusion;
+        half translucency;
+    };
+
+    struct AdditionalSurfaceData
+    {
+        half gloss;
         half translucency;
     };
 

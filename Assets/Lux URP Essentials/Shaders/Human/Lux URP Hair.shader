@@ -7,18 +7,31 @@ Shader "Lux URP/Human/Hair"
     Properties
     {
         [HeaderHelpLuxURP_URL(7a3r84ualf3h)]
-        
+
+        [Space(8)]
+        [LuxURPHelpDrawer]
+        _HelpX ("Due to the custom lighting model this shader will always render in forward.", Float) = 0.0
+
         [Header(Surface Options)]
-        [Space(5)]
+        [Space(8)]
         [Enum(UnityEngine.Rendering.CullMode)]
         _Cull                       ("Culling", Float) = 0
         [Toggle(_ENABLEVFACE)]
         _EnableVFACE                ("     Enable VFACE", Float) = 0
         [Enum(UnityEngine.Rendering.CullMode)]
         _ShadowCull                 ("Shadow Culling", Float) = 0
-        [Enum(Off,0,On,1)]_Coverage ("Alpha To Coverage", Float) = 1
+        [Enum(Off,0,On,1)]_Coverage ("Alpha To Coverage*", Float) = 1
+        [Space(4)]
+        [LuxURPHelpDrawer]
+        _HelpA ("* Might break if any Depth Prepass is active.", Float) = 0.0
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
+
+        [Space(5)]
+        [Toggle(_NORMALINDEPTHNORMALPASS)]
+        _ApplyNormalDepthNormal     ("Enable Normal in Depth Normal Pass", Float) = 1.0
+        [Toggle(_RECEIVEDECALS)]
+        _ReceiveDecals              ("Receive Decals", Float) = 1.0
 
         [Header(Surface Inputs)]
         [Space(5)]
@@ -46,7 +59,7 @@ Shader "Lux URP/Human/Hair"
         _Smoothness                 ("Smoothness", Range(0.0, 1.0)) = 1
 
         [Header(Hair Lighting)]
-        [Space(5)]
+        [Space(8)]
         [KeywordEnum(Bitangent,Tangent)]
         _StrandDir                  ("Strand Direction", Float) = 0
 
@@ -68,7 +81,7 @@ Shader "Lux URP/Human/Hair"
         _AmbientReflection          ("Ambient Reflection Strength", Range(0.0, 1.0)) = 1
 
         [Header(Rim Lighting)]
-        [Space(5)]
+        [Space(8)]
         [Toggle(_RIMLIGHTING)]
         _Rim                        ("Enable Rim Lighting", Float) = 0
         [HDR] _RimColor             ("Rim Color", Color) = (0.5,0.5,0.5,1)
@@ -78,7 +91,7 @@ Shader "Lux URP/Human/Hair"
         _RimPerPositionFrequency    ("     Rim Per Position Frequency", Range(0.0, 1.0)) = 1
 
         [Header(Advanced)]
-        [Space(5)]
+        [Space(8)]
         //[ToggleOff]
         //_SpecularHighlights       ("Enable Specular Highlights", Float) = 1.0
         [ToggleOff]
@@ -86,7 +99,7 @@ Shader "Lux URP/Human/Hair"
 
 
         [Header(Stencil)]
-        [Space(5)]
+        [Space(8)]
         [IntRange] _Stencil         ("Stencil Reference", Range (0, 255)) = 0
         [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
         [IntRange] _WriteMask       ("     Write Mask", Range (0, 255)) = 255
@@ -105,18 +118,377 @@ Shader "Lux URP/Human/Hair"
     //  Lightmapper and outline selection shader need _MainTex, _Color and _Cutoff
         [HideInInspector] _MainTex  ("Albedo", 2D) = "white" {}
         [HideInInspector] _Color    ("Color", Color) = (1,1,1,1)
+
+    //  URP 10.1. needs this for the depthnormal pass 
+        [HideInInspector] _Surface("__surface", Float) = 0.0
         
     }
+
 
     SubShader
     {
         Tags
         {
+            "RenderType" = "Opaque"
             "RenderPipeline" = "UniversalPipeline"
-            "RenderType" = "TransparentCutout"
-            "Queue" = "AlphaTest"
+            "UniversalMaterialType" = "Lit"
+            "IgnoreProjector" = "True"
+            "ShaderModel"="4.5"
         }
-        LOD 100
+        LOD 300
+
+        Pass
+        {
+            Name "ForwardLit"
+            Tags{"LightMode" = "UniversalForwardOnly"}
+
+            Stencil {
+                Ref   [_Stencil]
+                ReadMask [_ReadMask]
+                WriteMask [_WriteMask]
+                Comp  [_StencilComp]
+                Pass  [_StencilOp]
+                Fail  [_StencilFail]
+                ZFail [_StencilZFail]
+            }
+
+            ZWrite On
+            Cull [_Cull]
+            AlphaToMask [_Coverage]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #define _SPECULAR_SETUP 1
+            #define _ALPHATEST_ON 1
+
+            #pragma shader_feature_local _ENABLEVFACE
+
+            #pragma shader_feature_local_fragment _STRANDDIR_BITANGENT
+            #pragma shader_feature_local_fragment _MASKMAP
+            #pragma shader_feature_local_fragment _SECONDARYLOBE
+
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local_fragment _RIMLIGHTING
+
+            //#pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            //#pragma multi_compile _ DOTS_INSTANCING_ON
+
+        //  Include base inputs and all other needed "base" includes
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Includes/Lux URP Hair ForwardLit Pass.hlsl"
+
+            #pragma vertex LitPassVertex
+            #pragma fragment LitPassFragment
+
+            ENDHLSL
+        }
+
+
+    //  Shadows -----------------------------------------------------
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+            Cull [_ShadowCull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            //#pragma multi_compile _ DOTS_INSTANCING_ON
+            
+            // -------------------------------------
+            // Universal Pipeline keywords
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+        //  Include base inputs and all other needed "base" includes
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Includes/Lux URP Hair ShadowCaster Pass.hlsl"
+            
+            ENDHLSL
+        }
+
+    //  GBuffer Pass not needed any more? It is - fucking decals and ortho normals
+    //  GBuffer Pass - minimalized which only outputs depth and writes into the normal buffers  
+        Pass
+        {
+            Name "GBuffer"
+            Tags{"LightMode" = "UniversalGBuffer"}
+
+            ZWrite On
+            Cull Back
+            
+        //  We only write to the normals buffer
+            ColorMask 0 0       // albedo, materialFlags
+            ColorMask 0 1       // specular, occlusion
+            ColorMask RGB 2     // encoded-normal(rgb), smoothness
+            ColorMask 0 3       // GI (rgb)
+            ColorMask 0 4       // ShadowMask
+            
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+
+            #pragma vertex DepthNormalVertex
+            #pragma fragment DepthNormalFragment
+            
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
+            
+           
+            struct Attributes {
+                float3 positionOS                   : POSITION;
+                float2 texcoord                     : TEXCOORD0;
+                float3 normalOS                     : NORMAL;
+                #if defined (_NORMALMAP) && defined(_NORMALINDEPTHNORMALPASS)
+                    float4 tangentOS                : TANGENT;
+                #endif
+
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct Varyings {
+                float4 positionCS     : SV_POSITION;
+                float2 uv             : TEXCOORD0;
+                half3 normalWS        : TEXCOORD1;
+                #if defined (_NORMALMAP) && defined(_NORMALINDEPTHNORMALPASS)
+                    half4 tangentWS   : TEXCOORD2;
+                #endif
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+
+            Varyings DepthNormalVertex(Attributes input)
+            {
+                Varyings output = (Varyings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+                
+                output.uv = input.texcoord; //TRANSFORM_TEX(input.texcoord, _BaseMap);
+                
+                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+
+                #if defined (_NORMALMAP) && defined(_NORMALINDEPTHNORMALPASS) && defined(_NORMALMAPDIFFUSE)
+                    VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
+                    half sign = input.tangentOS.w * GetOddNegativeScale();
+                    output.tangentWS = half4(normalInput.tangentWS.xyz, sign);
+                #else
+                    VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, float4(1,1,1,1));
+                #endif
+                output.normalWS = normalInput.normalWS;
+                return output;
+            }
+
+            FragmentOutput DepthNormalFragment(Varyings input)
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                half alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
+                clip(alpha - _Cutoff);
+                
+                #if defined (_NORMALMAP) && defined(_NORMALINDEPTHNORMALPASS) && defined(_NORMALMAPDIFFUSE)
+                    
+                    half4 sampleNormalDiffuse = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, input.uv);
+                    half3 normalTS = UnpackNormalScale(sampleNormalDiffuse, _BumpScale);
+
+                    float sgn = input.tangentWS.w;      // should be either +1 or -1
+                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                    half3x3 ToW = half3x3(input.tangentWS.xyz, bitangent, input.normalWS.xyz);
+                    input.normalWS = TransformTangentToWorld(normalTS, ToW);
+
+                #endif
+
+                half3 packedNormalWS = PackNormal(input.normalWS);
+                FragmentOutput output = (FragmentOutput)0;
+                output.GBuffer2 = half4(packedNormalWS, 1);  
+                return output;
+            }
+
+            ENDHLSL
+        }
+
+    //  Depth -----------------------------------------------------
+        Pass
+        {
+            Tags{"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            #define _ALPHATEST_ON 1
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+
+            // -------------------------------------
+            // Material Keywords
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Includes/Lux URP Hair DepthOnly Pass.hlsl"
+
+            ENDHLSL
+        }
+
+    //  Depth Normal ---------------------------------------------
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            #pragma vertex DepthNormalVertex
+            #pragma fragment DepthNormalFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
+            #define _ALPHATEST_ON
+
+            // -------------------------------------
+            // Unity defined keywords
+//  Breaks decals
+//          #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Includes/Lux URP Hair DepthNormal Pass.hlsl"
+            ENDHLSL
+        }
+
+
+    //  Meta -----------------------------------------------------
+        Pass
+        {
+            Tags{"LightMode" = "Meta"}
+
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            #pragma vertex UniversalVertexMeta
+            #pragma fragment UniversalFragmentMetaLit
+
+            #define _SPECULAR_SETUP
+            #define _ALPHATEST_ON
+
+        //  First include all our custom stuff
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Includes/Lux URP Hair Meta Pass.hlsl"
+        
+        //  Finally include the meta pass related stuff  
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
+
+            ENDHLSL
+        }
+
+    }
+
+//  ------------------------------------------------------------------------------
+
+    SubShader
+    {
+        Tags
+        {
+            "RenderType" = "Opaque"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "Lit"
+            "IgnoreProjector" = "True"
+            "ShaderModel"="3.0" // VFACE
+        }
+        LOD 300
 
         Pass
         {
@@ -138,12 +510,13 @@ Shader "Lux URP/Human/Hair"
             AlphaToMask [_Coverage]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 3.0
 
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
-            #pragma target 2.0
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
 
             // -------------------------------------
             // Material Keywords
@@ -152,39 +525,45 @@ Shader "Lux URP/Human/Hair"
 
             #pragma shader_feature_local _ENABLEVFACE
 
-            #pragma shader_feature_local _STRANDDIR_BITANGENT
-            #pragma shader_feature_local _MASKMAP
-            #pragma shader_feature_local _SECONDARYLOBE
+            #pragma shader_feature_local_fragment _STRANDDIR_BITANGENT
+            #pragma shader_feature_local_fragment _MASKMAP
+            #pragma shader_feature_local_fragment _SECONDARYLOBE
 
-            #pragma shader_feature _NORMALMAP
-            #pragma shader_feature_local _RIMLIGHTING
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local_fragment _RIMLIGHTING
 
-            //#pragma shader_feature _SPECULARHIGHLIGHTS_OFF
-            #pragma shader_feature _ENVIRONMENTREFLECTIONS_OFF
-            #pragma shader_feature _RECEIVE_SHADOWS_OFF
+            //#pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
 
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_fog
-
-            //--------------------------------------
-            // GPU Instancing
-            #pragma multi_compile_instancing
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Hair Inputs.hlsl"
-            #include "Includes/Lux URP Hair Core.hlsl"
+            #include "Includes/Lux URP Hair ForwardLit Pass.hlsl"
 
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
@@ -202,12 +581,11 @@ Shader "Lux URP/Human/Hair"
 
             ZWrite On
             ZTest LEqual
+            ColorMask 0
             Cull [_ShadowCull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            #pragma only_renderers gles gles3 glcore d3d11
             #pragma target 2.0
 
             // -------------------------------------
@@ -217,53 +595,23 @@ Shader "Lux URP/Human/Hair"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            
+            // -------------------------------------
+            // Universal Pipeline keywords
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Hair Inputs.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+            #include "Includes/Lux URP Hair ShadowCaster Pass.hlsl"
             
-        //  Shadow caster specific input
-            float3 _LightDirection;
-
-            VertexOutput ShadowPassVertex(VertexInput input)
-            {
-                VertexOutput output = (VertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                float3 normalWS = TransformObjectToWorldDir(input.normalOS);
-
-                output.uv = input.texcoord;
-
-                output.positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
-                #if UNITY_REVERSED_Z
-                    output.positionCS.z = min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #else
-                    output.positionCS.z = max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #endif
-                return output;
-            }
-
-            half4 ShadowPassFragment(VertexOutput input) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-
-                half alpha = SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a;
-                alpha *= _BaseColor.a;
-                clip(alpha - _Cutoff);
-
-                return 0;
-            }
             ENDHLSL
         }
 
     //  Depth -----------------------------------------------------
-
         Pass
         {
             Tags{"LightMode" = "DepthOnly"}
@@ -273,9 +621,7 @@ Shader "Lux URP/Human/Hair"
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            #pragma only_renderers gles gles3 glcore d3d11
             #pragma target 2.0
 
             #define _ALPHATEST_ON 1
@@ -290,38 +636,45 @@ Shader "Lux URP/Human/Hair"
             // GPU Instancing
             #pragma multi_compile_instancing
             
-            #define DEPTHONLYPASS
             #include "Includes/Lux URP Hair Inputs.hlsl"
-
-            VertexOutput DepthOnlyVertex(VertexInput input)
-            {
-                VertexOutput output = (VertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
-                output.uv = input.texcoord;
-                return output;
-            }
-
-            half4 DepthOnlyFragment(VertexOutput input) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-
-                half alpha = SampleAlbedoAlpha(input.uv.xy, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a;
-                alpha *= _BaseColor.a;
-                clip(alpha - _Cutoff);
-
-                return 0;
-            }
+            #include "Includes/Lux URP Hair DepthOnly Pass.hlsl"
 
             ENDHLSL
         }
 
+    //  Depth Normal ---------------------------------------------
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            #pragma vertex DepthNormalVertex
+            #pragma fragment DepthNormalFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
+            #define _ALPHATEST_ON
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            #include "Includes/Lux URP Hair Inputs.hlsl"
+            #include "Includes/Lux URP Hair DepthNormal Pass.hlsl"
+            ENDHLSL
+        }
+
+
     //  Meta -----------------------------------------------------
-        
         Pass
         {
             Tags{"LightMode" = "Meta"}
@@ -329,41 +682,24 @@ Shader "Lux URP/Human/Hair"
             Cull Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
 
             #pragma vertex UniversalVertexMeta
-            #pragma fragment UniversalFragmentMeta
+            #pragma fragment UniversalFragmentMetaLit
 
             #define _SPECULAR_SETUP
+            #define _ALPHATEST_ON
 
         //  First include all our custom stuff
             #include "Includes/Lux URP Hair Inputs.hlsl"
-
-        //--------------------------------------
-        //  Fragment shader and functions
-
-            inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfaceData)
-            {
-                half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
-                outSurfaceData.alpha = 1;
-                outSurfaceData.albedo = albedoAlpha.rgb;
-                outSurfaceData.metallic = 0;
-                outSurfaceData.specular = _SpecColor;
-                outSurfaceData.smoothness = _Smoothness;
-                outSurfaceData.normalTS = half3(0,0,1);
-                outSurfaceData.occlusion = 1;
-                outSurfaceData.emission = 0;
-            }
-
+            #include "Includes/Lux URP Hair Meta Pass.hlsl"
+        
         //  Finally include the meta pass related stuff  
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
 
             ENDHLSL
         }
-
-    //  End Passes -----------------------------------------------------
-    
     }
     CustomEditor "LuxURPUniversalCustomShaderGUI"
     FallBack "Hidden/InternalErrorShader"

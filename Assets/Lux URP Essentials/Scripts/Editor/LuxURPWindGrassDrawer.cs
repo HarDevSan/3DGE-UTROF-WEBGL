@@ -15,7 +15,7 @@ public class LuxURPWindGrassDrawer : MaterialPropertyDrawer {
 		EditorGUI.BeginChangeCheck();
 		EditorGUILayout.BeginVertical();
 			vec4value.x = EditorGUILayout.Slider("Wind Strength", vec4value.x, 0.0f, 10.0f);
-			vec4value.y = EditorGUILayout.Slider("Normal Strength", vec4value.y, 0.0f, 4.0f);
+			vec4value.y = EditorGUILayout.Slider("Normal Strength", vec4value.y, -8.0f, 8.0f);
 			vec4value.z = EditorGUILayout.Slider("Sample Size", vec4value.z, 0.0f, 4.0f);
 			vec4value.w = (float)EditorGUILayout.IntSlider("LOD Level", (int)vec4value.w, 0, 8);
 		EditorGUILayout.EndVertical();

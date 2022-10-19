@@ -12,7 +12,7 @@ CBUFFER_START(UnityPerMaterial)
     half4 _BaseColor;
     half _Cutoff;
     
-    half3 _SpecColor;
+    half4 _SpecColor;
     half _Smoothness;
     half _BumpScale;
 

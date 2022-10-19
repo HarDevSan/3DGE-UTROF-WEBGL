@@ -20,9 +20,13 @@ public class LuxURPHelpDrawer : MaterialPropertyDrawer
 #if UNITY_2019_3_OR_NEWER
         if (!EditorGUIUtility.isProSkin) {
             brightness = 1.0f;
+            HelpCol = new Color(0.11f * brightness, 0.45f * brightness, 0.58f * brightness, 1.0f);
         }
-        HelpCol = new Color(0.11f * brightness, 0.45f * brightness, 0.58f * brightness, 1.0f);
-        hStyle.padding = new RectOffset(14, 0, 1, 3);
+        else {
+            brightness = 3.25f;
+            HelpCol = new Color(0.35f * brightness, 0.30f * brightness, 1.0f * brightness, 1.0f * brightness);
+        }
+        hStyle.padding = new RectOffset(16, 0, 1, 3);
 #endif
 
         Color col = GUI.contentColor;

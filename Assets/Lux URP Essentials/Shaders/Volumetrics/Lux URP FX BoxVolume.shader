@@ -5,7 +5,7 @@
         [HeaderHelpLuxURP_URL(t98mzd66fi0m)]
 
         [Header(Surface Options)]
-        [Space(5)]
+        [Space(8)]
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _ZTest                      ("ZTest", Int) = 8
         [Enum(UnityEngine.Rendering.CullMode)]
@@ -14,7 +14,7 @@
         _OrthoSpport                ("Enable Orthographic Support", Float) = 0
 
         [Header(Surface Inputs)]
-        [Space(5)]
+        [Space(8)]
         _Color                      ("Color", Color) = (1,1,1,1)
         [Toggle(_ENABLEGRADIENT)]
         _EnableGradient             ("Enable Gradient", Float) = 0
@@ -22,13 +22,13 @@
         _MainTex                    ("     Vertical Gradient", 2D) = "white" {}
 
         [Header(Thickness Remap)]
-        [Space(5)]
+        [Space(8)]
         _Lower                      ("     Lower", Range(0,1)) = 0
         _Upper                      ("     Upper", Range(0,4)) = 1
         //[Space(5)]
         //_SoftEdge                   ("     Soft Edge Factor", Float) = 2.0
 
-        [Space(10)]
+        [Space(5)]
         [Toggle(_APPLYFOG)]
         _ApplyFog                   ("Enable Fog", Float) = 0.0
         [Toggle(_HQFOG)]
@@ -112,7 +112,7 @@
 
             struct VertexOutput
             {
-                float4 positionCS : POSITION;
+                float4 positionCS : SV_POSITION;
                 float3 positionWS : TEXCOORD1;
                 float2 projectedPosition : TEXCOORD2;
                 float3 cameraPositionOS : TEXCOORD3;
@@ -184,7 +184,7 @@
                     o.fogCoord = ComputeFogFactor(o.positionCS.z);
                 #endif
 
-                float4 positionVS = mul(UNITY_MATRIX_MV, v.vertex);
+                float4 positionVS = mul(UNITY_MATRIX_V, mul(UNITY_MATRIX_M, v.vertex)); //mul(UNITY_MATRIX_MV, v.vertex);
                 float3 viewRayVS = positionVS.xyz;
                 //  NOTE: Fix direction of the viewRay
                 float4x4 ViewToObjectMatrix = mul(GetWorldToObjectMatrix(), UNITY_MATRIX_I_V);
@@ -296,7 +296,7 @@
                 color.a = saturate(alpha);
 
                 #if defined(_ENABLEGRADIENT)
-                    color.rgb = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, float2(input.positionOS_scale.y, 0)).rgb;
+                    color.rgb = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, float2(exitOS.y + 0.5, 0)).rgb;
                 #endif
 
                 color *= _Color;

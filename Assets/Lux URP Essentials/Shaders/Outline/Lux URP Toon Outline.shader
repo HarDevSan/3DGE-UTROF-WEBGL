@@ -4,11 +4,12 @@
     {
         [HeaderHelpLuxURP_URL(68hb5r7b3dnz)]
 
-        [Space(5)]
+        [Space(8)]
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTest", Int) = 4
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Culling", Float) = 1
 
         [Header(Outline)]
+        [Space(8)]
         _Color ("Color", Color) = (0,0,0,1)
         _Border ("Width", Float) = 3
         [Toggle(_COMPENSATESCALE)]
@@ -16,22 +17,35 @@
         [Toggle(_OUTLINEINSCREENSPACE)]
         _OutlineInScreenSpace       ("     Calculate width in Screen Space", Float) = 0
 
+
+        [Toggle(_ALPHATEST_ON)]
+        _AlphaClip                  ("Alpha Clipping", Float) = 0.0
+        [LuxURPHelpDrawer]
+        _Help ("Enabling Alpha Clipping needs you to enable and assign the Albedo (RGB) Alpha (A) Map as well.", Float) = 0.0
+        _Cutoff                     ("     Threshold", Range(0.0, 1.0)) = 0.5
+
+        [MainTexture]
+        _BaseMap                    ("Albedo (RGB) Alpha (A)", 2D) = "white" {}
+
+
     }
     SubShader
     {
         Tags
         {
             "RenderPipeline" = "UniversalPipeline"
-            "RenderType"="Opaque"
-            "Queue"= "Geometry+1"
+            "RenderType" = "Opaque"
+            "Queue" = "Geometry+1"
+            "IgnoreProjector" = "True"
         }
+        
         Pass
         {
             Name "StandardUnlit"
-            Tags{"LightMode" = "UniversalForward"}
+            Tags{"LightMode" = "UniversalForwardOnly"}
 
             Blend SrcAlpha OneMinusSrcAlpha
-            Cull[_Cull]
+            Cull [_Cull]
             ZTest [_ZTest]
         //  Make sure we do not get overwritten
             ZWrite On
@@ -42,11 +56,16 @@
             #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
+            // -------------------------------------
+            // Material Keywords
             #pragma shader_feature_local _COMPENSATESCALE
             #pragma shader_feature_local _OUTLINEINSCREENSPACE
+            #pragma shader_feature_local _ALPHATEST_ON
+
+            #define LITPASS
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
+            // Universal Pipeline keywords
 
             // -------------------------------------
             // Unity defined keywords
@@ -59,77 +78,83 @@
             #pragma vertex vert
             #pragma fragment frag
 
-            // Lighting include is needed because of GI
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Includes/Lux URP Toon Outline Passes.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
-                half4 _Color;
-                half _Border;
-            CBUFFER_END
-
-            struct VertexInput
-            {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-
-            struct VertexOutput
-            {
-                float4 position : POSITION;
-                half fogCoord : TEXCOORD0;
-
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            VertexOutput vert (VertexInput v)
-            {
-                VertexOutput o = (VertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-            
-            //  Extrude
-                #if !defined(_OUTLINEINSCREENSPACE)
-                    #if defined(_COMPENSATESCALE)
-                        float3 scale;
-                        scale.x = length(float3(UNITY_MATRIX_M[0].x, UNITY_MATRIX_M[1].x, UNITY_MATRIX_M[2].x));
-                        scale.y = length(float3(UNITY_MATRIX_M[0].y, UNITY_MATRIX_M[1].y, UNITY_MATRIX_M[2].y));
-                        scale.z = length(float3(UNITY_MATRIX_M[0].z, UNITY_MATRIX_M[1].z, UNITY_MATRIX_M[2].z));
-                    #endif
-                    v.vertex.xyz += v.normal * 0.001 * _Border
-                    #if defined(_COMPENSATESCALE) 
-                        / scale
-                    #endif
-                    ;
-                #endif
-
-                o.position = TransformObjectToHClip(v.vertex.xyz);
-                o.fogCoord = ComputeFogFactor(o.position.z);
-
-            //  Extrude
-                #if defined(_OUTLINEINSCREENSPACE)
-                    if (_Border > 0.0h) {
-                        float3 normal = mul(UNITY_MATRIX_MVP, float4(v.normal, 0)).xyz; // to clip space
-                        float2 offset = normalize(normal.xy);
-                        float2 ndc = _ScreenParams.xy * 0.5;
-                        o.position.xy += ((offset * _Border) / ndc * o.position.w);
-                    }
-                #endif
-                return o;
-            }
-
-            half4 frag (VertexOutput input ) : SV_Target
-            {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-                _Color.rgb = MixFog(_Color.rgb, input.fogCoord);
-                return half4(_Color);
-            }
             ENDHLSL
         }
+
+
+    //  Depth -----------------------------------------------------
+        Pass
+        {
+            Name "DepthOnly"
+            Tags{"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _COMPENSATESCALE
+            #pragma shader_feature_local _OUTLINEINSCREENSPACE
+            #pragma shader_feature_local _ALPHATEST_ON
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Includes/Lux URP Toon Outline Passes.hlsl"
+            
+            ENDHLSL
+        }
+
+    //  Depth Normal -----------------------------------------------------
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _COMPENSATESCALE
+            #pragma shader_feature_local _OUTLINEINSCREENSPACE
+            #pragma shader_feature_local _ALPHATEST_ON
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Includes/Lux URP Toon Outline Passes.hlsl"
+            
+            ENDHLSL
+        }
+
     }
     FallBack "Hidden/InternalErrorShader"
 }

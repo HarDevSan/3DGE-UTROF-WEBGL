@@ -4,11 +4,13 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ParallaxMapping.hlsl"
 
 
 // Extended CBUFFER
 
 CBUFFER_START(UnityPerMaterial)
+    
     float4 _BaseMap_ST;
     half4 _BaseColor;
     half4 _SpecColor;
@@ -25,24 +27,21 @@ CBUFFER_START(UnityPerMaterial)
     half _RimFrequency;
     half _RimPerPositionFrequency;
 
-    //#if defined(_PARALLAX) || defined(_PARALLAXSHADOWS)
+    #if defined(_UBER)
         half _Parallax;
-    //#endif
-
-    //#if defined(_ENABLE_GEOMETRIC_SPECULAR_AA)
         half _ScreenSpaceVariance;
         half _SAAThreshold;
-    //#endif 
-
-    //#if defined(_ENABLE_AO_FROM_GI)
         half _GItoAO;
         half _GItoAOBias;
-    //#endif
+        half _HorizonOcclusion;
+        float _CameraFadeDist;
+        float _CameraShadowFadeDist;
+        float4 _DetailAlbedoMap_ST;
+        half _DetailAlbedoMapScale;
+        half _DetailNormalMapScale;
+    #endif
 
-    half _HorizonOcclusion;
-
-    float _CameraFadeDist;
-    float _CameraShadowFadeDist;
+    float _Surface;
 
 CBUFFER_END
 
@@ -57,12 +56,21 @@ TEXTURE2D(_BentNormalMap);      SAMPLER(sampler_BentNormalMap);
     TEXTURE2D(_HeightMap);       SAMPLER(sampler_HeightMap);
 #endif
 
+#if defined(_DETAIL)
+    TEXTURE2D(_DetailMask);       SAMPLER(sampler_DetailMask);
+    TEXTURE2D(_DetailAlbedoMap);  SAMPLER(sampler_DetailAlbedoMap);
+    TEXTURE2D(_DetailNormalMap);  SAMPLER(sampler_DetailNormalMap);
+#endif
+
 #ifdef _SPECULAR_SETUP
     #define SAMPLE_METALLICSPECULAR(uv) SAMPLE_TEXTURE2D(_SpecGlossMap, sampler_SpecGlossMap, uv)
 #else
     #define SAMPLE_METALLICSPECULAR(uv) SAMPLE_TEXTURE2D(_MetallicGlossMap, sampler_MetallicGlossMap, uv)
 #endif
 
+#if defined(_BESTFITTINGNORMALS_ON)
+    TEXTURE2D(_BestFittingNormal); SAMPLER(sampler_BestFittingNormal);
+#endif
 
 //  Used by shadow caster and depth pass (parallax only)
     struct VertexInput
@@ -78,15 +86,32 @@ TEXTURE2D(_BentNormalMap);      SAMPLER(sampler_BentNormalMap);
     {
         float4 positionCS                   : SV_POSITION;
         float2 uv                           : TEXCOORD0;
-
+        half3 normalWS                      : TEXCOORD1;
         #if defined(_ALPHATEST_ON)
         //  We have to use the same inputs...
-            float3 normalWS                 : TEXCOORD1;
-            float4 tangentWS                : TEXCOORD2;
+            
+            //half4 tangentWS               : TEXCOORD2;
             float screenPos                 : TEXCOORD3; // was float4
 
         #endif
-        float3 viewDirWS                    : TEXCOORD5;
+    //  Here we use viewDirTS!
+        half3 viewDirTS                     : TEXCOORD5;
+
+        UNITY_VERTEX_INPUT_INSTANCE_ID
+        UNITY_VERTEX_OUTPUT_STEREO
+    };
+
+    struct VertexOutputShadow
+    {
+        float4 positionCS                   : SV_POSITION;
+        float2 uv                           : TEXCOORD0;
+        half3 normalWS                      : TEXCOORD1;
+        #if defined(_ALPHATEST_ON)
+            half4 tangentWS                 : TEXCOORD2;
+            float screenPos                 : TEXCOORD3; // was float4
+        #endif
+    //  Here we use viewDirTS!
+        half3 viewDirTS                     : TEXCOORD5;
 
         UNITY_VERTEX_INPUT_INSTANCE_ID
         UNITY_VERTEX_OUTPUT_STEREO
@@ -177,6 +202,12 @@ float Dither5(float2 Pos, float frameIndexMod4) {
     return Dither;
 }
 
+float3 rnmBlendUnpacked(float3 n1, float3 n2) {
+    n1 += float3( 0,  0, 1);
+    n2 *= float3(-1, -1, 1);
+    return n1 * dot(n1, n2) / n1.z - n2;
+}
+
 inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfaceData)
 {
     half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
@@ -197,6 +228,9 @@ inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfa
     outSurfaceData.normalTS = SampleNormal(uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale);
     outSurfaceData.occlusion = SampleOcclusion(uv);
     outSurfaceData.emission = SampleEmission(uv, _EmissionColor.rgb, TEXTURE2D_ARGS(_EmissionMap, sampler_EmissionMap));
+
+    outSurfaceData.clearCoatMask = 0;
+    outSurfaceData.clearCoatSmoothness = 0;
 }
 
 #if defined(_UBER)
@@ -245,7 +279,29 @@ inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfa
         #else
             outSurfaceData.emission = 0;
         #endif
+
+//  Detail Texturing
+        #if defined(_DETAIL)
+            half detailMask = SAMPLE_TEXTURE2D(_DetailMask, sampler_DetailMask, uv).a;
+            float2 detailUV = uv * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw;
+            half3 detailAlbedo = SAMPLE_TEXTURE2D(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV).rgb;
+            detailAlbedo = 2.0h * detailAlbedo * _DetailAlbedoMapScale - _DetailAlbedoMapScale + 1.0h;
+            outSurfaceData.albedo *= lerp(half3(1,1,1), detailAlbedo, detailMask.xxx);
+
+            #if BUMP_SCALE_NOT_SUPPORTED
+                half3 detailNormalTS = UnpackNormal(SAMPLE_TEXTURE2D(_DetailNormalMap, sampler_DetailNormalMap, detailUV));
+            #else
+                half3 detailNormalTS = UnpackNormalScale(SAMPLE_TEXTURE2D(_DetailNormalMap, sampler_DetailNormalMap, detailUV), _DetailNormalMapScale);
+            #endif
+            // With UNITY_NO_DXT5nm unpacked vector is not normalized for BlendNormalRNM
+            // For visual consistancy we going to do in all cases
+            detailNormalTS = normalize(detailNormalTS);
+            outSurfaceData.normalTS = lerp(outSurfaceData.normalTS, BlendNormalRNM(outSurfaceData.normalTS, detailNormalTS), detailMask);
+        #endif
+
+        outSurfaceData.clearCoatMask = 0;
+        outSurfaceData.clearCoatSmoothness = 0;
     }
 #endif
 
-#endif // LIGHTWEIGHT_INPUT_SURFACE_PBR_INCLUDED
+#endif

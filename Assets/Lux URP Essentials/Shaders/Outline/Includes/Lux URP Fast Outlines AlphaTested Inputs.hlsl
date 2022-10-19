@@ -1,5 +1,5 @@
-#ifndef INPUT_LUXLWRP_BASE_INCLUDED
-#define INPUT_LUXLWRP_BASE_INCLUDED
+#ifndef INPUT_LUXURP_BASE_INCLUDED
+#define INPUT_LUXURP_BASE_INCLUDED
 
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 //  defines a bunch of helper functions (like lerpwhiteto)
@@ -13,13 +13,10 @@
 //  Material Inputs
     CBUFFER_START(UnityPerMaterial)
         half4   _BaseColor;
-        half    _Cutoff;
-
         float4  _BaseMap_ST;
-
+        half    _Cutoff;
         half4   _OutlineColor;
         half    _Border;
-        float4  _BaseMap_TexelSize;       
     CBUFFER_END
 
 //  Additional textures
@@ -36,10 +33,10 @@
     
     struct VertexOutputSimple
     {
-        float4 positionCS               : SV_POSITION;
-        float2 uv                       : TEXCOORD0;
+        float4 positionCS                   : SV_POSITION;
+        float2 uv                           : TEXCOORD0;
         #if defined(_APPLYFOG)
-            half fogFactor              : TEXCOORD1;
+            half fogFactor                  : TEXCOORD1;
         #endif
         UNITY_VERTEX_INPUT_INSTANCE_ID
         UNITY_VERTEX_OUTPUT_STEREO

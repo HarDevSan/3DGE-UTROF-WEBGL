@@ -294,7 +294,7 @@ public class ProceduralTexture2DEditor : Editor
             target.Tinput = new Texture2D(Tinput.width, Tinput.height, inputFormat, target.generateMipMaps, true);
             AssetDatabase.AddObjectToAsset(target.Tinput, target);
         }
-        target.Tinput.Resize(Tinput.width, Tinput.height, inputFormat, target.generateMipMaps);
+        target.Tinput.Reinitialize(Tinput.width, Tinput.height, inputFormat, target.generateMipMaps);
         target.Tinput.name = target.input.name + "_T";
         target.Tinput.SetPixels(Tinput.data);
         target.Tinput.wrapMode = TextureWrapMode.Repeat;
@@ -317,7 +317,7 @@ public class ProceduralTexture2DEditor : Editor
             target.invT = new Texture2D(invT.width, invT.height, inputFormat, false, true);
             AssetDatabase.AddObjectToAsset(target.invT, target);
         }
-        target.invT.Resize(invT.width, invT.height, inputFormat, false);
+        target.invT.Reinitialize(invT.width, invT.height, inputFormat, false);
         target.invT.name = target.input.name + "_invT";
         target.invT.wrapMode = TextureWrapMode.Clamp;
         target.invT.filterMode = FilterMode.Bilinear;

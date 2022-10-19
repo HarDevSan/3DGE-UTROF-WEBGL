@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.Rendering;
 using UnityEditor.Rendering.Universal;
+
+using UnityObject = UnityEngine.Object;
 
 namespace UnityEditor
 {
@@ -46,6 +50,7 @@ namespace UnityEditor
 
 		public bool openSurfaceOptions = false;
 		public bool openSurfaceInputs = false;
+		public bool openDetailSurfaceInputs = false;
 		public bool openAdvancedSurfaceInputs = false;
 		public bool openRimLighingInputs = false;
 		public bool openStencilOptions = false;
@@ -53,6 +58,7 @@ namespace UnityEditor
 
 		private MaterialProperty surfaceOptionsProps;
 		private MaterialProperty surfaceInputsProps;
+		private MaterialProperty surfaceDetailInputsProps;
 		private MaterialProperty advancedSurfaceInputsProps;
 		private MaterialProperty RimLighingInputsProps;
 		private MaterialProperty stencilOptionsProps;
@@ -89,6 +95,9 @@ namespace UnityEditor
 		private MaterialProperty bumpMapScaleProp;
 		private MaterialProperty enableNormalProp;
 
+		private MaterialProperty enableBestFitNormalProp;
+		private MaterialProperty BestFitNormalProp;
+
 		private MaterialProperty occlusionStrengthProp;
         private MaterialProperty occlusionMapProp;
         private MaterialProperty enableOcclusionProp;
@@ -96,6 +105,12 @@ namespace UnityEditor
         private MaterialProperty emissionColorProp;
         private MaterialProperty emissionMapProp;
         private MaterialProperty emissionProp;
+
+        private MaterialProperty DetailMask;
+        private MaterialProperty DetailAlbedoMapScale;
+        private MaterialProperty DetailAlbedoMap;
+        private MaterialProperty DetailNormalMapScale;
+        private MaterialProperty DetailNormalMap;
 
         private MaterialProperty heightMapProp;
         private MaterialProperty enableParallaxProp;
@@ -149,6 +164,7 @@ namespace UnityEditor
         {
         	surfaceOptionsProps = FindProperty("_FoldSurfaceOptions", properties);
 			surfaceInputsProps = FindProperty("_FoldSurfaceInputs", properties);
+			surfaceDetailInputsProps = FindProperty("_FoldSurfaceDetailInputs", properties);
 			advancedSurfaceInputsProps = FindProperty("_FoldAdvancedSurfaceInputs", properties);
 			RimLighingInputsProps = FindProperty("_FoldRimLightingInputs", properties);
 			stencilOptionsProps = FindProperty("_FoldStencilOptions", properties);
@@ -171,7 +187,6 @@ namespace UnityEditor
 
         	receiveShadowsProp = FindProperty("_ReceiveShadows", properties, false);
 
-
         	baseMapProp = FindProperty("_BaseMap", properties); 
         	baseColorProp = FindProperty("_BaseColor", properties);
 
@@ -188,6 +203,9 @@ namespace UnityEditor
 			bumpMapScaleProp = FindProperty("_BumpScale", properties);
 			enableNormalProp = FindProperty("_EnableNormal", properties);
 
+			enableBestFitNormalProp = FindProperty("_BestFittingNormalEnabled", properties);
+			BestFitNormalProp = FindProperty("_BestFittingNormal", properties);
+
 			occlusionStrengthProp = FindProperty("_OcclusionStrength", properties);
             occlusionMapProp = FindProperty("_OcclusionMap", properties);
             enableOcclusionProp = FindProperty("_EnableOcclusion", properties);
@@ -195,6 +213,12 @@ namespace UnityEditor
             emissionColorProp = FindProperty("_EmissionColor", properties);
         	emissionMapProp = FindProperty("_EmissionMap", properties);
         	emissionProp = FindProperty("_Emission", properties);
+
+        	DetailMask = FindProperty("_DetailMask", properties);
+        	DetailAlbedoMapScale = FindProperty("_DetailAlbedoMapScale", properties);
+			DetailAlbedoMap = FindProperty("_DetailAlbedoMap", properties);
+			DetailNormalMapScale = FindProperty("_DetailNormalMapScale", properties);
+			DetailNormalMap = FindProperty("_DetailNormalMap", properties);
 
         	//
         	heightMapProp = FindProperty("_HeightMap", properties);
@@ -306,13 +330,16 @@ namespace UnityEditor
                 		material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
                 		material.SetInt("_ZWrite", 1);
 	        			material.SetOverrideTag("RenderType", "Opaque");
-	        			material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry + 50;
+	        			material.renderQueue = (int)RenderQueue.Geometry;
 	        			material.SetShaderPassEnabled("ShadowCaster", true);
+	        			material.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
 	        		}
 	        		else {
-	        			material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 50; // Make it match Standard Lit shader
 	        			material.SetOverrideTag("RenderType", "Transparent");
+	        			material.SetInt("_ZWrite", 0);
+	        			material.renderQueue = (int)RenderQueue.Transparent;
 	        			material.SetShaderPassEnabled("ShadowCaster", false);
+	        			material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
 	        		}
 	        	}
 
@@ -338,8 +365,10 @@ namespace UnityEditor
 	        			if (alphaclip) {
 	        				alphaClipProp.floatValue = 1;
 	        				material.EnableKeyword("_ALPHATEST_ON");
-	        				material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest + 50;
-                    		material.SetOverrideTag("RenderType", "TransparentCutout");
+	        				if (surface == SurfaceType.Opaque) {
+	        					material.renderQueue = (int)RenderQueue.AlphaTest;
+                    			material.SetOverrideTag("RenderType", "TransparentCutout");
+                    		}
 
                     	//	We may have to re eanble camera fading
                     		if(cameraFadingEnabledProp.floatValue == 1) {
@@ -360,11 +389,12 @@ namespace UnityEditor
 	        			else {
 	        				alphaClipProp.floatValue = 0;
 	        				material.DisableKeyword("_ALPHATEST_ON");
-	        				material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry + 50;
-                    		material.SetOverrideTag("RenderType", "Opaque");
-
-	        				material.DisableKeyword("_FADING_ON");
-	        				material.DisableKeyword("_FADING_SHADOWS_ON");
+	        				if (surface == SurfaceType.Opaque) {
+	        					material.renderQueue = (int)RenderQueue.Geometry;
+                    			material.SetOverrideTag("RenderType", "Opaque");
+	        					material.DisableKeyword("_FADING_ON");
+	        					material.DisableKeyword("_FADING_SHADOWS_ON");
+	        				}
 	        			}
 	        		}
 	        		if (alphaclip) {
@@ -548,7 +578,7 @@ namespace UnityEditor
 		            //	Make sure we set the proper keyword even if only alphaclip has changed as well
 		                if (EditorGUI.EndChangeCheck() || alphaclipChanged ) {
 		                    smoothnessMapChannelProp.floatValue = smoothnessSource;
-		                    if (smoothnessSource == 1) {
+		                    if (smoothnessSource == 1 && !alphaclip) {
 		                    	material.EnableKeyword("_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A");
 		                    }
 		                    else {
@@ -605,6 +635,25 @@ namespace UnityEditor
 	        		}
 	            }
 
+
+	        //	Best Fitting Normal
+	            EditorGUI.BeginChangeCheck();
+	            var bfn = EditorGUILayout.Toggle(new GUIContent("Enable Best-Fit Normal"), (enableBestFitNormalProp.floatValue == 1)? true : false );
+	        	materialEditor.TexturePropertySingleLine(new GUIContent("Best-Fit Normal Map"), BestFitNormalProp);
+	        	if (EditorGUI.EndChangeCheck() || BestFitNormalProp.textureValue == null ) {
+	        		enableBestFitNormalProp.floatValue = bfn? 1.0f : 0.0f;
+
+	        		if (bfn && BestFitNormalProp.textureValue == null) {
+	        			material.SetTexture("_BestFittingNormal", Resources.Load("KaplanyanBestFitNormals") as Texture2D );
+	        		}
+	        		if (enableBestFitNormalProp.floatValue != 0.0f) {
+	        			material.EnableKeyword("_BESTFITTINGNORMALS_ON");
+	        		}
+	        		else {
+	        			material.DisableKeyword("_BESTFITTINGNORMALS_ON");
+	        		}
+	            }
+
 	        //	Occlusion
 	        	EditorGUI.BeginChangeCheck();
 	        	materialEditor.TexturePropertySingleLine(new GUIContent("Occlusion Map"), occlusionMapProp, occlusionMapProp.textureValue != null ? occlusionStrengthProp : null);
@@ -652,6 +701,29 @@ namespace UnityEditor
 		        EditorGUILayout.Space();
 	        }
 	        EditorGUILayout.EndFoldoutHeaderGroup();
+
+//	-----------------------
+//	Detail Surface Inputs
+	        openDetailSurfaceInputs = (surfaceDetailInputsProps.floatValue == 1.0f) ? true : false;
+	        EditorGUI.BeginChangeCheck();	       
+	        openDetailSurfaceInputs = EditorGUILayout.BeginFoldoutHeaderGroup(openDetailSurfaceInputs, "Detail Surface Inputs");
+	        if (EditorGUI.EndChangeCheck()) {
+	    		surfaceDetailInputsProps.floatValue = openDetailSurfaceInputs? 1.0f : 0.0f;
+	    	}
+	        if (openDetailSurfaceInputs) {
+	        	EditorGUILayout.Space();
+	        	EditorGUI.BeginChangeCheck();
+	        		materialEditor.TexturePropertySingleLine(new GUIContent("Detail Mask (A)"), DetailMask);
+	        		materialEditor.TexturePropertySingleLine(new GUIContent("Detail Albedo"), DetailAlbedoMap, DetailAlbedoMap.textureValue != null ? DetailAlbedoMapScale : null );
+	        		materialEditor.TexturePropertySingleLine(new GUIContent("Detail Normal"), DetailNormalMap, DetailNormalMap.textureValue != null ? DetailNormalMapScale : null );
+	        		materialEditor.TextureScaleOffsetProperty(DetailAlbedoMap);
+	        	if (EditorGUI.EndChangeCheck()) {
+	        		bool hasDetailMap = material.GetTexture("_DetailAlbedoMap") || material.GetTexture("_DetailNormalMap");
+	        		CoreUtils.SetKeyword(material, "_DETAIL", hasDetailMap);
+	        	}
+	        }
+	        EditorGUILayout.EndFoldoutHeaderGroup();
+
 
 //	-----------------------
 //	Advanced Surface Inputs
@@ -753,7 +825,7 @@ labeltooltip = new GUIContent("Threshold", "Controls the amount of Specular AA. 
 
 	        //	GI TO AO
         		EditorGUI.BeginChangeCheck();
-labeltooltip = new GUIContent("GI to Specular Occlusion", "In case you use lightmaps you may activate this feature to derive some kind of specular occlusion just from the lightmap and its baked ambient occlusion.");        		
+labeltooltip = new GUIContent("GI to Specular Occlusion*", "In case you use lightmaps you may activate this feature to derive some kind of specular occlusion just from the lightmap and its baked ambient occlusion. *Only applied in forward rendering!");        		
 	        	var GIAO = EditorGUILayout.Toggle(labeltooltip, AOfromGIProp.floatValue == 1);
 	        	if (EditorGUI.EndChangeCheck()) {
 	        		if (GIAO) {
@@ -878,7 +950,56 @@ labeltooltip = new GUIContent("Bias", "Adds a constant value to brighten the val
 	            if (material.GetTexture("_BaseMap") != null) {
 	                material.SetTexture("_MainTex", material.GetTexture("_BaseMap"));
 	            }
-        	}		
+        	}
 	    }
+
+
+	// 	For some unknown reasons spec and metallic get lost on save. So we add ValidateMaterial().
+        public override void ValidateMaterial(Material material)
+        {
+            if (material.HasProperty("_WorkflowMode"))
+            {
+            	var isSpecular = material.GetFloat("_WorkflowMode") == 0.0f;
+
+            	if (isSpecular)
+            	{
+		            CoreUtils.SetKeyword(material, "_SPECULAR_SETUP", true);
+		            if (material.HasProperty("_SpecGlossMap"))
+		            {
+		            	var hasGlossMap = material.GetTexture("_SpecGlossMap") != null;
+		                CoreUtils.SetKeyword(material, "_METALLICSPECGLOSSMAP", hasGlossMap);
+		            }
+		        }
+		        else
+		        {
+		        	CoreUtils.SetKeyword(material, "_SPECULAR_SETUP", false);
+		            if (material.HasProperty("_MetallicGlossMap"))
+		            {
+		            	var hasGlossMap = material.GetTexture("_MetallicGlossMap") != null;
+		                CoreUtils.SetKeyword(material, "_METALLICSPECGLOSSMAP", hasGlossMap);
+		            }
+		        }
+		    }
+		    
+		    if (material.HasProperty("_BentNormalMap"))
+            {
+            	var hasBentNormalMap = material.GetTexture("_BentNormalMap") != null;
+            	CoreUtils.SetKeyword(material, "_BENTNORMAL", hasBentNormalMap);
+            }
+
+            if (material.HasProperty("_AlphaClip") && material.HasProperty("_SmoothnessTextureChannel"))
+            {
+            	var doesAlphClip = material.GetFloat("_AlphaClip") == 1.0f;
+            	var samplesSmoothnessFromAlbedo = material.GetFloat("_SmoothnessTextureChannel") != 0.0f;
+            	if(doesAlphClip && samplesSmoothnessFromAlbedo)
+            	{
+            		CoreUtils.SetKeyword(material, "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A", false);
+            		material.SetFloat("_SmoothnessTextureChannel", 0.0f);	
+            	}
+            }
+        }
+
+    //    
+
 	}
 }

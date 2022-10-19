@@ -2,8 +2,8 @@
 // Hair lighting functions renamed to solves problems with LWRP 6.x
 
 
-#ifndef LIGHTWEIGHT_HAIRLIGHTING_INCLUDED
-#define LIGHTWEIGHT_HAIRLIGHTING_INCLUDED
+#ifndef UNIVERSAL_HAIRLIGHTING_INCLUDED
+#define UNIVERSAL_HAIRLIGHTING_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
@@ -102,6 +102,7 @@ half3 GlobalIlluminationHair_Lux(
     half occlusion,
     
     half3 bakedGI,
+    float3 positionWS,
     half3 normalWS,
     half3 viewDirectionWS,
     half3 bitangentWS,
@@ -126,7 +127,7 @@ half3 GlobalIlluminationHair_Lux(
     half fresnelTerm = Pow4(1.0 - saturate(NdotV) );
 //  ??? perceptualRoughness *= saturate(1.2 - 0.8); //abs(bsdfData.anisotropy));
     half3 indirectDiffuse = bakedGI * occlusion;
-    half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, perceptualRoughness, occlusion) * ambientReflection;
+    half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, perceptualRoughness, occlusion) * ambientReflection;
 
 //  EnvironmentBRDFHair
     half3 c = indirectDiffuse * albedo;
@@ -134,6 +135,13 @@ half3 GlobalIlluminationHair_Lux(
     half reflectivity = ReflectivitySpecular(specular);
     half grazingTerm = saturate( (1.0h - roughness) + reflectivity);
     c += surfaceReduction * indirectSpecular * lerp(specular, grazingTerm, fresnelTerm);
+
+//  Debug
+    if (IsOnlyAOLightingFeatureEnabled())
+    {
+        c = occlusion.xxx; // "Base white" for AO debug lighting mode // Lux: We return occlusion here
+    }
+
     return c;
 }
 
@@ -160,16 +168,16 @@ half3 LightingHair_Lux(
     half LdotV = dot(light.direction, viewDirectionWS);
     float invLenLV = rsqrt(max(2.0 * LdotV + 2.0, FLT_EPS));
 
-    half3 H = (light.direction + viewDirectionWS) * invLenLV;
+    float3 lightDirectionWSFloat3 = float3(light.direction);
+    float3 halfDir = (lightDirectionWSFloat3 + float3(viewDirectionWS)) * invLenLV;
 
-    half3 hairSpec1 = specularTint * D_KajiyaKay_Lux(t1, H, roughness1);
+    half3 hairSpec1 = specularTint * D_KajiyaKay_Lux(t1, halfDir, roughness1);
     #if defined(_SECONDARYLOBE)
-        half3 hairSpec2 = secondarySpecularTint * D_KajiyaKay_Lux(t2, H, roughness2);
+        half3 hairSpec2 = secondarySpecularTint * D_KajiyaKay_Lux(t2, halfDir, roughness2);
     #endif
 
-    float3 halfDir = SafeNormalize(light.direction + viewDirectionWS);
     float NdotH = saturate(dot(normalWS, halfDir));
-    half LdotH = saturate(dot(light.direction, halfDir));
+    half LdotH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
 
     half3 F = F_Schlick(specular, LdotH);
 
@@ -178,7 +186,7 @@ half3 LightingHair_Lux(
     #if defined(_SECONDARYLOBE)
         + hairSpec2
     #endif
-    ) * saturate(NdotL) * saturate(geomNdotV * FLT_MAX);
+    ) * saturate(NdotL) * saturate(geomNdotV * HALF_MAX);
 
 //  Transmission // Yibing's and Morten's hybrid scatter model hack.
     half scatterFresnel1 = pow(saturate(-LdotV), 9.0h) * pow(saturate(1.0h - geomNdotV * geomNdotV), 12.0h);
@@ -196,15 +204,10 @@ half3 LightingHair_Lux(
 }
 
 
-half4 LuxLWRPHairFragment(
+half4 LuxURPHairFragment(
     InputData inputData,
+    SurfaceData surfaceData,
     half3 tangentWS,
-    half3 bitangentWS,
-    half3 albedo,
-    half3 specular,
-    half occlusion,
-    half3 emission,
-
     half3 noise,
     half specularShift,
     half3 specularTint,
@@ -216,6 +219,15 @@ half4 LuxLWRPHairFragment(
     half ambientReflection
 )
 {
+
+    #if defined(DEBUG_DISPLAY)
+        BRDFData brdfData;
+        InitializeBRDFData(surfaceData, brdfData);
+        half4 debugColor;
+        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor)) {
+            return debugColor;
+        }
+    #endif
 
 //  TODO: Simplify this...
     perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(perceptualRoughness); // * saturate(noise.r * 2) );
@@ -234,12 +246,16 @@ half4 LuxLWRPHairFragment(
 
     half geomNdotV = dot(inputData.normalWS, inputData.viewDirectionWS); 
 
+//  Adjust tangentWS in case normal mapping is enabled
+    #if defined(_NORMALMAP)   
+        tangentWS = Orthonormalize(tangentWS, inputData.normalWS);
+    #endif
+//  Always calculate bitangent WS
+    half3 bitangentWS = cross(inputData.normalWS, tangentWS);
     #if defined(_STRANDDIR_BITANGENT)
-        // half3 strandDirWS = cross(inputData.normalWS, tangentWS); // missing sign...
-        half3 strandDirWS = normalize(-bitangentWS);
+        half3 strandDirWS = bitangentWS;
     #else
-        //half3 strandDirWS = cross(inputData.normalWS, bitangentWS);
-        half3 strandDirWS = normalize(tangentWS);
+        half3 strandDirWS = tangentWS;
     #endif
 
     half3 t1 = ShiftTangent_Lux(strandDirWS, inputData.normalWS, specularShift);
@@ -253,33 +269,53 @@ half4 LuxLWRPHairFragment(
 //  (From HDRP) Note: For Kajiya hair we currently rely on a single cubemap sample instead of two, as in practice smoothness of both lobe aren't too far from each other.
 //  and we take smoothness of the secondary lobe as it is often more rough (it is the colored one).
 //  NOPE: We use primary!!!!! 
-    half3 color = GlobalIlluminationHair_Lux(albedo, specular, roughness1, perceptualRoughness, occlusion, inputData.bakedGI, inputData.normalWS, inputData.viewDirectionWS, bitangentWS, ambientReflection);
 
-//  Main Light
-    Light light = GetMainLight(inputData.shadowCoord);
-    MixRealtimeAndBakedGI(light, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
+    half4 shadowMask = CalculateShadowMask(inputData);
+    AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 
-    color += LightingHair_Lux(albedo, specular, light, inputData.normalWS, geomNdotV, inputData.viewDirectionWS, pbRoughness1, pbRoughness2, t1, t2, specularTint, secondarySpecularTint, rimTransmissionIntensity);
+    // NOTE: We don't apply AO to the GI here because it's done in the lighting calculation below...
+    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
 
-//  Additional Lights
-    #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i) {
-
-            light = GetAdditionalLight(i, inputData.positionWS);
-            color += LightingHair_Lux(albedo, specular, light, inputData.normalWS, geomNdotV, inputData.viewDirectionWS, pbRoughness1, pbRoughness2, t1, t2, specularTint, secondarySpecularTint, rimTransmissionIntensity);
+    LightingData lightingData = CreateLightingData(inputData, surfaceData);
+    lightingData.giColor = GlobalIlluminationHair_Lux(surfaceData.albedo, surfaceData.specular, roughness1, perceptualRoughness, aoFactor.indirectAmbientOcclusion, inputData.bakedGI, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS, bitangentWS, ambientReflection);
+    
+    #if defined(_LIGHT_LAYERS)
+        if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+        {
+    #endif
+        lightingData.mainLightColor = LightingHair_Lux(surfaceData.albedo, surfaceData.specular, mainLight, inputData.normalWS, geomNdotV, inputData.viewDirectionWS, pbRoughness1, pbRoughness2, t1, t2, specularTint, secondarySpecularTint, rimTransmissionIntensity);
+    #if defined(_LIGHT_LAYERS)
         }
     #endif
 
-    #ifdef _ADDITIONAL_LIGHTS_VERTEX
-        color += inputData.vertexLighting * albedo;
+//  Additional Lights
+    #if defined(_ADDITIONAL_LIGHTS)
+        uint pixelLightCount = GetAdditionalLightsCount();
+
+// Clustered!
+
+        LIGHT_LOOP_BEGIN(pixelLightCount)
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+        
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            {
+        #endif
+            //  SSAO does not play nicely with blend?!
+                lightingData.additionalLightsColor += LightingHair_Lux(surfaceData.albedo, surfaceData.specular, light, inputData.normalWS, geomNdotV, inputData.viewDirectionWS, pbRoughness1, pbRoughness2, t1, t2, specularTint, secondarySpecularTint, rimTransmissionIntensity);
+        #if defined(_LIGHT_LAYERS)
+            }
+        #endif
+        LIGHT_LOOP_END
+
     #endif
 
-    color += emission;
-
-    return half4(color, 1); // alpha?
+    #ifdef _ADDITIONAL_LIGHTS_VERTEX
+//  NOTE: We never set the standard brdfData except from debug mode. So we have to use surfaceData here.
+        lightingData.vertexLightingColor += inputData.vertexLighting * surfaceData.albedo; // brdfData.diffuse;
+    #endif
+    return CalculateFinalColor(lightingData, surfaceData.alpha);
 }
-
-
-
 #endif

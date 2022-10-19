@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
-
+using UnityEngine.XR;
 
 namespace Lux_SRP_GrassDisplacement
 {
@@ -22,7 +22,6 @@ namespace Lux_SRP_GrassDisplacement
             public RTDisplacementSize Resolution = RTDisplacementSize._256;
             public float Size = 20.0f;
             public bool ShiftRenderTex = false;
-            //public bool SinglePassInstancing = false;
         }
 
         public GrassDisplacementSettings settings = new GrassDisplacementSettings();
@@ -37,8 +36,6 @@ namespace Lux_SRP_GrassDisplacement
             m_GrassDisplacementPass.m_Resolution = (int)settings.Resolution;
             m_GrassDisplacementPass.m_Size = settings.Size;
             m_GrassDisplacementPass.m_ShiftRenderTex = settings.ShiftRenderTex;
-            //m_GrassDisplacementPass.m_SinglePassInstancing = settings.SinglePassInstancing;
-
         }
         
         public override void AddRenderPasses(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, ref UnityEngine.Rendering.Universal.RenderingData renderingData)
@@ -55,12 +52,18 @@ namespace Lux_SRP_GrassDisplacement
 
     public class GrassDisplacementPass : UnityEngine.Rendering.Universal.ScriptableRenderPass
     {
-        const string k_RenderGrassDisplacementFXTag = "Render Lux Grass Displacement FX";
-        ShaderTagId m_GrassDisplacementFXShaderTag = new ShaderTagId("LuxGrassDisplacementFX");
         
+        private const string ProfilerTag = "Render Lux Grass Displacement FX";
+        private static ProfilingSampler m_ProfilingSampler = new ProfilingSampler(ProfilerTag);
+
+        ShaderTagId m_GrassDisplacementFXShaderTag = new ShaderTagId("LuxGrassDisplacementFX");
+
+        private SinglePassStereoMode m_StereoRenderingMode;
+
     //  There is no 0.5 in 8bit colors...
         Color m_ClearColor = new Color(127.0f/255.0f, 127.0f/255.0f,1,1);
-        
+
+    //  In case of XR enabled this most likely will be an array        
         UnityEngine.Rendering.Universal.RenderTargetHandle m_GrassDisplacementFX = UnityEngine.Rendering.Universal.RenderTargetHandle.CameraTarget;
 
         private Matrix4x4 projectionMatrix;
@@ -91,10 +94,8 @@ namespace Lux_SRP_GrassDisplacement
             cameraTextureDescriptor.width = m_Resolution;
             cameraTextureDescriptor.height = m_Resolution;
             cameraTextureDescriptor.colorFormat = RenderTextureFormat.Default;
-
-// Does not help for single pass instanced...
-// cameraTextureDescriptor.vrUsage = VRTextureUsage.None;
-// https://docs.unity3d.com/ScriptReference/Rendering.AttachmentDescriptor.ConfigureTarget.html
+        //  XR: force our RT to be always 2D
+            cameraTextureDescriptor.dimension = TextureDimension.Tex2D;
 
             cmd.GetTemporaryRT(m_GrassDisplacementFX.id, cameraTextureDescriptor, FilterMode.Bilinear);
             ConfigureTarget(m_GrassDisplacementFX.Identifier());
@@ -114,9 +115,9 @@ namespace Lux_SRP_GrassDisplacement
 
         public override void Execute(ScriptableRenderContext context, ref UnityEngine.Rendering.Universal.RenderingData renderingData)
         {
-            CommandBuffer cmd = CommandBufferPool.Get(k_RenderGrassDisplacementFXTag);
+            CommandBuffer cmd = CommandBufferPool.Get(ProfilerTag);
 
-            using (new ProfilingSample(cmd, k_RenderGrassDisplacementFXTag))
+            using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
@@ -128,10 +129,13 @@ namespace Lux_SRP_GrassDisplacement
                 var cameraTransform = camera.transform;
                 var cameraPos = cameraTransform.position;
 
-                var isStereoEnabled = renderingData.cameraData.isStereoEnabled;
+#if ENABLE_VR && ENABLE_XR_MODULE
+                var isStereoEnabled = renderingData.cameraData.xr.enabled; //isStereoEnabled; //
                 if (isStereoEnabled) {
+                    m_StereoRenderingMode = XRSettings.stereoRenderingMode;
                     cmd.SetSinglePassStereo(SinglePassStereoMode.None);
                 }
+#endif
 
             //  Push cameraPos forward – if enabled    
                 var camForward = cameraTransform.forward;
@@ -150,7 +154,7 @@ namespace Lux_SRP_GrassDisplacement
                 var worldToCameraMatrixOrig = camera.worldToCameraMatrix;
                 var projectionMatrixOrig = camera.projectionMatrix;
 
-            //  Quantize movement to fit texel size of RT – this stabilzes the final visual result
+            //  Quantize movement to fit texel size of RT – this stabilzes the final visual result
                 Vector2 positionRT = Vector2.zero; // bad
                 positionRT.x = Mathf.Floor(cameraPos.x * oneOverStepSize) * stepSize;
                 positionRT.y = Mathf.Floor(cameraPos.z * oneOverStepSize) * stepSize;
@@ -175,16 +179,11 @@ namespace Lux_SRP_GrassDisplacement
             //  Restore Camera matrices
                 cmd.Clear();
                 cmd.SetViewProjectionMatrices(worldToCameraMatrixOrig, projectionMatrixOrig);
+#if ENABLE_VR && ENABLE_XR_MODULE
                 if (isStereoEnabled) {
-                    //if (m_SinglePassInstancing) {
-                    //    cmd.SetSinglePassStereo(SinglePassStereoMode.Instancing);
-//cmd.SetGlobalTexture("_Lux_DisplacementRT", m_GrassDisplacementFX.id);
-//cmd.SetGlobalTexture("_Lux_DisplacementRT", m_GrassDisplacementFX.Identifier() );
-                    //}
-                    //else {
-                        cmd.SetSinglePassStereo(SinglePassStereoMode.SideBySide);   
-                    //}
+                    cmd.SetSinglePassStereo(m_StereoRenderingMode);
                 }
+#endif
             }
             
         //  ---------------------------------------------------------
@@ -193,7 +192,7 @@ namespace Lux_SRP_GrassDisplacement
             CommandBufferPool.Release(cmd);
         }
 
-        public override void FrameCleanup(CommandBuffer cmd)
+        public override void OnCameraCleanup(CommandBuffer cmd)
         {
             cmd.ReleaseTemporaryRT(m_GrassDisplacementFX.id);
         }

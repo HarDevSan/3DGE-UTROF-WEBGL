@@ -8,7 +8,12 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline" = "UniversalPipeline" }
+        Tags { 
+            "RenderType"="Transparent"
+            "Queue"="Transparent"
+            "RenderPipeline" = "UniversalPipeline"
+        }
+        
         ZWrite Off
         Blend [_SrcBlend] [_DstBlend]
         LOD 100
@@ -19,6 +24,8 @@
             Tags{"LightMode" = "LuxGrassDisplacementFX"}
             
             HLSLPROGRAM
+            #pragma target 2.0
+
             #pragma vertex SimpleDisplacementFXVertex
             #pragma fragment SimpleDisplacementFXFragment
 
@@ -64,7 +71,7 @@
                 UNITY_INSTANCING_BUFFER_END(Props)
             #endif
             
-            sampler2D _MainTex;
+            TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
             
             
             Varyings SimpleDisplacementFXVertex (Attributes input)
@@ -88,7 +95,7 @@
             
             half4 SimpleDisplacementFXFragment (Varyings input) : SV_Target
             {
-                half4 col = tex2D(_MainTex, input.uv);
+                half4 col = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 col.a *= input.color.a
                 #if defined(_DYNAMICALPHA)
                     * UNITY_ACCESS_INSTANCED_PROP(Props, _Alpha)
@@ -107,9 +114,11 @@
 
         Pass
         {
-            Tags{"LightMode" = "LightweightForward"}
+            Tags{"LightMode" = "UniversalForward"}
             
             HLSLPROGRAM
+            #pragma target 2.0
+            
             #pragma vertex SimpleDisplacementFXVertex
             #pragma fragment SimpleDisplacementFXFragment
 
@@ -155,7 +164,7 @@
                 UNITY_INSTANCING_BUFFER_END(Props)
             #endif
             
-            sampler2D _MainTex;
+            TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
             
             
             Varyings SimpleDisplacementFXVertex (Attributes input)
@@ -179,7 +188,7 @@
             
             half4 SimpleDisplacementFXFragment (Varyings input) : SV_Target
             {
-                half4 col = tex2D(_MainTex, input.uv);
+                half4 col = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 col.a *= input.color.a
                 #if defined(_DYNAMICALPHA)
                     * UNITY_ACCESS_INSTANCED_PROP(Props, _Alpha)

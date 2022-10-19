@@ -86,12 +86,14 @@ void StochasticSampleSimple_half (
     
 //  Get weights
     half exponent = 1.0h + Blend * 15.0h;
+#pragma warning (disable : 3571)
     w1 = pow(w1, exponent);
     w2 = pow(w2, exponent);
     w3 = pow(w3, exponent);
+#pragma warning (enable : 3571)
 
 //  Lets help the compiler here:
-    half sum = 1.0h / (w1 + w2 + w3);
+    half sum = rcp(w1 + w2 + w3);
     w1 = w1 * sum;
     w2 = w2 * sum;
     w3 = w3 * sum;
@@ -101,27 +103,51 @@ void StochasticSampleSimple_half (
     FinalAlbedo = G.rgb;
     FinalAlpha = G.a;
 
-//  Normal
-    half4 N1 = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv1, duvdx, duvdy);
-    half4 N2 = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv2, duvdx, duvdy);
-    half4 N3 = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv3, duvdx, duvdy);
-    half4 N = w1 * N1 + w2 * N2 + w3 * N3;
+    half4 N;
+    half4 MS;
+    half4 M;
+
+    UNITY_BRANCH if(w1 > 0.95) {
+        N = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv1, duvdx, duvdy);
+        MS = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv1, duvdx, duvdy);
+        M = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv1, duvdx, duvdy);
+    }
+    else if (w2 > 0.95) {
+        N = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv2, duvdx, duvdy);
+        MS = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv2, duvdx, duvdy);
+        M = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv2, duvdx, duvdy);
+    }
+    else if (w3 > 0.95) {
+        N = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv3, duvdx, duvdy);
+        MS = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv3, duvdx, duvdy);
+        M = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv3, duvdx, duvdy);
+    }
+    else {
+    //  Normal
+        half4 N1 = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv1, duvdx, duvdy);
+        half4 N2 = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv2, duvdx, duvdy);
+        half4 N3 = SAMPLE_TEXTURE2D_GRAD(textureNormal, samplerTex, uv3, duvdx, duvdy);
+        N = w1 * N1 + w2 * N2 + w3 * N3;
+    //  MetallicSpecular
+        half4 MS1 = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv1, duvdx, duvdy);
+        half4 MS2 = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv2, duvdx, duvdy);
+        half4 MS3 = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv3, duvdx, duvdy);
+        MS = w1 * MS1 + w2 * MS2 + w3 * MS3;
+    //  Mask
+        half4 M1 = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv1, duvdx, duvdy);
+        half4 M2 = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv2, duvdx, duvdy);
+        half4 M3 = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv3, duvdx, duvdy);
+        M = w1 * M1 + w2 * M2 + w3 * M3;      
+    }
+
 //  Normal is either BC5 or DXT5nm – what is about mobile?
     #if defined(UNITY_NO_DXT5nm)
         FinalNormal = UnpackNormalRGBNoScale(N);
     #else
         FinalNormal = UnpackNormalmapRGorAG(N, normalScale);
     #endif
-//  MetallicSpecular
-    half4 MS1 = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv1, duvdx, duvdy);
-    half4 MS2 = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv2, duvdx, duvdy);
-    half4 MS3 = SAMPLE_TEXTURE2D_GRAD(textureMetallicSpec, samplerTex, uv3, duvdx, duvdy);
-    FinalMetallicSpecular = w1 * MS1 + w2 * MS2 + w3 * MS3;
-//  Mask
-    half4 M1 = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv1, duvdx, duvdy);
-    half4 M2 = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv2, duvdx, duvdy);
-    half4 M3 = SAMPLE_TEXTURE2D_GRAD(textureMask, samplerTex, uv3, duvdx, duvdy);
-    FinalMask = w1 * M1 + w2 * M2 + w3 * M3;
+    FinalMetallicSpecular = MS;
+    FinalMask = M;
 }
 
 void StochasticSampleSimple_float(

@@ -8,6 +8,14 @@
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"  
 //  defines SurfaceData, textures and the functions Alpha, SampleAlbedoAlpha, SampleNormal, SampleEmission
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
+
+//  Must be declared before we can include Lighting.hlsl
+    struct AdditionalSurfaceData
+    {
+        half translucency;
+        half mask;
+    };
+
 //  defines e.g. "DECLARE_LIGHTMAP_OR_SH"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
  
@@ -23,7 +31,7 @@
         half4   _BaseColor;
         half    _Smoothness;
         half    _Metallic;
-        half3   _SpecColor;
+        half4   _SpecColor;
 
         half    _Cutoff;
 
@@ -41,6 +49,7 @@
         half    _TranslucencyPower;
         half    _TranslucencyStrength;
         half    _ShadowStrength;
+        half    _MaskByShadowStrength;
         half    _Distortion;
 
         half    _CustomWrap;

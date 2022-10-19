@@ -1,68 +1,29 @@
-// NOTE: Based on URP Lighting.hlsl which replaced some half3 with floats to avoid lighting artifacts on mobile
 
 
-#ifndef LIGHTWEIGHT_SKINLIGHTING_INCLUDED
-#define LIGHTWEIGHT_SKINLIGHTING_INCLUDED
+#ifndef UNIVERSAL_SKINLIGHTING_INCLUDED
+#define UNIVERSAL_SKINLIGHTING_INCLUDED
 
 
 TEXTURE2D(_SkinLUT); SAMPLER(sampler_SkinLUT); float4 _SkinLUT_TexelSize;
 
-
-// Based on Minimalist CookTorrance BRDF
-// Implementation is slightly different from original derivation: http://www.thetenthplanet.de/archives/255
-//
-// * NDF [Modified] GGX
-// * Modified Kelemen and Szirmay-​Kalos for Visibility term
-// * Fresnel approximated with 1/LdotH
-half3 DirectBDRF_Lux(BRDFData brdfData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS)
-{
-#ifndef _SPECULARHIGHLIGHTS_OFF
-    float3 halfDir = SafeNormalize(lightDirectionWS + viewDirectionWS);
-
-    float NoH = saturate(dot(normalWS, halfDir));
-    half LoH = saturate(dot(lightDirectionWS, halfDir));
-
-    // GGX Distribution multiplied by combined approximation of Visibility and Fresnel
-    // BRDFspec = (D * V * F) / 4.0
-    // D = roughness² / ( NoH² * (roughness² - 1) + 1 )²
-    // V * F = 1.0 / ( LoH² * (roughness + 0.5) )
-    // See "Optimizing PBR for Mobile" from Siggraph 2015 moving mobile graphics course
-    // https://community.arm.com/events/1155
-
-    // Final BRDFspec = roughness² / ( NoH² * (roughness² - 1) + 1 )² * (LoH² * (roughness + 0.5) * 4.0)
-    // We further optimize a few light invariant terms
-    // brdfData.normalizationTerm = (roughness + 0.5) * 4.0 rewritten as roughness * 4.0 + 2.0 to a fit a MAD.
-    float d = NoH * NoH * brdfData.roughness2MinusOne + 1.00001f;
-
-    half LoH2 = LoH * LoH;
-    half specularTerm = brdfData.roughness2 / ((d * d) * max(0.1h, LoH2) * brdfData.normalizationTerm);
-
-    // On platforms where half actually means something, the denominator has a risk of overflow
-    // clamp below was added specifically to "fix" that, but dx compiler (we convert bytecode to metal/gles)
-    // sees that specularTerm have only non-negative terms, so it skips max(0,..) in clamp (leaving only min(100,...))
-#if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
-    specularTerm = specularTerm - HALF_MIN;
-    specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
-#endif
-
-    half3 color = specularTerm * brdfData.specular; // + brdfData.diffuse;
-    return color;
-#else
-    return brdfData.diffuse;
-#endif
-}
-
-
-half3 GlobalIllumination_Lux(BRDFData brdfData, half3 bakedGI, half occlusion, half3 normalWS, half3 viewDirectionWS, 
-    half specOccluison)
+half3 GlobalIllumination_Lux(BRDFData brdfData, half3 bakedGI, half occlusion, float3 positionWS, half3 normalWS, half3 viewDirectionWS, 
+    half specOcclusion)
 {
     half3 reflectVector = reflect(-viewDirectionWS, normalWS);
     half fresnelTerm = Pow4(1.0 - saturate(dot(normalWS, viewDirectionWS)));
 
     half3 indirectDiffuse = bakedGI * occlusion;
-    half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, occlusion)        * specOccluison;
+    half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, occlusion)        * specOcclusion;
 
-    return EnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);
+    half3 color = EnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);
+
+//  Debug
+    if (IsOnlyAOLightingFeatureEnabled())
+    {
+        color = occlusion.xxx; // "Base white" for AO debug lighting mode // Lux: We return occlusion here
+    }
+
+    return color;
 }
 
 
@@ -71,7 +32,13 @@ half3 LightingPhysicallyBasedSkin(BRDFData brdfData, half3 lightColor, half3 lig
     //half3 radiance = lightColor * NdotL;
     half3 diffuseLighting = brdfData.diffuse * SAMPLE_TEXTURE2D_LOD(_SkinLUT, sampler_SkinLUT, float2( (NdotLUnclamped * 0.5 + 0.5), curvature), 0).rgb;
     diffuseLighting = lerp(brdfData.diffuse * NdotL, diffuseLighting, skinMask);
-    return ( DirectBDRF_Lux(brdfData, normalWS, lightDirectionWS, viewDirectionWS) * NdotL + diffuseLighting ) * lightColor * lightAttenuation;
+    // return ( DirectBDRF_Lux(brdfData, normalWS, lightDirectionWS, viewDirectionWS) * NdotL + diffuseLighting ) * lightColor * lightAttenuation;
+    #ifndef _SPECULARHIGHLIGHTS_OFF
+        half specularTerm = DirectBRDFSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
+        return ( specularTerm * brdfData.specular * NdotL + diffuseLighting ) * lightColor * lightAttenuation;
+    #else
+        return diffuseLighting * lightColor * lightAttenuation;
+    #endif
 }
 
 half3 LightingPhysicallyBasedSkin(BRDFData brdfData, Light light, half3 normalWS, half3 viewDirectionWS, half NdotL, half NdotLUnclamped, half curvature, half skinMask)
@@ -80,52 +47,101 @@ half3 LightingPhysicallyBasedSkin(BRDFData brdfData, Light light, half3 normalWS
 }
 
 
-half4 LuxLWRPSkinFragmentPBR(InputData inputData, half3 albedo, half metallic, half3 specular,
-    half smoothness, half occlusion, half3 emission, half alpha, half4 translucency, half AmbientReflection, half3 diffuseNormalWS, half3 subsurfaceColor, half curvature, half skinMask)
+half4 LuxURPSkinFragmentPBR(InputData inputData, SurfaceData surfaceData,
+    half4 translucency, half AmbientReflection, half3 diffuseNormalWS, half3 subsurfaceColor, half curvature, half skinMask, half maskbyshadowstrength, half backScatter)
 {
+    
     BRDFData brdfData;
-    InitializeBRDFData(albedo, metallic, specular, smoothness, alpha, brdfData);
+    InitializeBRDFData(surfaceData, brdfData);
 
-    Light mainLight = GetMainLight(inputData.shadowCoord);
-    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
-
-half3 color = GlobalIllumination_Lux(brdfData, inputData.bakedGI, occlusion, inputData.normalWS, inputData.viewDirectionWS,     AmbientReflection);
-
-    half NdotLUnclamped = dot(diffuseNormalWS, mainLight.direction);
-    half NdotL = saturate( dot(inputData.normalWS, mainLight.direction) );
-    color += LightingPhysicallyBasedSkin(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL, NdotLUnclamped, curvature, skinMask);
-
-//  Subsurface Scattering
-    half transPower = translucency.y;
-    half3 transLightDir = mainLight.direction + inputData.normalWS * translucency.w;
-    half transDot = dot( transLightDir, -inputData.viewDirectionWS );
-    transDot = exp2(saturate(transDot) * transPower - transPower);
-    color += skinMask * subsurfaceColor * transDot * (1.0 - saturate(NdotLUnclamped)) * mainLight.color * lerp(1.0h, mainLight.shadowAttenuation, translucency.z) * translucency.x;
-
-
-    #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i)
-        {
-            Light light = GetAdditionalLight(i, inputData.positionWS);
-
-            half NdotLUnclamped = dot(diffuseNormalWS, light.direction);
-            NdotL = saturate( dot(inputData.normalWS, light.direction) );
-            color += LightingPhysicallyBasedSkin(brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL, NdotLUnclamped, curvature, skinMask);
-
-        //  Subsurface Scattering
-            transLightDir = light.direction + inputData.normalWS * translucency.w;
-            transDot = dot( transLightDir, -inputData.viewDirectionWS );
-            transDot = exp2(saturate(transDot) * transPower - transPower);
-            color += skinMask * subsurfaceColor * transDot * (1.0 - NdotL) * light.color * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation * translucency.x;
+    #if defined(DEBUG_DISPLAY)
+        half4 debugColor;
+        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor)) {
+            return debugColor;
         }
     #endif
-    #ifdef _ADDITIONAL_LIGHTS_VERTEX
-        color += inputData.vertexLighting * brdfData.diffuse;
-    #endif
-    color += emission;
-    return half4(color, alpha);
-}
 
+    half4 shadowMask = CalculateShadowMask(inputData);
+    AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
+
+    // NOTE: We don't apply AO to the GI here because it's done in the lighting calculation below...
+    MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
+
+    LightingData lightingData = CreateLightingData(inputData, surfaceData);
+
+    lightingData.giColor = GlobalIllumination_Lux(brdfData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS,     AmbientReflection);
+//  Backscattering
+    #if defined(_BACKSCATTER) && !defined(DEBUG_DISPLAY)
+        lightingData.giColor += backScatter * SampleSH(-diffuseNormalWS) * surfaceData.albedo * aoFactor.indirectAmbientOcclusion * translucency.x * subsurfaceColor * skinMask;
+    #endif
+    
+    #if defined(_LIGHT_LAYERS)
+        if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+        {
+    #endif
+            half3 mainLightColor = mainLight.color;
+            half NdotLUnclamped = dot(diffuseNormalWS, mainLight.direction);
+            half NdotL = saturate( dot(inputData.normalWS, mainLight.direction) );
+            lightingData.mainLightColor = LightingPhysicallyBasedSkin(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL, NdotLUnclamped, curvature, skinMask);
+        
+        //  Subsurface Scattering
+            half transPower = translucency.y;
+            half3 transLightDir = mainLight.direction + inputData.normalWS * translucency.w;
+            half transDot = dot( transLightDir, -inputData.viewDirectionWS );
+            transDot = exp2(saturate(transDot) * transPower - transPower);
+            lightingData.mainLightColor += skinMask * subsurfaceColor * transDot * (1.0h - saturate(NdotLUnclamped)) * mainLightColor * lerp(1.0h, mainLight.shadowAttenuation, translucency.z) * translucency.x;
+    
+    #if defined(_LIGHT_LAYERS)
+        }
+    #endif
+
+    #if defined(_ADDITIONAL_LIGHTS)
+        uint pixelLightCount = GetAdditionalLightsCount();
+
+// Clustered!
+
+        LIGHT_LOOP_BEGIN(pixelLightCount)
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+            
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            {
+        #endif
+                half3 lightColor = light.color;
+                half NdotLUnclamped = dot(diffuseNormalWS, light.direction);
+                half NdotL = saturate( dot(inputData.normalWS, light.direction) );
+                lightingData.additionalLightsColor += LightingPhysicallyBasedSkin(brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL, NdotLUnclamped, curvature, skinMask);
+            
+            //  Subsurface Scattering
+                #if USE_CLUSTERED_LIGHTING
+                    int index = lightIndex;
+                #else
+                    int index = GetPerObjectLightIndex(lightIndex);
+                #endif
+                half4 shadowParams = GetAdditionalLightShadowParams(index);
+                #if !defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
+                    lightColor *= lerp(1, 0, maskbyshadowstrength);
+                #else
+                //	half isPointLight = shadowParams.z;
+                    lightColor *= lerp(1, shadowParams.x, maskbyshadowstrength);
+                #endif
+
+                half transPower = translucency.y;
+                half3 transLightDirA = light.direction + inputData.normalWS * translucency.w;
+                half transDotA = dot( transLightDirA, -inputData.viewDirectionWS );
+                transDotA = exp2(saturate(transDotA) * transPower - transPower);
+                lightingData.additionalLightsColor += skinMask * subsurfaceColor * transDotA * (1.0h - saturate(NdotLUnclamped)) * lightColor * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation * translucency.x;
+        #if defined(_LIGHT_LAYERS)
+            }
+        #endif
+        LIGHT_LOOP_END
+    #endif
+    #ifdef _ADDITIONAL_LIGHTS_VERTEX
+        lightingData.vertexLightingColor += inputData.vertexLighting * brdfData.diffuse;
+    #endif
+    return CalculateFinalColor(lightingData, surfaceData.alpha);
+}
 
 #endif

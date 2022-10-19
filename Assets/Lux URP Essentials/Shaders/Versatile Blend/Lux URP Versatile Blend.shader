@@ -6,7 +6,7 @@ Shader "Lux URP/Versatile Blend"
         [HeaderHelpLuxURP_URL(bmrgpp8nhuvj)]
       
         [Header(Surface Blending)]
-        [Space(5)]
+        [Space(8)]
         _Shift                      ("Depth Shift", Range(0.0, 0.03)) = 0.01
         _AlphaShift                 ("Alpha Shift", Range(0.0, 1)) = 0.1
         _AlphaWidth                 ("Alpha Contraction", Range(0.0, 20)) = 4
@@ -16,7 +16,7 @@ Shader "Lux URP/Versatile Blend"
         _ShadowShiftView            ("Shadow Shift View", Range(0, 1)) = 0
 
         [Header(Surface Options)]
-        [Space(5)]
+        [Space(8)]
         [Enum(UnityEngine.Rendering.CullMode)]
         _Cull                       ("Culling", Float) = 2
         [Enum(Off,0,On,1)]
@@ -29,7 +29,7 @@ Shader "Lux URP/Versatile Blend"
 
 
         [Header(Surface Inputs)]
-        [Space(5)]
+        [Space(8)]
         [MainColor]
         _BaseColor                  ("Color", Color) = (1,1,1,1)
         [MainTexture]
@@ -48,7 +48,7 @@ Shader "Lux URP/Versatile Blend"
 
 
         [Header(Advanced)]
-        [Space(5)]
+        [Space(8)]
         [ToggleOff]
         _SpecularHighlights         ("Enable Specular Highlights", Float) = 1.0
         [ToggleOff]
@@ -68,9 +68,11 @@ Shader "Lux URP/Versatile Blend"
     {
         Tags
         {
-            "RenderPipeline" = "LightweightPipeline"
+            
+            "RenderPipeline" = "UniversalPipeline"
             "RenderType" = "Opaque"
             "Queue" = "Transparent"
+            "IgnoreProjector" = "True"
         }
         
         LOD 100
@@ -127,14 +129,20 @@ Shader "Lux URP/Versatile Blend"
             #pragma shader_feature _RECEIVE_SHADOWS_OFF
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
 
             // -------------------------------------
             // Unity defined keywords
@@ -145,6 +153,7 @@ Shader "Lux URP/Versatile Blend"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Versatile Blend Inputs.hlsl"
@@ -210,14 +219,17 @@ Shader "Lux URP/Versatile Blend"
 
             inline void InitializeSurfaceData(
                 float2 uv,
-                out SurfaceDescription outSurfaceData)
+                out SurfaceData outSurfaceData)
             {
+                
+                outSurfaceData = (SurfaceData)0;
+
                 half4 albedoAlpha = SampleAlbedoAlpha(uv.xy, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
                 outSurfaceData.alpha = Alpha(albedoAlpha.a, 1, _Cutoff);
                 outSurfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
 
                 outSurfaceData.metallic = 0;
-                outSurfaceData.specular = _SpecColor;
+                outSurfaceData.specular = _SpecColor.rgb;
                 outSurfaceData.smoothness = _Smoothness;
                 
                 outSurfaceData.smoothness *= albedoAlpha.a;
@@ -254,6 +266,10 @@ Shader "Lux URP/Versatile Blend"
                 inputData.fogCoord = input.fogFactorAndVertexLight.x;
                 inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
                 inputData.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH * occlusion, inputData.normalWS);
+
+//  this shader is transparent so it will never write to depth normal...
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
+                inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUV);
             }
 
             half4 LitPassFragment(VertexOutput input) : SV_Target
@@ -262,7 +278,7 @@ Shader "Lux URP/Versatile Blend"
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
             //  Get the surface description
-                SurfaceDescription surfaceData;
+                SurfaceData surfaceData;
                 InitializeSurfaceData(input.uv, surfaceData);
 
             //  Get scene depth
@@ -281,6 +297,7 @@ Shader "Lux URP/Versatile Blend"
             //  Depth based blending
                 float depthDist = perspectiveSceneDepth - input.positionCS.w + _AlphaShift;
                 surfaceData.alpha = saturate(depthDist * _AlphaWidth);
+//surfaceData.alpha = 1;
 
             //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
                 InputData inputData;
@@ -300,27 +317,37 @@ Shader "Lux URP/Versatile Blend"
                 shadowShift *= _ShadowShift;
                 float3 finalShift = float3(0, shadowShift, 0) + viewShift;
 
+            //  Limit shift: Depth buffer sample might be some where in space or even sky!
+                finalShift *= saturate(1.0 - depthDist);                
+
             //  Calculate shadowCoord. We have to do it per pixel :(
-                #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
-                    #if defined(_MAIN_LIGHT_SHADOWS_CASCADE)
-                        half cascadeIndex = ComputeCascadeIndex(input.positionWS);
-                    #else
-                        half cascadeIndex = 0;
-                    #endif
+                #if ( defined(_MAIN_LIGHT_SHADOWS) || defined(_MAIN_LIGHT_SHADOWS_CASCADE) ) && !defined(_RECEIVE_SHADOWS_OFF)
+                    // #if defined(_MAIN_LIGHT_SHADOWS_CASCADE)
+                    //     half cascadeIndex = ComputeCascadeIndex(input.positionWS + finalShift);
+                    // #else
+                    //     half cascadeIndex = 0;
+                    // #endif
                 //  As we do not want shadows on the blended parts from the geometry they intersect with we have to "somehow" shift the shadowCoords.
                 //  Shifting along view dir: Good...
                     // inputData.shadowCoord = mul(_MainLightWorldToShadow[cascadeIndex], float4(input.positionWS + (1 - surfaceData.alpha) * viewDirWS * _AlphaShift, 1.0));
                 //  Shifting along WS Y axis: Gives us false shadows when viewing along the direction of the light: Shadows slip under the blended geometry.
                     // inputData.shadowCoord = mul(_MainLightWorldToShadow[cascadeIndex], float4(input.positionWS   + float3(0, _AlphaShift, 0), 1.0));
                 //  Shifting upwards according to distance below surfaces on screen and view
-                    inputData.shadowCoord = mul(_MainLightWorldToShadow[cascadeIndex], float4(input.positionWS + finalShift, 1.0));
-                #endif
+//                  inputData.shadowCoord = mul(_MainLightWorldToShadow[cascadeIndex], float4(input.positionWS + finalShift, 1.0));
+                //#endif
+                    inputData.shadowCoord = TransformWorldToShadowCoord(input.positionWS + finalShift);
+                #endif  
+
+#ifdef _DBUFFER
+    ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
+#endif
+
 
             //  Apply lighting
-                //half4 color = UniversalFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha);
-                half4 color = LuxFragmentBlendPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha,
-                    finalShift
-                );
+                half4 color = UniversalFragmentPBR(inputData, surfaceData);
+//half4 color = LuxFragmentBlendPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha,
+//    finalShift
+//);
 
             //  Add fog
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
@@ -340,6 +367,7 @@ Shader "Lux URP/Versatile Blend"
 
             ZWrite On
             ZTest LEqual
+            ColorMask 0
             Cull [_Cull]
 
             HLSLPROGRAM
@@ -356,6 +384,7 @@ Shader "Lux URP/Versatile Blend"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -430,6 +459,7 @@ Shader "Lux URP/Versatile Blend"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
             
             #define DEPTHONLYPASS
             #include "Includes/Lux URP Versatile Blend Inputs.hlsl"
@@ -465,6 +495,43 @@ Shader "Lux URP/Versatile Blend"
             ENDHLSL
         }
 
+    //  Depth Normal ----------------------------------------------------- 
+    //  this shader is transparent so it will never write to depth normal...
+        // Pass
+        // {
+        //     Name "DepthNormals"
+        //     Tags{
+        //         "LightMode" = "DepthNormals"
+        //     }
+
+        //     ZWrite On
+        //     Cull[_Cull]
+
+        //     HLSLPROGRAM
+        //     // Required to compile gles 2.0 with standard srp library
+        //     #pragma prefer_hlslcc gles
+        //     #pragma exclude_renderers d3d11_9x
+        //     #pragma target 2.0
+
+        //     #pragma vertex DepthNormalsVertex
+        //     #pragma fragment DepthNormalsFragment
+
+        //     // -------------------------------------
+        //     // Material Keywords
+        //     #pragma shader_feature_local _NORMALMAP
+        //     #pragma shader_feature_local_fragment _ALPHATEST_ON
+        //     #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+        //     //--------------------------------------
+        //     // GPU Instancing
+        //     #pragma multi_compile_instancing
+        //     // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+
+        //     #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+        //     #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthNormalsPass.hlsl"
+        //     ENDHLSL
+        // }
+
     //  Meta -----------------------------------------------------
         
         Pass
@@ -478,7 +545,7 @@ Shader "Lux URP/Versatile Blend"
             #pragma prefer_hlslcc gles
 
             #pragma vertex UniversalVertexMeta
-            #pragma fragment UniversalFragmentMeta
+            #pragma fragment UniversalFragmentMetaLit
 
             #define _SPECULAR_SETUP
 
@@ -494,11 +561,14 @@ Shader "Lux URP/Versatile Blend"
                 outSurfaceData.alpha = 1;
                 outSurfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
                 outSurfaceData.metallic = 0;
-                outSurfaceData.specular = _SpecColor;
+                outSurfaceData.specular = _SpecColor.rgb;
                 outSurfaceData.smoothness = _Smoothness;
                 outSurfaceData.normalTS = half3(0,0,1);
                 outSurfaceData.occlusion = 1;
                 outSurfaceData.emission = 0;
+
+                outSurfaceData.clearCoatMask = 0;
+                outSurfaceData.clearCoatSmoothness = 0;
             }
 
         //  Finally include the meta pass related stuff  

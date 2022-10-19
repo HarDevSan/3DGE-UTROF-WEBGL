@@ -6,42 +6,91 @@
 
 inline half3 LightingTreeBark (Light light, half3 albedo, half3 specular, half gloss, half squashAmount, half3 normal, half3 viewDir)
 {
-    float3 halfDir = SafeNormalize(light.direction + viewDir);
+    
     half NoL = saturate( dot (normal, light.direction) );
-    float NoH = saturate( dot (normal, halfDir) );
-    float spec = pow (NoH, specular.r * 128.0f) * gloss;
+    #ifndef _SPECULARHIGHLIGHTS_OFF
+        float3 halfDir = SafeNormalize(light.direction + viewDir);
+        float NoH = saturate( dot (normal, halfDir) );
+        float spec = pow (NoH, specular.r * 128.0f) * gloss;
+    #endif
     
     half3 c;
     half3 lighting = light.color * light.distanceAttenuation * light.shadowAttenuation * squashAmount;
-    // c = albedo * lighting * NoL + lighting * specular * spec;
-    c = (albedo + specular * spec) * NoL * lighting;
+    #ifndef _SPECULARHIGHLIGHTS_OFF
+        c = (albedo + specular * spec) * NoL * lighting;
+    #else 
+        c = albedo * NoL * lighting;
+    #endif
     return c;
 }
 
-half4 LuxLWRPTreeBarkFragment (InputData inputData, half3 albedo, half3 specular,
-    half smoothness, half occlusion, half alpha, half squashAmount
+half4 LuxURPTreeBarkFragment
+(
+    InputData inputData, SurfaceData surfaceData,
+    half squashAmount
 )
 {
-    Light mainLight = GetMainLight(inputData.shadowCoord);
-    //MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
 
-    half3 color = albedo * inputData.bakedGI * occlusion;
-    color += LightingTreeBark(mainLight, albedo, specular, smoothness, 1.0h, inputData.normalWS, inputData.viewDirectionWS);
+//  Needed for GI    
+    BRDFData brdfData;
+    InitializeBRDFData(surfaceData, brdfData);
 
-    #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i)
+    #if defined(DEBUG_DISPLAY)
+        half4 debugColor;
+        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
         {
-            Light light = GetAdditionalLight(i, inputData.positionWS);
-            color += LightingTreeBark(light, albedo, specular, smoothness, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
+            return debugColor;
         }
     #endif
 
+//  Init
+    half4 shadowMask = CalculateShadowMask(inputData);
+    AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+
+    Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
+
+    LightingData lightingData = CreateLightingData(inputData, surfaceData);
+    lightingData.giColor = GlobalIllumination(brdfData, brdfData, 0,
+                                              inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
+                                              inputData.normalWS, inputData.viewDirectionWS);
+
+//  Main Light
+    #if defined(_LIGHT_LAYERS)
+        if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+        {
+    #endif
+            lightingData.mainLightColor += LightingTreeBark(mainLight, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, 1, inputData.normalWS, inputData.viewDirectionWS);
+    #if defined(_LIGHT_LAYERS)
+        }
+    #endif
+
+//  Additional Lights
+    #ifdef _ADDITIONAL_LIGHTS
+        uint pixelLightCount = GetAdditionalLightsCount();
+        
+        LIGHT_LOOP_BEGIN(pixelLightCount)
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            {
+        #endif
+            #if defined(_SCREEN_SPACE_OCCLUSION)
+                light.color *= aoFactor.directAmbientOcclusion;
+            #endif
+            lightingData.additionalLightsColor += LightingTreeBark(light, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
+        #if defined(_LIGHT_LAYERS)
+                }
+        #endif
+        LIGHT_LOOP_END
+    #endif
+
     #ifdef _ADDITIONAL_LIGHTS_VERTEX
-        color += inputData.vertexLighting * albedo;
+        lightingData.vertexLightingColor += inputData.vertexLighting * surfaceData.albedo;
     #endif
     
-    return half4(color, alpha);
+    return CalculateFinalColor(lightingData, surfaceData.alpha);
 }
 
 
@@ -50,10 +99,12 @@ half4 LuxLWRPTreeBarkFragment (InputData inputData, half3 albedo, half3 specular
 
 inline half3 LightingTreeLeaf(Light light, half3 albedo, half3 specular, half gloss, half2 translucency, half3 translucencyColor, half squashAmount, half3 normal, half3 viewDir)
 {
-    float3 halfDir = SafeNormalize(light.direction + viewDir);
     half NoL = dot(normal, light.direction);
-    float NoH = saturate( dot (normal, halfDir) );
-    float spec = pow(NoH, specular.r * 128.0f) * gloss;
+    #ifndef _SPECULARHIGHLIGHTS_OFF
+        float3 halfDir = SafeNormalize(light.direction + viewDir);
+        float NoH = saturate( dot (normal, halfDir) );
+        float spec = pow(NoH, specular.r * 128.0f) * gloss;
+    #endif
     
     // view dependent back contribution for translucency
     half backContrib = saturate(dot(viewDir, -light.direction));
@@ -66,41 +117,87 @@ inline half3 LightingTreeLeaf(Light light, half3 albedo, half3 specular, half gl
     half3 c;
     /////@TODO: what is is this multiply 2x here???
     c = albedo * (translucencyColor * 2 + NoL);
-//  No lighting on spec?!
-    // c = c * light.color * light.distanceAttenuation * light.shadowAttenuation * squashAmount + spec;
+
+//  NOTE: squashAmount is 1 for directional lights as only additional gets faded in.
     half3 lighting = light.color * light.distanceAttenuation * light.shadowAttenuation * squashAmount;
-    c = (c + spec) * lighting;
+    
+    #ifndef _SPECULARHIGHLIGHTS_OFF
+        c = (c + spec) * lighting;
+    #else 
+        c = c * lighting;
+    #endif
     
     return c;
 }
 
 
-half4 LuxLWRPTreeLeafFragmentPBR(InputData inputData, half3 albedo, half3 specular,
-    half smoothness, half occlusion, half alpha, half2 translucency, half3 translucencyColor, half squashAmount, half shadowStrength
+half4 LuxURPTreeLeafFragmentPBR (
+    InputData inputData, SurfaceData surfaceData,
+    half2 translucency, half3 translucencyColor, half squashAmount, half shadowStrength
 )
 {
-    Light mainLight = GetMainLight(inputData.shadowCoord);
-    //MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
 
-    mainLight.shadowAttenuation = lerp(1.0h, mainLight.shadowAttenuation, shadowStrength * squashAmount /* fade out */);
+//  Needed for GI    
+    BRDFData brdfData;
+    InitializeBRDFData(surfaceData, brdfData);
 
-    half3 color = albedo * inputData.bakedGI * occlusion;
-    color += LightingTreeLeaf(mainLight, albedo, specular, smoothness, translucency, translucencyColor, 1, inputData.normalWS, inputData.viewDirectionWS);
-
-    #ifdef _ADDITIONAL_LIGHTS
-        int pixelLightCount = GetAdditionalLightsCount();
-        for (int i = 0; i < pixelLightCount; ++i)
+    #if defined(DEBUG_DISPLAY)
+        half4 debugColor;
+        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
         {
-            Light light = GetAdditionalLight(i, inputData.positionWS);
-            color += LightingTreeLeaf(light, albedo, specular, smoothness, translucency, translucencyColor, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
+            return debugColor;
         }
     #endif
 
-    #ifdef _ADDITIONAL_LIGHTS_VERTEX
-        color += inputData.vertexLighting * albedo;
-    #endif
-    
-    return half4(color, alpha);
-}
+//  Init
+    half4 shadowMask = CalculateShadowMask(inputData);
+    AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+    uint meshRenderingLayers = GetMeshRenderingLightLayer();
 
+    Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
+//  Tree creator leaves specifics
+    mainLight.shadowAttenuation = lerp(1.0h, mainLight.shadowAttenuation, shadowStrength * squashAmount /* fade out */);
+    mainLight.color *= aoFactor.directAmbientOcclusion;
+
+    LightingData lightingData = CreateLightingData(inputData, surfaceData);
+
+    lightingData.giColor = GlobalIllumination(brdfData, brdfData, 0,
+                                              inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
+                                              inputData.normalWS, inputData.viewDirectionWS);
+//  Main Light
+    #if defined(_LIGHT_LAYERS)
+        if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+        {
+    #endif
+            lightingData.mainLightColor += LightingTreeLeaf(mainLight, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, translucency, translucencyColor, 1, inputData.normalWS, inputData.viewDirectionWS);
+    #if defined(_LIGHT_LAYERS)
+        }
+    #endif
+
+//  Additional Lights
+    #ifdef _ADDITIONAL_LIGHTS
+        uint pixelLightCount = GetAdditionalLightsCount();
+        
+        LIGHT_LOOP_BEGIN(pixelLightCount) 
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            {
+        #endif
+            #if defined(_SCREEN_SPACE_OCCLUSION)
+                light.color *= aoFactor.directAmbientOcclusion;
+            #endif
+            lightingData.additionalLightsColor += LightingTreeLeaf(light, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, translucency, translucencyColor, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
+        #if defined(_LIGHT_LAYERS)
+                }
+        #endif
+        LIGHT_LOOP_END
+    #endif
+
+    #ifdef _ADDITIONAL_LIGHTS_VERTEX
+        lightingData.vertexLightingColor += inputData.vertexLighting * surfaceData.albedo;
+    #endif
+
+    return CalculateFinalColor(lightingData, surfaceData.alpha);
+}
 #endif

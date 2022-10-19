@@ -19,7 +19,7 @@
 
         half    _Cutoff;
         half    _Smoothness;
-        half3   _SpecColor;
+        half4   _SpecColor;
         half    _Occlusion;
         half4   _WindMultiplier;
         float2  _DistanceFade;
@@ -65,11 +65,14 @@
         half2 fadeOcclusion                 : TEXCOORD9;
 
         #if !defined(UNITY_PASS_SHADOWCASTER) && !defined(DEPTHONLYPASS)
-            DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
-            #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-                float3 positionWS           : TEXCOORD2;
-            #endif
             float3 normalWS                 : TEXCOORD3;
+        #endif
+
+        #if !defined(UNITY_PASS_SHADOWCASTER) && !defined(DEPTHONLYPASS) && !defined(DEPTHNORMALONLYPASS)
+            DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
+            //#if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
+                float3 positionWS           : TEXCOORD2;
+            //#endif
             #ifdef _NORMALMAP
                 float4 tangentWS            : TEXCOORD4;
             #endif
