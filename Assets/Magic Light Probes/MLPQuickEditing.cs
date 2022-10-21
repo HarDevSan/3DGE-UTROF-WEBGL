@@ -16,13 +16,13 @@ namespace MagicLightProbes
         public float drawDistance = 10;
         private Vector3 _lastPrefabPosition = Vector3.zero;
         private Quaternion _lastPrefabRotation = Quaternion.identity;
-        
+
+#if UNITY_EDITOR
 #if UNITY_2020_1_OR_NEWER
         private UnityEditor.SceneManagement.PrefabStage prefabStage;
         private UnityEditor.SceneManagement.PrefabStage.Mode prefabStageMode;
 #endif
 
-#if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
             var position = Vector3.zero;
@@ -90,5 +90,5 @@ namespace MagicLightProbes
             }
         }
 #endif
-    }    
+    }
 }
