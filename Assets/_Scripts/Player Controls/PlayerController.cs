@@ -10,7 +10,6 @@ public class PlayerController : MonoBehaviour
     public Transform castRayFrom;
 
     public Camera _mainCamera;
-    public Animator playerAnimator;
 
     public static bool isApplyGravity;
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Room;
@@ -23,11 +22,10 @@ public class PlayerController : MonoBehaviour
     public LayerMask interactionMaskItem;
     public LayerMask interactionMaskScriptedEvent;
 
-
     CharacterController _characterController;
 
     Vector3 _gravity;
-    Vector3 inputVectorWASD;
+    Vector2 inputVectorWASD;
 
     public delegate void PlayerSeesSomehtingInteractable_Room();
     public static event PlayerSeesSomehtingInteractable_Room OnPlayerSeesSomethingInteractable_Room;
@@ -40,6 +38,7 @@ public class PlayerController : MonoBehaviour
     public PlayerStats playerstats;
 
     static bool isCharControllerEnabled;
+    public static bool isPlayerIdling;
 
     private void Awake()
     {
@@ -64,8 +63,6 @@ public class PlayerController : MonoBehaviour
         //Gravity needs to always be applied, even if we have no jumping but maybe some falling
         // if (isApplyGravity)
         ApplyGravity();
-
-        AnimatePlayer();
 
         //Only call Movement related functions if the player does movmeent input
         if (InputManager.CheckIfAnyMovementInput())
@@ -95,6 +92,22 @@ public class PlayerController : MonoBehaviour
         {
             TurnPlayer();
         }
+
+        PollPlayerIdleState();
+
+    }
+
+    void PollPlayerIdleState()
+    {
+        //Does the player idle?
+        if (inputVectorWASD.y == 0)
+        {
+            isPlayerIdling = true;
+        }
+        else
+        {
+            isPlayerIdling = false;
+        }
     }
 
 
@@ -120,32 +133,33 @@ public class PlayerController : MonoBehaviour
 
     void MovePlayerWASD()
     {
-
         //Zero-ed out y of camera forward and right vectors, preventing slow down through y-axis taken into account
         Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.x, 0f, _mainCamera.transform.forward.z).normalized;
         Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.x, 0f, _mainCamera.transform.right.z).normalized;
 
-        if (InputManager.CheckIfVerticalInput() == false)
+        if (InputManager.CheckIfVerticalInput() == true)
         {
             if (inputVectorWASD.y < 0)
             {
                 playerstats._walkSpeed = playerstats._walkBackwardsSpeed;
+                
             }
             else if (inputVectorWASD.y > 0)
             {
                 playerstats._walkSpeed = playerstats._defaultWalkSpeed;
+               
             }
         }
         else
         {
-            if (inputVectorWASD.y < 0)
-            {
-                playerstats._walkSpeed = playerstats._walkBackwardsSpeed;
-            }
-            else if (inputVectorWASD.y > 0)
-            {
-                Run();
-            }
+            //if (inputVectorWASD.y < 0)
+            //{
+            //    playerstats._walkSpeed = playerstats._walkBackwardsSpeed;
+            //}
+            //else if (inputVectorWASD.y > 0)
+            //{
+            //    Run();
+            //}
         }
         //Forwards Backwards Movements
         _characterController.Move(camForwardZeroY * inputVectorWASD.normalized.y * playerstats._walkSpeed * Time.deltaTime);
@@ -256,11 +270,6 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = resetTo.position;
         }
-    }
-
-    void AnimatePlayer()
-    {
-        playerAnimator.SetFloat("WalkSpeed", InputReceiver.movementInput.magnitude);
     }
 
     public static void SetPlayerToPlayableState()
