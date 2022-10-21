@@ -98,7 +98,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 2
-  m_LightingDataAsset: {fileID: 112000002, guid: 727053ccd4457b541a5f15d1dc97d6a4,
+  m_LightingDataAsset: {fileID: 112000000, guid: 268d240b7c247784a9a539055926cc19,
     type: 2}
   m_LightingSettings: {fileID: 567111875}
 --- !u!196 &4
@@ -574,6 +574,88 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 10017253}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &13034282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA9
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 9
+  sortingID: 11
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
+--- !u!114 &21489322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA2
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 2
+  sortingID: 4
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &22495102
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1272,6 +1354,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1026206034}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &40170892
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 40170894}
+  - component: {fileID: 40170893}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 5
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &40170893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 40170892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 5
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &40170894
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 40170892}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.37499988, y: 0, z: 0.37500003}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 21
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &43842338
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2010,7 +2160,7 @@ MonoBehaviour:
   renderSettingsShowTasks2: 0
   renderSettingsShowPaths: 1
   renderSettingsShowNet: 1
-  renderSettingsOcclusionProbes: 1
+  renderSettingsOcclusionProbes: 0
   renderSettingsTexelsPerMap: 1
   renderSettingsTexelsColor: 1
   renderSettingsTexelsMask: 1
@@ -2041,12 +2191,12 @@ MonoBehaviour:
   renderSettingsSector: {fileID: 0}
   renderSettingsRTPVExport: 1
   renderSettingsRTPVSceneView: 0
-  renderSettingsRTPVWidth: 1954
-  renderSettingsRTPVHeight: 765
-  lastBakeTime: 63
+  renderSettingsRTPVWidth: 1541
+  renderSettingsRTPVHeight: 934
+  lastBakeTime: 68
   enlightenWarningShown: 1
   enlightenWarningShown2: 0
-  lightUIDs: 711ec49114e37a3b5ccd57455b3d9e56ac0ce9f285b056653c4f4ed94b7608d58915331329832be1
+  lightUIDs: 711ec491e04a857e5ccd5745ac0ce9f285b056658915331329832be1
   lights:
   - tform:
       e00: 0.09058569
@@ -2139,36 +2289,6 @@ MonoBehaviour:
     cookie: {fileID: 0}
     angle: 179
   - tform:
-      e00: 0.09409577
-      e01: 0.73521495
-      e02: 0.6712712
-      e03: -48.6654
-      e10: 0.017697752
-      e11: 0.67292094
-      e12: -0.73950267
-      e13: 1.3547006
-      e20: -0.9954059
-      e21: 0.08146411
-      e22: 0.050307333
-      e23: 2.038
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    color: {r: 1, g: 0.9064752, b: 0.6666667, a: 1}
-    intensity: 2.12
-    range: 23.88
-    radius: 0.05
-    samples: 16
-    samples2: 0
-    bitmask: 0
-    bakeToIndirect: 0
-    selfShadow: 0
-    realisticFalloff: 1
-    projMode: 3
-    cookie: {fileID: 102900000, guid: 83af1682be3ceed48936fbfa832893e8, type: 3}
-    angle: 121
-  - tform:
       e00: 0.50452673
       e01: -0.16047812
       e02: 0.8483511
@@ -2186,7 +2306,7 @@ MonoBehaviour:
       e32: 0
       e33: 1
     color: {r: 1, g: 0.90733933, b: 0.7122642, a: 1}
-    intensity: 205.79
+    intensity: 169.1
     range: 59.20989
     radius: 0.03
     samples: 16
@@ -2216,7 +2336,7 @@ MonoBehaviour:
       e32: 0
       e33: 1
     color: {r: 1, g: 0.90733933, b: 0.7122642, a: 1}
-    intensity: 205.79
+    intensity: 169.1
     range: 59.20989
     radius: 0.03
     samples: 16
@@ -2228,66 +2348,6 @@ MonoBehaviour:
     projMode: 4
     cookie: {fileID: 0}
     angle: 38.14374
-  - tform:
-      e00: 0.09409577
-      e01: 0.73521495
-      e02: 0.6712712
-      e03: -48.7465
-      e10: 0.017697752
-      e11: 0.67292094
-      e12: -0.73950267
-      e13: 1.3630004
-      e20: -0.9954059
-      e21: 0.08146411
-      e22: 0.050307333
-      e23: 3.7059994
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    color: {r: 1, g: 0.9064752, b: 0.6666667, a: 1}
-    intensity: 2.12
-    range: 23.88
-    radius: 0.05
-    samples: 16
-    samples2: 0
-    bitmask: 0
-    bakeToIndirect: 0
-    selfShadow: 0
-    realisticFalloff: 1
-    projMode: 3
-    cookie: {fileID: 102900000, guid: 83af1682be3ceed48936fbfa832893e8, type: 3}
-    angle: 121
-  - tform:
-      e00: 0.09409577
-      e01: 0.73521495
-      e02: 0.6712712
-      e03: -48.5755
-      e10: 0.017697752
-      e11: 0.67292094
-      e12: -0.73950267
-      e13: 1.3670001
-      e20: -0.9954059
-      e21: 0.08146411
-      e22: 0.050307333
-      e23: 0.4659996
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    color: {r: 1, g: 0.9064752, b: 0.6666667, a: 1}
-    intensity: 2.12
-    range: 23.88
-    radius: 0.05
-    samples: 16
-    samples2: 0
-    bitmask: 0
-    bakeToIndirect: 0
-    selfShadow: 0
-    realisticFalloff: 1
-    projMode: 3
-    cookie: {fileID: 102900000, guid: 83af1682be3ceed48936fbfa832893e8, type: 3}
-    angle: 121
   - tform:
       e00: 1
       e01: 0
@@ -2349,187 +2409,185 @@ MonoBehaviour:
     cookie: {fileID: 0}
     angle: 30
   implicitGroups:
-  - {fileID: 1674466610}
-  - {fileID: 797698565}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1011403132}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2042646259}
-  - {fileID: 1441979118}
-  - {fileID: 2042646259}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2042646259}
-  - {fileID: 775859724}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1048414435}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1925595915}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1925595915}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1398986226}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 2094402533}
-  - {fileID: 775859724}
-  - {fileID: 2094402533}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1011403132}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1011403132}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2042646259}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1864702948}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 2094402533}
-  - {fileID: 2042646259}
-  - {fileID: 1011403132}
-  - {fileID: 1441979118}
-  - {fileID: 1440948866}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1011403132}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 2042646259}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 775859724}
-  - {fileID: 2094402533}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 2042646259}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 2094402533}
-  - {fileID: 2042646259}
-  - {fileID: 1783200140}
-  - {fileID: 2094402533}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2042646259}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1925595915}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 2094402533}
-  - {fileID: 1441979118}
-  - {fileID: 2094402533}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 775859724}
-  - {fileID: 2094402533}
-  - {fileID: 775859724}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
-  - {fileID: 1441979118}
+  - {fileID: 2025648924}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 2119524975}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 2027680522}
+  - {fileID: 766491356}
+  - {fileID: 2027680522}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 2027680522}
+  - {fileID: 181095212}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 1369405732}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 1719081331}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 1719081331}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 1488701048}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 540491863}
+  - {fileID: 181095212}
+  - {fileID: 540491863}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 2119524975}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 2119524975}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 2027680522}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 512159088}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 540491863}
+  - {fileID: 2027680522}
+  - {fileID: 2119524975}
+  - {fileID: 766491356}
+  - {fileID: 13034282}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 2119524975}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 2027680522}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 181095212}
+  - {fileID: 540491863}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 2027680522}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 540491863}
+  - {fileID: 2027680522}
+  - {fileID: 21489322}
+  - {fileID: 540491863}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 2027680522}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 1719081331}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 540491863}
+  - {fileID: 766491356}
+  - {fileID: 540491863}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 181095212}
+  - {fileID: 540491863}
+  - {fileID: 181095212}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
+  - {fileID: 766491356}
   implicitGroupedObjects:
-  - {fileID: 0}
   - {fileID: 10017254}
   - {fileID: 57386736}
   - {fileID: 59771024}
@@ -2865,30 +2923,30 @@ MonoBehaviour:
     padding: 6e000000
     unwrapper: 00000000
   maps:
-  - {fileID: 2800000, guid: a0a3f848669e29c4aadfd57d8b542f29, type: 3}
-  - {fileID: 2800000, guid: 865ac9191d139324d88097ddd3010b68, type: 3}
-  - {fileID: 2800000, guid: 0783ad1f6d0099649bb084e0f30ad7a5, type: 3}
-  - {fileID: 2800000, guid: 75250f23432030c4cbc978f16f3b0b5e, type: 3}
-  - {fileID: 2800000, guid: ee53250883ac1d144bd2c84bd0c96bf0, type: 3}
-  - {fileID: 2800000, guid: 403d1d0b1dd0dd14c953d4d222f69550, type: 3}
-  - {fileID: 2800000, guid: 19ee42f10c951244d9a15b93ffd731c2, type: 3}
-  - {fileID: 2800000, guid: 6b6182accf27a3749a2faa48b52bcf7c, type: 3}
-  - {fileID: 2800000, guid: 9bf0a7032c08e00438ca3c3b6a5aa73f, type: 3}
-  - {fileID: 2800000, guid: da9960fd88a428445bf2ffdc87175637, type: 3}
-  - {fileID: 2800000, guid: 95666031c8868e0439721876e8def0b6, type: 3}
+  - {fileID: 2800000, guid: ebe3c7f1fc2d6c248bfa53a4363eed32, type: 3}
+  - {fileID: 2800000, guid: 1acd502a814006d4c882b66da5011f88, type: 3}
+  - {fileID: 2800000, guid: 96e1bbaf4df198d4e85c74a57c91a97d, type: 3}
+  - {fileID: 2800000, guid: 793f66a9a635b0446a29515df81c1e74, type: 3}
+  - {fileID: 2800000, guid: 25f6c608a91412c44a5025379bcce214, type: 3}
+  - {fileID: 2800000, guid: 9d28f46d6ce9af540b6222f03836330b, type: 3}
+  - {fileID: 2800000, guid: ed8c7bae59ea80141a1c9519ad227778, type: 3}
+  - {fileID: 2800000, guid: cdfd017f1e7ad2949b7606f97b75a9aa, type: 3}
+  - {fileID: 2800000, guid: 56b3dc8b35a53df459029f0a1b480ba0, type: 3}
+  - {fileID: 2800000, guid: 8f674fe26da64a94c977436ace8f1483, type: 3}
+  - {fileID: 2800000, guid: 8ecb9de25716f8841bd7b02dae038149, type: 3}
   masks: []
   dirMaps:
-  - {fileID: 2800000, guid: 95aaaace8f62c8840860f0719ae14ddb, type: 3}
-  - {fileID: 2800000, guid: b51f9a4755040034cab93220bf380c39, type: 3}
-  - {fileID: 2800000, guid: a3afbb4774cd0b7408f2dcc5b6fd9e49, type: 3}
-  - {fileID: 2800000, guid: 6706906fe11f6d541952883710e5addd, type: 3}
-  - {fileID: 2800000, guid: a9e329b6fd363a7469b4a0065e28a99d, type: 3}
-  - {fileID: 2800000, guid: e3b184e6e9eebac4083c26cb9e303372, type: 3}
-  - {fileID: 2800000, guid: 54956132883f63d498081e3e4602870a, type: 3}
-  - {fileID: 2800000, guid: ecc523a31ca787b4c8580ecc06d08a05, type: 3}
-  - {fileID: 2800000, guid: 59a86a06986107946af43f1a3771c7fc, type: 3}
-  - {fileID: 2800000, guid: 5219b8cd5810ad547980473880db4220, type: 3}
-  - {fileID: 2800000, guid: 40bd74b4d2d356a44b22d27ebfaa1ea3, type: 3}
+  - {fileID: 2800000, guid: 86946b9246fc5a84db02fb59cd368968, type: 3}
+  - {fileID: 2800000, guid: 6e1cf162daf07bf4aa1cec4079744dff, type: 3}
+  - {fileID: 2800000, guid: 90fa5a3cfddeadd47aaded1d364bba4d, type: 3}
+  - {fileID: 2800000, guid: 15f7718f5c56bdc4bbec4fe469981c8a, type: 3}
+  - {fileID: 2800000, guid: 3fb3cb4193eac8f49b83d68a2f045e95, type: 3}
+  - {fileID: 2800000, guid: 114ab6e82f80b674fa9fecadda392a5a, type: 3}
+  - {fileID: 2800000, guid: 1d0f6034f4504b546b3a993e1fa4bb91, type: 3}
+  - {fileID: 2800000, guid: f57e4e3a65945984d9532ccc7a6846c4, type: 3}
+  - {fileID: 2800000, guid: f58c3f28e4d1ab049b876aca785b92e5, type: 3}
+  - {fileID: 2800000, guid: bc6d6d65754c28444889f3ae825d6a78, type: 3}
+  - {fileID: 2800000, guid: 8622a76b7adbd1443af61bfa9c00cd27, type: 3}
   rnmMaps0: []
   rnmMaps1: []
   rnmMaps2: []
@@ -3436,12 +3494,9 @@ MonoBehaviour:
   - {fileID: 2059727658101398978}
   - {fileID: 914722854}
   - {fileID: 992406164}
-  - {fileID: 1443765490}
   - {fileID: 1535482598}
   - {fileID: 1994182352}
-  - {fileID: 2050254254}
-  - {fileID: 2055294618}
-  bakedLightChannels: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  bakedLightChannels: ffffffffffffffffffffffffffffffffffffffffffffffff
   bakedRenderersTerrain: []
   bakedIDsTerrain: 
   bakedScaleOffsetTerrain: []
@@ -3455,30 +3510,30 @@ MonoBehaviour:
   sectors:
   - name: $G
     maps:
-    - {fileID: 2800000, guid: a0a3f848669e29c4aadfd57d8b542f29, type: 3}
-    - {fileID: 2800000, guid: 865ac9191d139324d88097ddd3010b68, type: 3}
-    - {fileID: 2800000, guid: 0783ad1f6d0099649bb084e0f30ad7a5, type: 3}
-    - {fileID: 2800000, guid: 75250f23432030c4cbc978f16f3b0b5e, type: 3}
-    - {fileID: 2800000, guid: ee53250883ac1d144bd2c84bd0c96bf0, type: 3}
-    - {fileID: 2800000, guid: 403d1d0b1dd0dd14c953d4d222f69550, type: 3}
-    - {fileID: 2800000, guid: 19ee42f10c951244d9a15b93ffd731c2, type: 3}
-    - {fileID: 2800000, guid: 6b6182accf27a3749a2faa48b52bcf7c, type: 3}
-    - {fileID: 2800000, guid: 9bf0a7032c08e00438ca3c3b6a5aa73f, type: 3}
-    - {fileID: 2800000, guid: da9960fd88a428445bf2ffdc87175637, type: 3}
-    - {fileID: 2800000, guid: 95666031c8868e0439721876e8def0b6, type: 3}
+    - {fileID: 2800000, guid: ebe3c7f1fc2d6c248bfa53a4363eed32, type: 3}
+    - {fileID: 2800000, guid: 1acd502a814006d4c882b66da5011f88, type: 3}
+    - {fileID: 2800000, guid: 96e1bbaf4df198d4e85c74a57c91a97d, type: 3}
+    - {fileID: 2800000, guid: 793f66a9a635b0446a29515df81c1e74, type: 3}
+    - {fileID: 2800000, guid: 25f6c608a91412c44a5025379bcce214, type: 3}
+    - {fileID: 2800000, guid: 9d28f46d6ce9af540b6222f03836330b, type: 3}
+    - {fileID: 2800000, guid: ed8c7bae59ea80141a1c9519ad227778, type: 3}
+    - {fileID: 2800000, guid: cdfd017f1e7ad2949b7606f97b75a9aa, type: 3}
+    - {fileID: 2800000, guid: 56b3dc8b35a53df459029f0a1b480ba0, type: 3}
+    - {fileID: 2800000, guid: 8f674fe26da64a94c977436ace8f1483, type: 3}
+    - {fileID: 2800000, guid: 8ecb9de25716f8841bd7b02dae038149, type: 3}
     masks: []
     dirMaps:
-    - {fileID: 2800000, guid: 95aaaace8f62c8840860f0719ae14ddb, type: 3}
-    - {fileID: 2800000, guid: b51f9a4755040034cab93220bf380c39, type: 3}
-    - {fileID: 2800000, guid: a3afbb4774cd0b7408f2dcc5b6fd9e49, type: 3}
-    - {fileID: 2800000, guid: 6706906fe11f6d541952883710e5addd, type: 3}
-    - {fileID: 2800000, guid: a9e329b6fd363a7469b4a0065e28a99d, type: 3}
-    - {fileID: 2800000, guid: e3b184e6e9eebac4083c26cb9e303372, type: 3}
-    - {fileID: 2800000, guid: 54956132883f63d498081e3e4602870a, type: 3}
-    - {fileID: 2800000, guid: ecc523a31ca787b4c8580ecc06d08a05, type: 3}
-    - {fileID: 2800000, guid: 59a86a06986107946af43f1a3771c7fc, type: 3}
-    - {fileID: 2800000, guid: 5219b8cd5810ad547980473880db4220, type: 3}
-    - {fileID: 2800000, guid: 40bd74b4d2d356a44b22d27ebfaa1ea3, type: 3}
+    - {fileID: 2800000, guid: 86946b9246fc5a84db02fb59cd368968, type: 3}
+    - {fileID: 2800000, guid: 6e1cf162daf07bf4aa1cec4079744dff, type: 3}
+    - {fileID: 2800000, guid: 90fa5a3cfddeadd47aaded1d364bba4d, type: 3}
+    - {fileID: 2800000, guid: 15f7718f5c56bdc4bbec4fe469981c8a, type: 3}
+    - {fileID: 2800000, guid: 3fb3cb4193eac8f49b83d68a2f045e95, type: 3}
+    - {fileID: 2800000, guid: 114ab6e82f80b674fa9fecadda392a5a, type: 3}
+    - {fileID: 2800000, guid: 1d0f6034f4504b546b3a993e1fa4bb91, type: 3}
+    - {fileID: 2800000, guid: f57e4e3a65945984d9532ccc7a6846c4, type: 3}
+    - {fileID: 2800000, guid: f58c3f28e4d1ab049b876aca785b92e5, type: 3}
+    - {fileID: 2800000, guid: bc6d6d65754c28444889f3ae825d6a78, type: 3}
+    - {fileID: 2800000, guid: 8622a76b7adbd1443af61bfa9c00cd27, type: 3}
     rnmMaps0: []
     rnmMaps1: []
     rnmMaps2: []
@@ -6231,6 +6286,47 @@ Transform:
   m_Father: {fileID: 1666108620}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &181095212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA7
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 7
+  sortingID: 9
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &186545992
 GameObject:
   m_ObjectHideFlags: 0
@@ -6931,6 +7027,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1326577271}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &225994449
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 225994451}
+  - component: {fileID: 225994450}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 9
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &225994450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225994449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 9
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &225994451
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225994449}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.12500007, y: 0, z: -0.125}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 25
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &229673311
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7682,6 +7846,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 354048489}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &265387445
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 265387447}
+  - component: {fileID: 265387446}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &265387446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 265387445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &265387447
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 265387445}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.37499988, y: 0, z: 0.37500003}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &267575578
 GameObject:
   m_ObjectHideFlags: 0
@@ -7712,7 +7944,7 @@ Transform:
   m_LocalRotation: {x: 0.16272894, y: -0.8161339, z: -0.29341894, w: -0.4704785}
   m_LocalPosition: {x: 678.99, y: 721.06, z: -396.17}
   m_LocalScale: {x: 64.4, y: 64.4, z: 64.4}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1172056765}
   - {fileID: 273560467}
@@ -8352,6 +8584,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &287982614
 Transform:
   m_ObjectHideFlags: 0
@@ -12497,8 +12753,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 443530030}
   m_LocalRotation: {x: 0.008171786, y: -0.14147463, z: 0.008721799, w: 0.9898698}
-  m_LocalPosition: {x: -95.6, y: -17, z: 271.5}
-  m_LocalScale: {x: 567.3123, y: 113.266685, z: 325}
+  m_LocalPosition: {x: -95.615, y: -16.235, z: 271.51}
+  m_LocalScale: {x: 567.3123, y: 146.55577, z: 325}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 281207673}
@@ -14125,6 +14381,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1715785415}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &498230276
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 498230277}
+  - component: {fileID: 498230278}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 15
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &498230277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498230276}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.37499988, y: 0, z: -0.37500003}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 31
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &498230278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498230276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 15
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &500529521 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 238012580638005357, guid: 6d40d87f18cce4341aaa19d7dd70b353,
@@ -14230,6 +14554,47 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6d40d87f18cce4341aaa19d7dd70b353, type: 3}
+--- !u!114 &512159088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA3
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 3
+  sortingID: 5
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &517208551
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14448,6 +14813,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_StaticEditorFlags
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: -8335054018968826653, guid: e604694baeef36541ad46b12e8f17475,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8335054018968826653, guid: e604694baeef36541ad46b12e8f17475,
         type: 3}
@@ -15613,6 +15983,11 @@ PrefabInstance:
       propertyPath: m_LightmapTilingOffset.z
       value: 1.0005124
       objectReference: {fileID: 0}
+    - target: {fileID: 6078141570633806808, guid: e604694baeef36541ad46b12e8f17475,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 7306a98028fe5c74a80d7856c5e33f0a, type: 2}
     - target: {fileID: 6171077114270390107, guid: e604694baeef36541ad46b12e8f17475,
         type: 3}
       propertyPath: m_StaticEditorFlags
@@ -16352,6 +16727,47 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 130591927}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &540491863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA5
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 5
+  sortingID: 7
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &545857455
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18764,6 +19180,387 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbabd9e75cbc8764da6c23d519076fa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoSaveSettings: 0
+  lastSettingsAsset: {fileID: 0}
+  groundAndFloorObjects: []
+  storedGroundAndFloorKeywords: []
+  probesVolume: {fileID: 1406162235}
+  useDynamicDensity: 0
+  volumeSpacing: 0.4
+  volumeSpacingMin: 0.4
+  volumeSpacingMax: 5
+  cornersDetectionThreshold: 0.4
+  cornersDetectionThresholdMin: 0.4
+  cornersDetectionThresholdMax: 5
+  lastCornersDetectionThreshold: 0.4
+  lastCornersDetectionThresholdMin: 0.4
+  lastCornersDetectionThresholdMax: 5
+  lastMaxProbesInVolume: 10000
+  maxProbesInVolume: 10000
+  defaultMaxProbesCount: 0
+  lastVolumeSpacing: 0.4
+  lastVolumeSpacingMin: 0.4
+  lastVolumeSpacingMax: 5
+  volumeSpacingChanged: 0
+  tooManySubVolumes: 0
+  fillingMode: 2
+  excludingLightsMode: 0
+  settingsAsset: {fileID: 0}
+  workflow: 0
+  maxHeightAboveGeometry: 3.5
+  lastMaxHeightAboveGeometry: 0
+  maxHeightAboveTerrain: 3.5
+  considerDistanceToLights: 1
+  lightIntensityTreshold: 0.5
+  colorTreshold: 0.01
+  collisionDetectionRadius: 0.1
+  saveProbesNearbyGeometry: 1
+  cornerProbesSpacing: 0.5
+  nearbyGeometryDetectionRadius: 0.5
+  nearbyGeometryDetectionRadiusMin: 0
+  nearbyGeometryDetectionRadiusMax: 0
+  distanceFromNearbyGeometry: 0.1
+  fillEquivalentVolume: 0
+  equivalentVolumeFillingRate: 0
+  fillUnlitVolume: 0
+  fillFreeVolume: 1
+  unlitVolumeFillingRate: 0
+  freeVolumeFillingRate: 0.01
+  cullAcceptedVolume: 0
+  acceptedVolumeFillingRate: 0
+  nearbyGeometryVolumeFillingRate: 0
+  verticalDublicatingHeight: 3.5
+  verticalDublicatingStep: 1
+  raycastFilter:
+    serializedVersion: 2
+    m_Bits: 0
+  excludedLights: []
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  firstCollisionLayer: 0
+  useMultithreading: 1
+  previousSelection: {fileID: 0}
+  unloaded: 1
+  sceneChanging: 1
+  waitForPrevious: 0
+  previousVolume: {fileID: 0}
+  optimizeForMixedLighting: 0
+  lastOptimizeForMixedLightingValue: 0
+  lastUseDynamicDensityValue: 0
+  preventLeakageThroughWalls: 0
+  useVolumeBottom: 0
+  placeProbesOnGeometryEdges: 1
+  lastColorThreshold: 0
+  lastLightIntensityThreshold: 0
+  lastEquivalentVolumeFillingRate: 0
+  lastUnlitVolumeFillingRate: 0
+  lastFreeVolumeFillingRate: 0
+  lastCornerProbesSpacing: 0
+  lastDistanceFromGeometry: 0
+  debugMode: 0
+  debugObjectScale: 0.1
+  boundsDisplayMode: 0
+  debugPass: 0
+  drawMode: 0
+  debugShowLightIntensity: 0
+  showPreviewGrid: 0
+  nextStep: 0
+  cullByColor: 1
+  forceSaveProbesOnShadingBorders: 1
+  combinedVolumeComponent: {fileID: 0}
+  allVolumes:
+  - {fileID: 672780399}
+  prefabStage: {fileID: 0}
+  quickEditingComponent: {fileID: 0}
+  dataPath: C:/Users/Hardev/repos/3DGE-UTROF-WEBGL/Assets
+  workPath: C:/Users/Hardev/repos/3DGE-UTROF-WEBGL/Assets\Magic Light Probes
+  workPathFound: 1
+  localFinishedPositions: []
+  calculateVolumeFilling: {fileID: 7200000, guid: d47ea77992b828e44a544a0f79cf5537,
+    type: 3}
+  calculateProbeSpacing: {fileID: 7200000, guid: 60e81a594eafaff4fbf99dbfb9cff888,
+    type: 3}
+  calculateDistanceFromGeometry: {fileID: 7200000, guid: a3696cec523e53c4ea41019a117c225b,
+    type: 3}
+  currentVolume: {fileID: 0}
+  recalculationRequired: 0
+  finalStaticGameObjectsList: []
+  cancelCombination: 0
+  staticObjects:
+  - {fileID: 10017254}
+  - {fileID: 57386736}
+  - {fileID: 59771024}
+  - {fileID: 64451629}
+  - {fileID: 66536804}
+  - {fileID: 83296021}
+  - {fileID: 101154372}
+  - {fileID: 141354475}
+  - {fileID: 156315787}
+  - {fileID: 168426370}
+  - {fileID: 171592964}
+  - {fileID: 177761420}
+  - {fileID: 177945995}
+  - {fileID: 180183530}
+  - {fileID: 189389313}
+  - {fileID: 190804543}
+  - {fileID: 193466604}
+  - {fileID: 216732646}
+  - {fileID: 232077318}
+  - {fileID: 251673810}
+  - {fileID: 258000091}
+  - {fileID: 268946278}
+  - {fileID: 270194216}
+  - {fileID: 273560466}
+  - {fileID: 284353095}
+  - {fileID: 302257743}
+  - {fileID: 317686631}
+  - {fileID: 319794666}
+  - {fileID: 334658115}
+  - {fileID: 337808988}
+  - {fileID: 338138385}
+  - {fileID: 349957980}
+  - {fileID: 363305203}
+  - {fileID: 373851284}
+  - {fileID: 393225345}
+  - {fileID: 436289648}
+  - {fileID: 439492865}
+  - {fileID: 439715449}
+  - {fileID: 452044480}
+  - {fileID: 470855858}
+  - {fileID: 471966879}
+  - {fileID: 478326238}
+  - {fileID: 520159045}
+  - {fileID: 520159046}
+  - {fileID: 520159047}
+  - {fileID: 524424133}
+  - {fileID: 526051506}
+  - {fileID: 546756163}
+  - {fileID: 560021399}
+  - {fileID: 582502709}
+  - {fileID: 597226027}
+  - {fileID: 651069030}
+  - {fileID: 652925796}
+  - {fileID: 654632922}
+  - {fileID: 688761867}
+  - {fileID: 691225800}
+  - {fileID: 702234119}
+  - {fileID: 707222168}
+  - {fileID: 707920445}
+  - {fileID: 711988700}
+  - {fileID: 713067930}
+  - {fileID: 714269582}
+  - {fileID: 729684827}
+  - {fileID: 750566104}
+  - {fileID: 755466767}
+  - {fileID: 772008925}
+  - {fileID: 777168553}
+  - {fileID: 777642422}
+  - {fileID: 777960585}
+  - {fileID: 782522590}
+  - {fileID: 786736944}
+  - {fileID: 791889825}
+  - {fileID: 792909699}
+  - {fileID: 802459536}
+  - {fileID: 807077674}
+  - {fileID: 813091279}
+  - {fileID: 814612252}
+  - {fileID: 831881496}
+  - {fileID: 864722435}
+  - {fileID: 866329559}
+  - {fileID: 882990267}
+  - {fileID: 890790312}
+  - {fileID: 945027799}
+  - {fileID: 945885150}
+  - {fileID: 954950795}
+  - {fileID: 992406161}
+  - {fileID: 996573554}
+  - {fileID: 1010231205}
+  - {fileID: 1022213675}
+  - {fileID: 1023758828}
+  - {fileID: 1026206036}
+  - {fileID: 1054445869}
+  - {fileID: 1074525330}
+  - {fileID: 1087148600}
+  - {fileID: 1097339844}
+  - {fileID: 1098205234}
+  - {fileID: 1135155901}
+  - {fileID: 1157131111}
+  - {fileID: 1159025178}
+  - {fileID: 1172056764}
+  - {fileID: 1175417454}
+  - {fileID: 1187894016}
+  - {fileID: 1191180439}
+  - {fileID: 1200727915}
+  - {fileID: 1216025728}
+  - {fileID: 1227537715}
+  - {fileID: 1229793334}
+  - {fileID: 1231463501}
+  - {fileID: 1234262014}
+  - {fileID: 1245069076}
+  - {fileID: 1265677053}
+  - {fileID: 1274555965}
+  - {fileID: 1276058857}
+  - {fileID: 1284975671}
+  - {fileID: 1287400113}
+  - {fileID: 1299739472}
+  - {fileID: 1312192979}
+  - {fileID: 1323879096}
+  - {fileID: 1344998020}
+  - {fileID: 1351908464}
+  - {fileID: 1361921878}
+  - {fileID: 1392966834}
+  - {fileID: 1408027382}
+  - {fileID: 1433577538}
+  - {fileID: 1433973854}
+  - {fileID: 1443765486}
+  - {fileID: 1449864778}
+  - {fileID: 1459982722}
+  - {fileID: 1470511722}
+  - {fileID: 1477347521}
+  - {fileID: 1480565035}
+  - {fileID: 1485316113}
+  - {fileID: 1487597838}
+  - {fileID: 1498314073}
+  - {fileID: 1500589419}
+  - {fileID: 1512070943}
+  - {fileID: 1523525126}
+  - {fileID: 1528388370}
+  - {fileID: 1543725375}
+  - {fileID: 1555656775}
+  - {fileID: 1580579543}
+  - {fileID: 1594427360}
+  - {fileID: 1617128488}
+  - {fileID: 1618472924}
+  - {fileID: 1636519671}
+  - {fileID: 1639502848}
+  - {fileID: 1664441657}
+  - {fileID: 1664687335}
+  - {fileID: 1680122102}
+  - {fileID: 1687158154}
+  - {fileID: 1687438251}
+  - {fileID: 1690990743}
+  - {fileID: 1739556364}
+  - {fileID: 1749776140}
+  - {fileID: 1758026406}
+  - {fileID: 1768342611}
+  - {fileID: 1803128695}
+  - {fileID: 1808332287}
+  - {fileID: 1813656262}
+  - {fileID: 1818786509}
+  - {fileID: 1841029616}
+  - {fileID: 1846664485}
+  - {fileID: 1863344167}
+  - {fileID: 1865199906}
+  - {fileID: 1868609469}
+  - {fileID: 1874324823}
+  - {fileID: 1912368566}
+  - {fileID: 1914468464}
+  - {fileID: 1930537048}
+  - {fileID: 1967951227}
+  - {fileID: 1973573317}
+  - {fileID: 1994217648}
+  - {fileID: 2003553570}
+  - {fileID: 2020748289}
+  - {fileID: 2033728177}
+  - {fileID: 2044934751}
+  - {fileID: 2046932276}
+  - {fileID: 2050254250}
+  - {fileID: 2055294614}
+  - {fileID: 2058262205}
+  - {fileID: 2058338811}
+  - {fileID: 2070198533}
+  - {fileID: 2071495374}
+  - {fileID: 2086059829}
+  - {fileID: 2111808213}
+  - {fileID: 2124779479}
+  - {fileID: 2125670754}
+  - {fileID: 2134204409}
+  lights: []
+  subVolumesDivided:
+  - {fileID: 265387445}
+  - {fileID: 1742438830}
+  - {fileID: 1110885617}
+  - {fileID: 752742641}
+  - {fileID: 1081414370}
+  - {fileID: 40170892}
+  - {fileID: 1281645631}
+  - {fileID: 1710306995}
+  - {fileID: 2054620310}
+  - {fileID: 225994449}
+  - {fileID: 1969986280}
+  - {fileID: 1098632287}
+  - {fileID: 1340543971}
+  - {fileID: 1130852749}
+  - {fileID: 796093154}
+  - {fileID: 498230276}
+  points: []
+  innerVolumesObjects: []
+  layerMasks: []
+  transformedPoints: []
+  assetEditorPath: C:/Users/Hardev/repos/3DGE-UTROF-WEBGL/Assets\Magic Light Probes/Editor/
+  parentVolume: {fileID: 0}
+  localOperationalDataLost: 1
+  recombinationNeeded: 0
+  isInBackground: 0
+  realtimeEditing: 0
+  calculated: 0
+  calculatingError: 0
+  xPointsCount: 59
+  yPointsCount: 27
+  zPointsCount: 89
+  prevVolumeScaleX: 23.789474
+  prevVolumeScaleY: 10.878708
+  prevVolumeScaleZ: 35.536198
+  totalProbes: 0
+  totalProbesInSubVolume: 0
+  totalProbesInVolume: 0
+  calculatingVolume: 0
+  calculatingVolumeSubPass: 0
+  currentPass: 
+  currentPassProgressCounter: 0
+  currentPassProgressFrameSkipper: 0
+  totalProgress: 0
+  currentPassProgress: 0
+  selectedTab: 0
+  showOptionsInManagerWindow: 0
+  restored: 1
+  currentVolumePart: 0
+  eta: 0
+  changed: 0
+  redivideParts: 1
+  combinedVolumeError: 0
+  isInPrefab: 0
+  prefabPosition: {x: 0, y: 0, z: 0}
+  prefabRoot: {fileID: 0}
+  prefabConnectionObject: {fileID: 0}
+  prefabRootName: 
+  calculatedFromPrefab: 0
+  prefabUID: 
+  colorThresholdIteratorUpdate: 0
+  mainIteratorUpdate: 0
+  subPassIteratorUpdate: 0
+  executePassesIteratorUpdate: 0
+  globalGroundObjects: 0
+  mainTargetVolume: {fileID: 1406162237}
+  mainTargetMeshRenderer: {fileID: 1406162236}
+  subdevidedTargetVolumes:
+  - {fileID: 265387446}
+  - {fileID: 1742438831}
+  - {fileID: 1110885618}
+  - {fileID: 752742642}
+  - {fileID: 1081414371}
+  - {fileID: 40170893}
+  - {fileID: 1281645632}
+  - {fileID: 1710306996}
+  - {fileID: 2054620311}
+  - {fileID: 225994450}
+  - {fileID: 1969986281}
+  - {fileID: 1098632288}
+  - {fileID: 1340543972}
+  - {fileID: 1130852750}
+  - {fileID: 796093155}
+  - {fileID: 498230278}
 --- !u!1 &676002141
 GameObject:
   m_ObjectHideFlags: 0
@@ -19102,6 +19899,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &687688509
 Transform:
   m_ObjectHideFlags: 0
@@ -20448,6 +21269,74 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 520159040}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &752742641
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 752742643}
+  - component: {fileID: 752742642}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &752742642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752742641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 3
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &752742643
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752742641}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.12500007, y: 0, z: 0.125}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 19
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &755466767 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 765380cff88169f479c0c6afbd184699,
@@ -20654,6 +21543,47 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 933065638}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &766491356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA4
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 4
+  sortingID: 6
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &767979708
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21186,47 +22116,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 773425392}
   m_CullTransparentMesh: 0
---- !u!114 &775859724
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA7
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 7
-  sortingID: 9
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &777168553 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 8f06860d9acd0534cb83eeffc17bfff3,
@@ -21713,6 +22602,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 440115f7b545d274fa3c4d5b50f36fa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parent: {fileID: 672780399}
+  gizmoScale: 0
+  drawDistance: 10
 --- !u!4 &790302766 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1d2bdb69b89c31d4990ab0336ede8dbc,
@@ -22163,53 +23055,80 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 794657032}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &796093154
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 796093156}
+  - component: {fileID: 796093155}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 14
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &796093155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796093154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 14
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &796093156
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796093154}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.12500007, y: 0, z: -0.37500003}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 30
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &796806719 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d744420d17a2ca745b6e7b21d9f6791d,
     type: 3}
   m_PrefabInstance: {fileID: 2074752449}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &797698565
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_VLM
-  m_EditorClassIdentifier: 
-  resolution: 16
-  bitmask: 1
-  id: 12
-  sortingID: 1
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 2900
-  vertexCounter: 2900
-  sceneLodLevel: -1
-  sceneName: 
-  containsTerrains: 0
-  probes: 0
-  mode: 2
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 4
 --- !u!1 &799859624
 GameObject:
   m_ObjectHideFlags: 0
@@ -27542,47 +28461,6 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 1455625129}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1011403132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA8
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 8
-  sortingID: 10
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!4 &1012960234 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1d2bdb69b89c31d4990ab0336ede8dbc,
@@ -28394,6 +29272,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1034580935
 Transform:
   m_ObjectHideFlags: 0
@@ -28620,47 +29522,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1041161061}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1048414435
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA1
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 1
-  sortingID: 3
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &1049602455
 GameObject:
   m_ObjectHideFlags: 0
@@ -29956,6 +30817,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1078553750}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1081414370
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1081414372}
+  - component: {fileID: 1081414371}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1081414371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081414370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 4
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1081414372
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081414370}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.12500007, y: 0, z: 0.37500003}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 20
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1084151743 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1d2bdb69b89c31d4990ab0336ede8dbc,
@@ -30004,6 +30933,74 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 612250539}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1098632287
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1098632289}
+  - component: {fileID: 1098632288}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 11
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1098632288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1098632287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 11
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1098632289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1098632287}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.12500007, y: 0, z: -0.37500003}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 27
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1100268432 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 574357800722122064, guid: 46f74a5b249098840924c5de76e7c142,
@@ -30200,6 +31197,74 @@ PlayableDirector:
     value: {fileID: 1206516023}
   m_ExposedReferences:
     m_References: []
+--- !u!1 &1110885617
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1110885619}
+  - component: {fileID: 1110885618}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1110885618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1110885617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 2
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1110885619
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1110885617}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.37499988, y: 0, z: 0.125}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 18
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1114538639
 GameObject:
   m_ObjectHideFlags: 0
@@ -30569,6 +31634,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 477919724}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1130852749
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1130852751}
+  - component: {fileID: 1130852750}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 13
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1130852750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1130852749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 13
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1130852751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1130852749}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.37499988, y: 0, z: -0.125}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 29
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1132526767
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31825,6 +32958,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1166993271
 Transform:
   m_ObjectHideFlags: 0
@@ -32805,6 +33962,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1204358017
 Transform:
   m_ObjectHideFlags: 0
@@ -34019,6 +35200,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1263696707
 Transform:
   m_ObjectHideFlags: 0
@@ -34472,6 +35677,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1578202003}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1281645631
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1281645633}
+  - component: {fileID: 1281645632}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 6
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1281645632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281645631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 6
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1281645633
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281645631}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.12500007, y: 0, z: 0.125}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 22
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1282005655
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34952,8 +36225,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1296437248}
   m_LocalRotation: {x: -0.01432988, y: 0.15570606, z: 0.01675911, w: 0.98755735}
-  m_LocalPosition: {x: -102.1, y: -1.5, z: -240.8}
-  m_LocalScale: {x: 374.1203, y: 78.09054, z: 332.4}
+  m_LocalPosition: {x: -102.16, y: 1.7922, z: -240.75}
+  m_LocalScale: {x: 374.1203, y: 101.04135, z: 332.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 281207673}
@@ -36235,6 +37508,74 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1339503276}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1340543971
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1340543973}
+  - component: {fileID: 1340543972}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 12
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1340543972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1340543971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 12
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1340543973
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1340543971}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.12500007, y: 0, z: -0.125}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 28
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1344998020 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 15944882b23ca134e9cb9148ce62ac5f,
@@ -36951,6 +38292,47 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 894742883}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1369405732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA1
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 1
+  sortingID: 3
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &1370405513
 GameObject:
   m_ObjectHideFlags: 0
@@ -37049,6 +38431,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1380495690
 Transform:
   m_ObjectHideFlags: 0
@@ -37256,6 +38662,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1394480018
 Transform:
   m_ObjectHideFlags: 0
@@ -37503,47 +38933,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b5aba86b77278f40836dbedb5065f00, type: 3}
---- !u!114 &1398986226
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LM0
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 0
-  sortingID: 2
-  isImplicit: 1
-  area: 54488572
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &1400025382
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37716,6 +39105,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 1406162236}
+  showGizmo: 1
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!33 &1406162238
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -37752,6 +39165,22 @@ Transform:
   - {fileID: 1204358017}
   - {fileID: 1380495690}
   - {fileID: 1672514304}
+  - {fileID: 265387447}
+  - {fileID: 1742438832}
+  - {fileID: 1110885619}
+  - {fileID: 752742643}
+  - {fileID: 1081414372}
+  - {fileID: 40170894}
+  - {fileID: 1281645633}
+  - {fileID: 1710306997}
+  - {fileID: 2054620312}
+  - {fileID: 225994451}
+  - {fileID: 1969986282}
+  - {fileID: 1098632289}
+  - {fileID: 1340543973}
+  - {fileID: 1130852751}
+  - {fileID: 796093156}
+  - {fileID: 498230277}
   m_Father: {fileID: 672780398}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -38251,47 +39680,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1435303425}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1440948866
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA9
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 9
-  sortingID: 11
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &1441624577
 GameObject:
   m_ObjectHideFlags: 0
@@ -38390,47 +39778,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1441624577}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1441979118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA4
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 4
-  sortingID: 6
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &1442675068
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38775,7 +40122,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1443765487
 Transform:
   m_ObjectHideFlags: 0
@@ -38815,7 +40162,7 @@ MonoBehaviour:
   angle: 121
   innerAngle: 32.7
   cubemap: {fileID: 0}
-  iesFile: {fileID: 102900000, guid: 83af1682be3ceed48936fbfa832893e8, type: 3}
+  iesFile: {fileID: 0}
   bitmask: 1
   bakeToIndirect: 0
   shadowmask: 0
@@ -40478,6 +41825,47 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 520159040}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1488701048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LM0
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 0
+  sortingID: 2
+  isImplicit: 1
+  area: 54488572
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &1489105841
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -41183,7 +42571,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 0.90733933, b: 0.7122642, a: 1}
-  m_Intensity: 205.79
+  m_Intensity: 178.27
   m_Range: 59.20989
   m_SpotAngle: 38.14374
   m_InnerSpotAngle: 22.552359
@@ -41247,7 +42635,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   UID: -219607892
   color: {r: 1, g: 0.90733933, b: 0.7122642, a: 1}
-  intensity: 205.79
+  intensity: 169.1
   shadowSpread: 0.03
   cutoff: 59.20989
   realisticFalloff: 1
@@ -42670,6 +44058,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1578856789
 Transform:
   m_ObjectHideFlags: 0
@@ -43917,6 +45329,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b85c4f07f1aa9e140ba4d9fb7763afcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  customPositions: []
+  customProbesToRemove: []
+  distanceFromGeometry: 0
+  pressed: 0
+  magicLightProbes: {fileID: 0}
+  combined: 0
+  quickEditing: 0
+  targetProbeGroup: {fileID: 0}
+  warningShow: 0
+  prevProbesCount: 0
 --- !u!220 &1632110591
 LightProbeGroup:
   m_ObjectHideFlags: 0
@@ -44767,8 +46189,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1632782317}
   m_LocalRotation: {x: 0.00013152233, y: -0.011639703, z: 0.011297967, w: 0.99986845}
-  m_LocalPosition: {x: -252.6, y: -6.7, z: 6.1}
-  m_LocalScale: {x: 226.4, y: 100.58532, z: 204.81277}
+  m_LocalPosition: {x: -252.67, y: -3.0748, z: 6.1497}
+  m_LocalScale: {x: 226.4, y: 130.14734, z: 204.81277}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 281207673}
@@ -45648,6 +47070,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1656044122
 Transform:
   m_ObjectHideFlags: 0
@@ -46352,6 +47798,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1672514304
 Transform:
   m_ObjectHideFlags: 0
@@ -46504,47 +47974,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1673149141}
   m_CullTransparentMesh: 0
---- !u!114 &1674466610
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: probes
-  m_EditorClassIdentifier: 
-  resolution: 16
-  bitmask: 1
-  id: 11
-  sortingID: 0
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 812
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: 
-  containsTerrains: 0
-  probes: 1
-  mode: 2
-  renderMode: 1000
-  renderDirMode: 5
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &1676179322
 GameObject:
   m_ObjectHideFlags: 0
@@ -47494,6 +48923,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1708052644}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1710306995
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1710306997}
+  - component: {fileID: 1710306996}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 7
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1710306996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710306995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 7
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1710306997
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710306995}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.37499988, y: 0, z: 0.125}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 23
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1715785415
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -47599,6 +49096,47 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 165037721}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1719081331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA10
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 10
+  sortingID: 12
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &1719758454
 GameObject:
   m_ObjectHideFlags: 0
@@ -47628,6 +49166,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1719758456
 Transform:
   m_ObjectHideFlags: 0
@@ -48403,6 +49965,74 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1741421736}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1742438830
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1742438832}
+  - component: {fileID: 1742438831}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1742438831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742438830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 1
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1742438832
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742438830}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.12500007, y: 0, z: 0.37500003}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 17
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1746224879 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f5064a988a3454049aff2f7c3ff148a4,
@@ -48942,47 +50572,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 737402412}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1783200140
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA2
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 2
-  sortingID: 4
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!4 &1788240018 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 238012580638005357, guid: 6d40d87f18cce4341aaa19d7dd70b353,
@@ -49018,6 +50607,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1791861659
 Transform:
   m_ObjectHideFlags: 0
@@ -49704,6 +51317,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1826087462
 Transform:
   m_ObjectHideFlags: 0
@@ -50385,47 +52022,6 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 411548158}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1864702948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA3
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 3
-  sortingID: 5
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &1865199906 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3367836867318707765, guid: 1d2bdb69b89c31d4990ab0336ede8dbc,
@@ -51448,47 +53044,6 @@ Transform:
   m_Father: {fileID: 2055126028}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: -1.728, y: 171.453, z: -21.498001}
---- !u!114 &1925595915
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA10
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 10
-  sortingID: 12
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &1926548561
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51841,6 +53396,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &1964726094
 Transform:
   m_ObjectHideFlags: 0
@@ -51868,6 +53447,74 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 1867709524}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1969986280
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1969986282}
+  - component: {fileID: 1969986281}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 10
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1969986281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969986280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 10
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &1969986282
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969986280}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.37499988, y: 0, z: -0.37500003}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 26
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1971608065
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -52772,7 +54419,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   UID: 1700180101
   color: {r: 1, g: 0.90733933, b: 0.7122642, a: 1}
-  intensity: 205.79
+  intensity: 169.1
   shadowSpread: 0.03
   cutoff: 59.20989
   realisticFalloff: 1
@@ -52802,7 +54449,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 0.90733933, b: 0.7122642, a: 1}
-  m_Intensity: 205.79
+  m_Intensity: 178.27
   m_Range: 59.20989
   m_SpotAngle: 38.14374
   m_InnerSpotAngle: 22.552359
@@ -52939,8 +54586,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1998202274}
   m_LocalRotation: {x: -0, y: -0, z: 0.011298733, w: 0.9999362}
-  m_LocalPosition: {x: 8.5, y: 4.45, z: -5.1}
-  m_LocalScale: {x: 115.86681, y: 45.270756, z: 98.52965}
+  m_LocalPosition: {x: 71.3, y: 32.7, z: -13.6}
+  m_LocalScale: {x: 102.67422, y: 68.54898, z: 115.32337}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 281207673}
@@ -53308,6 +54955,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 0
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 0
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
 --- !u!4 &2014436673
 Transform:
   m_ObjectHideFlags: 0
@@ -53553,6 +55224,88 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 1435303425}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2025648924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_VLM
+  m_EditorClassIdentifier: 
+  resolution: 16
+  bitmask: 1
+  id: 12
+  sortingID: 1
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 2900
+  vertexCounter: 2900
+  sceneLodLevel: -1
+  sceneName: 
+  containsTerrains: 0
+  probes: 0
+  mode: 2
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 15
+--- !u!114 &2027680522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA6
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 6
+  sortingID: 8
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &2028552427
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -53838,47 +55591,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f9ed5e46cfb43cc4aa3431843b49a653, type: 3}
---- !u!114 &2042646259
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA6
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 6
-  sortingID: 8
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &2044934749
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -54061,7 +55773,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2050254251
 Transform:
   m_ObjectHideFlags: 0
@@ -54101,7 +55813,7 @@ MonoBehaviour:
   angle: 121
   innerAngle: 32.7
   cubemap: {fileID: 0}
-  iesFile: {fileID: 102900000, guid: 83af1682be3ceed48936fbfa832893e8, type: 3}
+  iesFile: {fileID: 0}
   bitmask: 1
   bakeToIndirect: 0
   shadowmask: 0
@@ -54197,6 +55909,74 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1398089175}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2054620310
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2054620312}
+  - component: {fileID: 2054620311}
+  m_Layer: 0
+  m_Name: MLP Group 0 Volume Part 8
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2054620311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054620310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ddb52caaf9b84196161b766094e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentRootComponent: {fileID: 672780399}
+  selfRenderer: {fileID: 0}
+  showGizmo: 0
+  showGizmoSelected: 0
+  isPartVolume: 1
+  isSubdividedPart: 0
+  isCalculated: 0
+  isInProcess: 0
+  skipped: 0
+  id: 8
+  colorOnSelection: {r: 0, g: 0, b: 0, a: 0}
+  localNearbyGeometryPointsPositions: []
+  resultNearbyGeometryPointsPositions: []
+  localCornerPointsPositions: []
+  resultLocalCornerPointsPositions: []
+  localEquivalentPointsPositions: []
+  resultLocalEquivalentPointsPositions: []
+  resultLocalFreePointsPositions: []
+  localUnlitPointsPositions: []
+  localFreePointsPositions: []
+  resultLocalUnlitPointsPositions: []
+  localDirections: []
+  localAvaragedDirections: []
+  objectsInside: 0
+--- !u!4 &2054620312
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054620310}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.37499988, y: 0, z: -0.125}
+  m_LocalScale: {x: 5.9473686, y: 10.878708, z: 8.884049}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1406162239}
+  m_RootOrder: 24
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2055126027
 GameObject:
   m_ObjectHideFlags: 0
@@ -54255,7 +56035,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2055294615
 Transform:
   m_ObjectHideFlags: 0
@@ -54295,7 +56075,7 @@ MonoBehaviour:
   angle: 121
   innerAngle: 32.7
   cubemap: {fileID: 0}
-  iesFile: {fileID: 102900000, guid: 83af1682be3ceed48936fbfa832893e8, type: 3}
+  iesFile: {fileID: 0}
   bitmask: 1
   bakeToIndirect: 0
   shadowmask: 0
@@ -55580,47 +57360,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2088342159}
   m_Mesh: {fileID: 4679390504295679099, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b, type: 3}
---- !u!114 &2094402533
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA5
-  m_EditorClassIdentifier: 
-  resolution: 1024
-  bitmask: 1
-  id: 5
-  sortingID: 7
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  sceneName: HospitalEntrance
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &2096334560
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -56754,6 +58493,47 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2114959524}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2119524975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA8
+  m_EditorClassIdentifier: 
+  resolution: 1024
+  bitmask: 1
+  id: 8
+  sortingID: 10
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  sceneName: HospitalEntrance
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &2123575601
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -57702,7 +59482,7 @@ ParticleSystemRenderer:
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0.22
-  m_MaxParticleSize: 1.8
+  m_MaxParticleSize: 0.22
   m_CameraVelocityScale: 0
   m_VelocityScale: 0
   m_LengthScale: 2
@@ -57803,7 +59583,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
+  scalingMode: 0
   randomSeed: 0
   InitialModule:
     serializedVersion: 3
@@ -57980,7 +59760,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 19.5
+      scalar: 10.99
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -58296,7 +60076,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 136
+    maxNumParticles: 8
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
@@ -58361,7 +60141,7 @@ ParticleSystem:
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
-    donutRadius: 75
+    donutRadius: 18.1
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 1.4, y: -95.1, z: -20.2}
     m_Scale: {x: 1, y: 1, z: 1}
@@ -58444,7 +60224,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 156.9
+      value: 71.3
       mode: 0
       spread: 0
       speed:
@@ -58680,16 +60460,16 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0.0023536682
-          value: 0.010986328
-          inSlope: 1.603272
-          outSlope: 1.603272
+          value: 0.0043640137
+          inSlope: 0.56931096
+          outSlope: 0.56931096
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334
-          outWeight: 0.3344467
+          outWeight: 0.18343905
         - serializedVersion: 3
-          time: 0.45960385
-          value: 0.7472515
+          time: 0.46787432
+          value: 0.21082792
           inSlope: 0.10303007
           outSlope: 0.10303007
           tangentMode: 0
@@ -58697,13 +60477,13 @@ ParticleSystem:
           inWeight: 0.22627802
           outWeight: 0.17789085
         - serializedVersion: 3
-          time: 0.9920044
+          time: 0.99365234
           value: 0.043952942
-          inSlope: -0.90198666
-          outSlope: -0.90198666
+          inSlope: -0.2792924
+          outSlope: -0.2792924
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0.21156557
+          inWeight: 0.15167078
           outWeight: 0.33333334
         m_PreInfinity: 2
         m_PostInfinity: 2
@@ -59011,7 +60791,7 @@ ParticleSystem:
       maxGradient:
         serializedVersion: 2
         key0: {r: 0, g: 0, b: 0, a: 0}
-        key1: {r: 1, g: 1, b: 1, a: 1}
+        key1: {r: 0.745283, g: 0.745283, b: 0.745283, a: 0.61960787}
         key2: {r: 0, g: 0, b: 0, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
