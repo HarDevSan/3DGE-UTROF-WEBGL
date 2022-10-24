@@ -15,14 +15,19 @@ MonoBehaviour:
   version: 2
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FakeDecal_Litter_Entrance
-  m_Shader: {fileID: 4800000, guid: 140c4a6e4341d3745b08198981896090, type: 3}
-  m_ShaderKeywords: _ALPHATEST_ON _RECEIVE_SHADOWS_OFF
+  m_Shader: {fileID: 4800000, guid: f99be0b93825ea740860fa6b3f1b94ed, type: 3}
+  m_ValidKeywords:
+  - _ENVIRONMENTREFLECTIONS_OFF
+  - _NORMALMAP
+  - _RECEIVE_SHADOWS_OFF
+  m_InvalidKeywords:
+  - _ALPHATEST_ON
   m_LightmapFlags: 6
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -73,6 +78,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlphaClip: 1
     - _ApplyDynScale: 0
@@ -101,11 +107,13 @@ Material:
     - _Glossiness: 0
     - _GlossinessSource: 0
     - _GlossyReflections: 0
+    - _HQSampling: 0
     - _HeightBlendSharpness: 1
     - _LowerNormalInfluence: 1
     - _LowerNormalMinStrength: 0.2
     - _MaskFromNormal: 0
     - _Metallic: 0
+    - _NormalBuffer: 0
     - _NormalFactor: 1
     - _NormalLimit: 0.5
     - _Occlusion: 1
@@ -131,8 +139,9 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _BaseColor: {r: 0.44895867, g: 0.4793316, b: 0.5377358, a: 0.92941177}
-    - _Color: {r: 0.029547881, g: 0.049229518, b: 0.0754717, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DistanceFade: {r: 2500, g: 0.001, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999197, g: 0.19999197, b: 0.19999197, a: 0}
     - _TerrainPosition: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
