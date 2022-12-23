@@ -15,15 +15,20 @@ MonoBehaviour:
   version: 1
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LensFlare_Red
   m_Shader: {fileID: 4800000, guid: 33846375b5c688f4aad06f0d93c0bcce, type: 3}
-  m_ShaderKeywords: _EMISSION _ENVIRONMENTREFLECTIONS_OFF _RECEIVE_SHADOWS_OFF _SPECULARHIGHLIGHTS_OFF
-    _SPECULAR_COLOR
+  m_ValidKeywords:
+  - _ENVIRONMENTREFLECTIONS_OFF
+  - _RECEIVE_SHADOWS_OFF
+  - _SPECULARHIGHLIGHTS_OFF
+  m_InvalidKeywords:
+  - _EMISSION
+  - _SPECULAR_COLOR
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -32,6 +37,7 @@ Material:
     RenderType: Transparent
   disabledShaderPasses:
   - SHADOWCASTER
+  - GBuffer
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -63,12 +69,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AlphaClip: 1
     - _ApplyFog: 0
     - _ApplyNormal: 0
     - _Blend: 0
     - _BumpScale: 1
+    - _Coverage: 0
     - _Cull: 2
     - _Cutoff: 0.429
     - _DstBlend: 10
@@ -77,6 +85,8 @@ Material:
     - _Glossiness: 0
     - _GlossinessSource: 0
     - _GlossyReflections: 0
+    - _HelpA: 0
+    - _HelpB: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Pivot: 0
@@ -102,3 +112,4 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0.9622642, g: 0.5653711, b: 0.25872195, a: 1}
     - _SpecColor: {r: 0.19999906, g: 0.19999906, b: 0.19999906, a: 0.265}
+  m_BuildTextureStacks: []
