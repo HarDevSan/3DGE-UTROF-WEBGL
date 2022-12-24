@@ -18,7 +18,7 @@ public class CameraOcclusion : MonoBehaviour
     private void Update()
     {
         CheckIfCameraWasDisplaced();
-        Debug.Log(isCameraWasDisplaced);
+       // Debug.Log(isCameraWasDisplaced);
         //if (isCameraWasDisplaced)
         //{
         //    RaiseOccludedCamPrio();
