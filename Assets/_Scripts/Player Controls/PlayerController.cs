@@ -244,7 +244,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskItem)) //last param is filtering by layer
         {
-            OnPlayerSeesSomethingInteractable_Item.Invoke(); 
+            //OnPlayerSeesSomethingInteractable_Item.Invoke();
             isPlayerCanInteractBecauseHeLooksAtSmth_item = true;
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskScriptedEvent)) //last param is filtering by layer
