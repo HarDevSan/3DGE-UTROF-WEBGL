@@ -8,15 +8,17 @@ public class Lighter : MonoBehaviour
     public InventorySearcher inventorySearcher;
     public static bool isLighterEnabled;
 
+    public GameObject tempFlame;
+
     private void Awake()
     {
         InputReceiver.On_F_Inpu += EnableLighter;
         InputReceiver.On_F_Second_Input += DisableLighter;
 
         lighter.enabled = false;
-    }
+}
 
-    bool checkIfLighterIsInInvenotry()
+bool checkIfLighterIsInInvenotry()
     {
         return inventorySearcher.CheckIfItemIsInList("Lighter");
     }
@@ -29,13 +31,18 @@ public class Lighter : MonoBehaviour
     void EnableLighter()
     {
         if (CheckIfGameIsPaused() == false && checkIfLighterIsInInvenotry())
+        {
             lighter.enabled = true;
-        isLighterEnabled = true;
+            tempFlame.SetActive(true);
+            isLighterEnabled = true;
+        }
     }
     void DisableLighter()
     {
         lighter.enabled = false;
         isLighterEnabled = false;
+        tempFlame.SetActive(false);
+
     }
 
 
