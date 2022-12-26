@@ -20,8 +20,8 @@ public class FireEventOnUseKey : MonoBehaviour
 
     public void FireEvent()
     {
+        if(OnPlayerInteractsHere != null)
         OnPlayerInteractsHere.Invoke();
-
     }
 
 
