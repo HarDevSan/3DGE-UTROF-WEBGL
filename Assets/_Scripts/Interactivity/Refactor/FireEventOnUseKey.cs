@@ -8,20 +8,24 @@ public class FireEventOnUseKey : MonoBehaviour
 {
     public UnityEvent OnPlayerInteractsHere;
 
+
     private void OnTriggerStay()
     {
 
         if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_item && InputReceiver.CheckIf_Use_Pressed())
         {
-            Debug.Log("UseKeyPRessed");
             FireEvent();
+            Debug.Log("UseKeyPRessed");
         }
     }
 
     public void FireEvent()
     {
-        if(OnPlayerInteractsHere != null)
-        OnPlayerInteractsHere.Invoke();
+        Debug.Log("ISEVENTNULL??? : " + (OnPlayerInteractsHere == null));
+        if (OnPlayerInteractsHere != null)
+        {
+            OnPlayerInteractsHere.Invoke();
+        }
     }
 
 
