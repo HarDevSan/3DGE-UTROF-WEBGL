@@ -15,7 +15,6 @@ public class GameEventListener : MonoBehaviour
     }
     private void Start()
     {
-
         gameEvent.RegisterListener(this);
     }
     private void OnEnable()
