@@ -23,6 +23,8 @@ public class PlayerStats : ScriptableObject
     public float _toRunLerpTime;
     public float _toStrafeRunLerpTime;
     public float _LineOfSightDistance;
+    public float _LineToStepDetectDistance;
+
 
     //ease in to default variables
     public float _toDefaultWalkSpeedLerpTime;
