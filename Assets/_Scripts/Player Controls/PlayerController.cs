@@ -262,7 +262,7 @@ public class PlayerController : MonoBehaviour
             isPlayerCanInteractBecauseHeLooksAtSmth_item = false;
             isPlayerCanInteractBecauseHeLooksAt_ScriptedEvent = false;
         }
-        Debug.DrawRay(castRayFrom.position, castRayFrom.forward, Color.green);
+       // Debug.DrawRay(castRayFrom.position, castRayFrom.forward, Color.green);
 
     }
 
