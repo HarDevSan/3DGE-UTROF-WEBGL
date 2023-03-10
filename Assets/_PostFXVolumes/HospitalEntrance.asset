@@ -15,7 +15,7 @@ MonoBehaviour:
   active: 0
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: -0.12583898}
+    m_Value: {x: 1, y: 1, z: 1, w: 0.13641873}
   midtones:
     m_OverrideState: 1
     m_Value: {x: 1, y: 1, z: 1, w: 0.07550335}
@@ -33,6 +33,22 @@ MonoBehaviour:
     m_Value: 0.55
   highlightsEnd:
     m_OverrideState: 0
+    m_Value: 1
+--- !u!114 &-6360182266692825103
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81180773991d8724ab7f2d216912b564, type: 3}
+  m_Name: ChromaticAberration
+  m_EditorClassIdentifier: 
+  active: 0
+  intensity:
+    m_OverrideState: 1
     m_Value: 1
 --- !u!114 &-2253905850820228573
 MonoBehaviour:
@@ -93,6 +109,7 @@ MonoBehaviour:
   - {fileID: -2253905850820228573}
   - {fileID: 2755428989390360711}
   - {fileID: 6137420632820344453}
+  - {fileID: -6360182266692825103}
 --- !u!114 &933539107821551443
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -195,19 +212,19 @@ MonoBehaviour:
   active: 1
   postExposure:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 1.24
   contrast:
     m_OverrideState: 1
     m_Value: 7.2
   colorFilter:
     m_OverrideState: 0
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    m_Value: {r: 1, g: 0, b: 0, a: 1}
   hueShift:
     m_OverrideState: 0
-    m_Value: 0
+    m_Value: 172.3
   saturation:
     m_OverrideState: 0
-    m_Value: -12.4
+    m_Value: 8.6
 --- !u!114 &6137420632820344453
 MonoBehaviour:
   m_ObjectHideFlags: 3
