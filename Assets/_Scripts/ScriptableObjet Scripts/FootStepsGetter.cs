@@ -5,4 +5,5 @@ using UnityEngine;
 public class FootStepsGetter : MonoBehaviour
 {
     public FloorFootStepType stepType;
+
 }
