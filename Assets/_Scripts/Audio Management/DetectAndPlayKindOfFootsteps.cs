@@ -21,18 +21,19 @@ public class DetectAndPlayKindOfFootsteps : MonoBehaviour
     {
         //cache the single audiosource responsible for footsteps at start
         footStepSource = GetComponentInChildren<AudioSource>();
+
     }
-    public void DetectFootstepTypeAndPlay()
+
+
+    public void DetectFootstepTypeAndReverbTypeAndPlay()
     {
         RaycastHit hit;
 
         if (Physics.Raycast(footStepDetectPosition.position, Vector3.down, out hit, playerstats._LineToStepDetectDistance, groundMask))
         {
             footStepsGetter = hit.transform.gameObject.GetComponent<FootStepsGetter>();
-            //if(footStepsGetter != null)
             footStepSource.clip = footStepsGetter.stepType.footStepsClip;
 
-            Debug.Log("Got the footstep!");
             PlayFootSteps();
         }
 
