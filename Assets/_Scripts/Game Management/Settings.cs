@@ -42,9 +42,15 @@ public class Settings : MonoBehaviour
         speedSliderY.value = 1;
 
         walkSpeedSlider.value = playerStatSO._defaultWalkSpeed;
+
+
+        //AddListeners
+        speedSliderBoth.onValueChanged.AddListener(delegate { UpdateMouseValues(); });
+        speedSliderBoth.onValueChanged.AddListener(delegate { UpdateWalkSpeed(); });
+
     }
 
-    private void Update()
+    private void UpdateMouseValues()
     {
         {
             mouseSpeedBoth = speedSliderBoth.value;
@@ -52,14 +58,18 @@ public class Settings : MonoBehaviour
             mouseSpeedY = speedSliderY.value;
 
             freeLookCam.m_XAxis.m_MaxSpeed = defaultSpeedX * mouseSpeedBoth * mouseSpeedX;
-            freeLookCam.m_YAxis.m_MaxSpeed = defaultSpeedY * mouseSpeedBoth * mouseSpeedY; ;
+            freeLookCam.m_YAxis.m_MaxSpeed = defaultSpeedY * mouseSpeedBoth * mouseSpeedY;
 
             currentVCamspeedX = freeLookCam.m_XAxis.m_MaxSpeed;
             currentVCamspeedY = freeLookCam.m_YAxis.m_MaxSpeed;
-
-            currentWalkSpeed = walkSpeedSlider.value;
-            playerStatSO._defaultWalkSpeed = currentWalkSpeed;
-            playerStatSO._walkSpeed = currentWalkSpeed;
+            
         }
+    }
+
+    private void UpdateWalkSpeed()
+    {
+        currentWalkSpeed = walkSpeedSlider.value;
+        playerStatSO._defaultWalkSpeed = currentWalkSpeed;
+        playerStatSO._walkSpeed = currentWalkSpeed;
     }
 }
