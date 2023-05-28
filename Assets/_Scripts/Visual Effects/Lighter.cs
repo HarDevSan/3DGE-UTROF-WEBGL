@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Lighter : MonoBehaviour
 {
-    public Light lighter;
+    public GameObject lighter;
     public InventorySearcher inventorySearcher;
     public static bool isLighterEnabled;
 
@@ -15,7 +15,7 @@ public class Lighter : MonoBehaviour
         InputReceiver.On_F_Inpu += EnableLighter;
         InputReceiver.On_F_Second_Input += DisableLighter;
 
-        lighter.enabled = false;
+        lighter.SetActive(false);
 }
 
 bool checkIfLighterIsInInvenotry()
@@ -32,15 +32,17 @@ bool checkIfLighterIsInInvenotry()
     {
         if (CheckIfGameIsPaused() == false && checkIfLighterIsInInvenotry())
         {
-            lighter.enabled = true;
+            lighter.SetActive(true);
+            if(tempFlame != null)
             tempFlame.SetActive(true);
             isLighterEnabled = true;
         }
     }
     void DisableLighter()
     {
-        lighter.enabled = false;
+        lighter.SetActive(false);
         isLighterEnabled = false;
+        if (tempFlame != null)
         tempFlame.SetActive(false);
 
     }
