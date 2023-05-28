@@ -41,6 +41,9 @@ public class InputReceiver : MonoBehaviour
     public static event InputEvent_F_Input On_F_Inpu;
     public delegate void InputEvent_F_Second();
     public static event InputEvent_F_Second On_F_Second_Input;
+    public delegate void InputEvent_LeftMouse();
+    public static event InputEvent_F_Second On_LeftMouse_Input;
+
 
     public static bool isMovementInput;
     public static bool pauseWasPressed;
@@ -63,6 +66,7 @@ public class InputReceiver : MonoBehaviour
         CheckIf_Zoom_IsPressed();
         //CheckIf_ResetPlayer_Pressed();
         CheckIf_Use_Pressed();
+        CheckIf_Attack_Pressed();
     }
 
 
@@ -121,6 +125,20 @@ public class InputReceiver : MonoBehaviour
         else
             return false;
     }
+
+    public static bool CheckIf_Attack_Pressed()
+    {
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (On_LeftMouse_Input != null)
+                On_LeftMouse_Input.Invoke();
+            return true;
+        }
+        else
+            return false;
+    }
+
     public static bool CheckIf_Lighter_Pressed()
     {
         if (lighterWasPressed == false)
