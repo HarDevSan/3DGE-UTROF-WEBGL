@@ -8,15 +8,21 @@ public class PlayerAnimator : MonoBehaviour
 
     public Vector2 RandomSpeedMaxMin;
 
-    private void Update()
+    private void Start()
     {
-        PlayWalkingAnimatorStateWhilePlayerMovesForward();
+
     }
 
-    void PlayWalkingAnimatorStateWhilePlayerMovesForward()
+    private void Update()
     {
-        animator.speed = Random.Range(0.9f, 1.1f);
-            animator.SetBool("IsWalking", !PlayerController.isPlayerIdling);
-      
+        //Constantly set vector movements to control blend tree
+        AnimatorSetFloats();
     }
+
+    void AnimatorSetFloats()
+    {
+        animator.SetFloat("Forward", InputReceiver.movementInput.y);
+        animator.SetFloat("Sideways", InputReceiver.movementInput.x);
+    }
+
 }
