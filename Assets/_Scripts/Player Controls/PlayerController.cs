@@ -38,7 +38,6 @@ public class PlayerController : MonoBehaviour
     public PlayerStats playerstats;
 
     static bool isCharControllerEnabled;
-    public static bool isPlayerIdling;
 
     private void Awake()
     {
@@ -93,22 +92,22 @@ public class PlayerController : MonoBehaviour
             TurnPlayer();
         }
 
-        PollPlayerIdleState();
+        //PollPlayerIdleState();
 
     }
 
-    void PollPlayerIdleState()
-    {
-        //Does the player idle?
-        if (inputVectorWASD.y == 0)
-        {
-            isPlayerIdling = true;
-        }
-        else
-        {
-            isPlayerIdling = false;
-        }
-    }
+    //void PollPlayerIdleState()
+    //{
+    //    //Does the player idle?
+    //    if (inputVectorWASD.y == 0)
+    //    {
+    //        isPlayerIdling = true;
+    //    }
+    //    else
+    //    {
+    //        isPlayerIdling = false;
+    //    }
+    //}
 
 
     void ApplyGravity()
