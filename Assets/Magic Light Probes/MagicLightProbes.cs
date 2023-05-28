@@ -15,6 +15,7 @@ using UnityEngine.Events;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.Experimental.SceneManagement;
+using UnityEngine.Rendering;
 #endif
 
 namespace MagicLightProbes
@@ -3066,7 +3067,19 @@ namespace MagicLightProbes
 #if UNITY_2019_2_OR_NEWER
                 if ((flags & StaticEditorFlags.ContributeGI) != 0 || obj.GetComponent<MeshRenderer>() == null)
                 {
+                    #if HDRPPACKAGE_EXIST
+                    if (obj.GetComponent<Volume>() != null)
+                    {
+                        temporarilyDisabledDynamicObjects.Add(obj);
+                        obj.SetActive(false);
+                    }
+                    else
+                    {
+                        staticObjects.Add(obj); 
+                    }
+                    #else
                     staticObjects.Add(obj);
+                    #endif
                 }
                 else
                 {

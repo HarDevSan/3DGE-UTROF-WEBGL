@@ -14,7 +14,7 @@ namespace MagicLightProbes
         private static IEnumerator downloadNewVersionRoutine;
         private static IEnumerator checkForUpdatesRoutine;
 
-        public static string installedVersion = "1.96.0";
+        public static string installedVersion = "1.96.3";
         public static bool authorization;
         public static bool updateChecking;
         public static bool updateCheckingLoop;

@@ -3,7 +3,11 @@ using UnityEditor;
 using UnityEngine;
 
 #if UNITY_EDITOR
-
+#if UNITY_2021_1_OR_NEWER
+using UnityEditor.SceneManagement;
+#else
+using UnityEditor.Experimental.SceneManagement;
+#endif
 #endif
 namespace MagicLightProbes
 {
@@ -61,7 +65,7 @@ namespace MagicLightProbes
 
             if (volume.parentRootComponent.isInPrefab)
             {
-                Gizmos.matrix = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null
+                Gizmos.matrix = PrefabStageUtility.GetCurrentPrefabStage() != null
                     ? Matrix4x4.TRS(volume.transform.position,
                         volume.isPartVolume ? volume.transform.rotation : volume.transform.localRotation,
                         volume.transform.localScale)
@@ -95,7 +99,7 @@ namespace MagicLightProbes
 
             if (volume.parentRootComponent.isInPrefab)
             {
-                Gizmos.matrix = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null
+                Gizmos.matrix = PrefabStageUtility.GetCurrentPrefabStage() != null
                     ? Matrix4x4.TRS(volume.transform.position,
                         volume.isPartVolume ? volume.transform.rotation : volume.transform.localRotation,
                         volume.transform.localScale)

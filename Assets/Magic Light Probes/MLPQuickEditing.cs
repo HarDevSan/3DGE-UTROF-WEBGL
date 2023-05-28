@@ -1,7 +1,11 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
-
+#if UNITY_2021_1_OR_NEWER
+using UnityEditor.SceneManagement;
+#else
+using UnityEditor.Experimental.SceneManagement;
+#endif
 #endif
 
 using UnityEngine;
@@ -15,14 +19,13 @@ namespace MagicLightProbes
         public float gizmoScale;
         public float drawDistance = 10;
         private Vector3 _lastPrefabPosition = Vector3.zero;
-        private Quaternion _lastPrefabRotation = Quaternion.identity;
+        private Quaternion _lastPrefabRotation = Quaternion.identity;  
 
 #if UNITY_EDITOR
 #if UNITY_2020_1_OR_NEWER
-        private UnityEditor.SceneManagement.PrefabStage prefabStage;
-        private UnityEditor.SceneManagement.PrefabStage.Mode prefabStageMode;
+        private PrefabStage prefabStage;
+        private PrefabStage.Mode prefabStageMode;
 #endif
-
         private void OnDrawGizmosSelected()
         {
             var position = Vector3.zero;
@@ -48,14 +51,14 @@ namespace MagicLightProbes
                         parent.prefabConnectionObject.transform.rotation, Vector3.one);
                     
 #if UNITY_2020_1_OR_NEWER
-                    prefabStage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+                    prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
 
                     if (prefabStage != null)
                     {
-                        prefabStageMode = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage().mode;
+                        prefabStageMode = PrefabStageUtility.GetCurrentPrefabStage().mode;
                         
                         position = parent.calculatedFromPrefab ? parent.prefabConnectionObject.transform.position : Vector3.zero;
-                        Gizmos.matrix = prefabStageMode == UnityEditor.SceneManagement.PrefabStage.Mode.InContext ? parentTRS : noTRS;
+                        Gizmos.matrix = prefabStageMode == PrefabStage.Mode.InContext ? parentTRS : noTRS;
                     }
                     else
                     {
@@ -90,5 +93,5 @@ namespace MagicLightProbes
             }
         }
 #endif
-    }
+    }    
 }

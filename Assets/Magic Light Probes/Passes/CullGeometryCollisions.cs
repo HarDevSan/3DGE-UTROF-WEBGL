@@ -4,7 +4,14 @@ using System.Collections.Generic;
 using System.IO;
 
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+
+#if UNITY_2021_1_OR_NEWER
+using UnityEditor.SceneManagement;
+#else
+using UnityEditor.Experimental.SceneManagement;
+#endif
 
 namespace MagicLightProbes
 {
@@ -43,7 +50,7 @@ namespace MagicLightProbes
             {
                 Collider[] colliders = new Collider[0];
                 
-                if (UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() == null)
+                if (PrefabStageUtility.GetCurrentPrefabStage() == null)
                 {
                     colliders = Physics.OverlapSphere(parent.tmpSharedPointsArray[i].position,
                         parent.collisionDetectionRadius, parent.layerMask);
@@ -62,6 +69,7 @@ namespace MagicLightProbes
                     };
 
                     bool aboveInfinity = false;
+                    bool ignoreProbe = false;
                     int freeRays = 0;
                     int hitRays = 0;
 
@@ -78,6 +86,12 @@ namespace MagicLightProbes
                         {
                             if (parent.CheckIfStatic(hitInfoForward.collider.gameObject))
                             {
+                                if (hitInfoForward.collider.gameObject.GetComponent<MLPForceNoProbes>() != null)
+                                {
+                                    ignoreProbe = true;
+                                    //break;
+                                }
+                                
                                 if (parent.RaycastPhysicsScene(
                                     Vector3.MoveTowards(hitInfoForward.point, parent.tmpSharedPointsArray[i].position, 0.001f),
                                     Vector3.Normalize(parent.tmpSharedPointsArray[i].position - hitInfoForward.point),
@@ -86,6 +100,12 @@ namespace MagicLightProbes
                                 {
                                     if (parent.CheckIfStatic(hitInfoForward.collider.gameObject))
                                     {
+                                        if (hitInfoForward.collider.gameObject.GetComponent<MLPForceNoProbes>() != null)
+                                        {
+                                            ignoreProbe = true;
+                                            //break;
+                                        }
+                                        
                                         if (hitInfoForward.normal.Equals(ray.direction))
                                         {
                                             hitRays++;
@@ -145,11 +165,11 @@ namespace MagicLightProbes
                         }
                     }
 
-                    if (hitRays > 0)
+                    if (hitRays > 0 || ignoreProbe)
                     {
                         tempCulledList.Add(parent.tmpSharedPointsArray[i]);
                     }
-                    else if (!aboveInfinity)
+                    else if (!aboveInfinity && !ignoreProbe)
                     {
                         tempAcceptedList.Add(parent.tmpSharedPointsArray[i]);
                     }
@@ -160,14 +180,18 @@ namespace MagicLightProbes
                     {
                         if (parent.CheckIfStatic(collider.gameObject))
                         {
-                            if (!tempCulledList.Contains(parent.tmpSharedPointsArray[i]))
+                            if (!tempCulledList.Contains(parent.tmpSharedPointsArray[i]) || 
+                                collider.gameObject.GetComponent<MLPForceNoProbes>() != null)
                             {
                                 tempCulledList.Add(parent.tmpSharedPointsArray[i]);
                             }
                         }
                         else
                         {
-                            tempAcceptedList.Add(parent.tmpSharedPointsArray[i]);
+                            if (collider.gameObject.GetComponent<MLPForceNoProbes>() == null)
+                            {
+                                tempAcceptedList.Add(parent.tmpSharedPointsArray[i]);
+                            }
                         }
                     }
                 }

@@ -36,14 +36,27 @@
   Up-to-date documentation is located at
   https://motiongamesstudio.gitbook.io/magic-light-probes/
 
-  CHANGELOG  
+  CHANGELOG 
+  
+  v 1.96.2-3
+    -------------       
+                        
+    Bug Fixes:
+      - Fixed compilation bugs on different versions of the engine
+  
+  v 1.96.1
+  -------------       
+                      
+  Bug Fixes:
+    - Fixed a bug that caused HDRP Volume to be counted by the system as an object with a collider.
+    - Fixed a bug in MLSQuickEditing due to which the build could not be completed.
   
   v 1.96.0
-    -------------       
+  -------------       
                     
-    Bug Fixes:
-      - Fixed a lot of minor bugs.
-      - Fixed the algorithm for culling probes inside the geometry.
+  Bug Fixes:
+    - Fixed a lot of minor bugs.
+    - Fixed the algorithm for culling probes inside the geometry.
   
   v 1.95.6
   -------------  

@@ -20,7 +20,7 @@ namespace MagicLightProbes
         {
             for (int i = 0; i < parent.childCount; i++)
             {
-                if (parent.GetChild(i).GetComponent<MeshRenderer>() != null)
+                if (parent.GetChild(i).GetComponent<MeshRenderer>() != null || parent.GetChild(i).GetComponent<Collider>() != null)
                 {
                     if (parent.GetChild(i).childCount > 0)
                     {

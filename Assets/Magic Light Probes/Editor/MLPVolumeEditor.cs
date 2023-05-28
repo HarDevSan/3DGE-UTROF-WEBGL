@@ -1,7 +1,12 @@
 ﻿using UnityEditor;
-
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+
+#if UNITY_2021_1_OR_NEWER
+using UnityEditor.SceneManagement;
+#else
+using UnityEditor.Experimental.SceneManagement;
+#endif
 
 namespace MagicLightProbes
 {
@@ -67,7 +72,7 @@ namespace MagicLightProbes
             //     }
             // }
 
-            if (!mlpVolume.parentRootComponent.isInPrefab || UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
+            if (!mlpVolume.parentRootComponent.isInPrefab || PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 boxBoundsHandle.axes = PrimitiveBoundsHandle.Axes.X | PrimitiveBoundsHandle.Axes.Y |
                                        PrimitiveBoundsHandle.Axes.Z;
