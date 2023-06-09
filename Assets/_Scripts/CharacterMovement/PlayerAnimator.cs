@@ -10,7 +10,8 @@ public class PlayerAnimator : MonoBehaviour
 
     private void Start()
     {
-
+        //InputReceiver.On_LeftMouse_Input += SetCombatLayer;
+        InputReceiver.On_LeftMouse_Input += SetTriggerStab;
     }
 
     private void Update()
@@ -25,4 +26,16 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetFloat("Sideways", InputReceiver.movementInput.x);
     }
 
+    void SetCombatLayer()
+    {
+        if(animator.GetLayerWeight(1) == 0)
+        animator.SetLayerWeight(1, 1);
+        else
+        animator.SetLayerWeight(1, 0);
+    }
+
+    void SetTriggerStab()
+    {
+        animator.SetTrigger("Trigger_Stab");
+    }
 }
