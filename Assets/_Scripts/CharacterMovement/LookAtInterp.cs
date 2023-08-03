@@ -15,16 +15,16 @@ public class LookAtInterp : MonoBehaviour
     float newWeight;
     Vector3 dirToTarget;
 
-    private void Update()
-    {
-        float curVel = headTrack.weight;
+    //private void Update()
+    //{
+    //    //float curVel = headTrack.weight;
 
-        dirToTarget = Vector3.Normalize(targetLookAt.position - headBoneTransform.position);
+    //    dirToTarget = Vector3.Normalize(targetLookAt.position - headBoneTransform.position);
 
-        newWeight = (Vector3.Dot(headBoneTransform.forward, dirToTarget));
+    //    newWeight = (Vector3.Dot(headBoneTransform.forward, dirToTarget));
 
-        headTrack.weight = newWeight;
+    //    headTrack.weight = newWeight;
 
 
-    }
+    //}
 }
