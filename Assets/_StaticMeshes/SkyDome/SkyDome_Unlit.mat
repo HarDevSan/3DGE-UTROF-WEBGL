@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: SkyDome_Unlit
   m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
@@ -21,6 +23,7 @@ Material:
   disabledShaderPasses:
   - SHADOWCASTER
   - DepthOnly
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -41,7 +44,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: a975e0f095f751b43af942a578c5cbb5, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1.19, y: 1.13}
         m_Offset: {x: 1.17, y: -5.85}
     - _MetallicGlossMap:
@@ -59,6 +62,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
+    - _AlphaToMask: 0
     - _ApplyNormal: 0
     - _Blend: 2
     - _BlendOp: 0
@@ -68,6 +72,7 @@ Material:
     - _Cutoff: 0.522
     - _Density: 1
     - _DstBlend: 1
+    - _DstBlendAlpha: 1
     - _EdgeBlend: 2
     - _EnableBaseMap: 1
     - _EnableRefraction: 1
@@ -105,6 +110,7 @@ Material:
     - _SpecSource: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilFail: 0
@@ -137,4 +143,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 5
+  version: 7

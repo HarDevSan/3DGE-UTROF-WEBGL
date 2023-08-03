@@ -23,9 +23,7 @@ Material:
   m_Name: AmbulanceMAster
   m_Shader: {fileID: 4800000, guid: ee7e4c9a5f6364b688a332c67fc32cca, type: 3}
   m_ValidKeywords:
-  - _CLEARCOATMAP
   - _METALLICSPECGLOSSMAP
-  - _NORMALMAP
   - _OCCLUSIONMAP
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -87,7 +85,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 7a2d64d4490dae34aae5459bee7b9bfb, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ClearCoatMap:
@@ -177,7 +175,7 @@ Material:
     - _CameraFadeShadows: 0
     - _CameraFadingEnabled: 0
     - _CameraShadowFadeDist: 1
-    - _ClearCoat: 1
+    - _ClearCoat: 0
     - _ClearCoatMask: 1
     - _ClearCoatSmoothness: 1
     - _ClearCoatThickness: 0.5
@@ -230,7 +228,7 @@ Material:
     - _SAAThreshold: 0.2
     - _ScreenSpaceVariance: 0.1
     - _Shininess: 0
-    - _Smoothness: 1
+    - _Smoothness: 0
     - _SmoothnessFromMetallic: 1
     - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
