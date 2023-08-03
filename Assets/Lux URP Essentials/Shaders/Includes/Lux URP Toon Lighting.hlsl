@@ -152,6 +152,7 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
         surfaceData.occlusion = occlusion;
         surfaceData.metallic = metallic;
         surfaceData.emission = emission;
+        surfaceData.alpha = alpha;
         #if defined(_TOONRIM)
             surfaceData.emission += rimLighting;
         #endif
@@ -169,7 +170,7 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
 //  Declare aoFactor so we can use the URP 12+ lighting functions
     AmbientOcclusionFactor aoFactor;
     aoFactor.directAmbientOcclusion = 1;
-    aoFactor.indirectAmbientOcclusion = 1;
+    aoFactor.indirectAmbientOcclusion = occlusion;
 
 //  SSAO            
     #if defined(_SCREEN_SPACE_OCCLUSION)
@@ -180,7 +181,7 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
         #endif
     #endif
 
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
     Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
     mainLight.shadowAttenuation = smoothstep( (1 - shadowFalloff) * shadowFalloff, shadowFalloff, mainLight.shadowAttenuation);
     
@@ -192,7 +193,9 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
         _GlossyEnvironmentColor.rgb = half3(0,0,0);
     #endif
 //  Global Illumination
-    half3 GI = GlobalIllumination(brdfData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS);
+    half3 GI = GlobalIllumination(brdfData, brdfData, 0.0h,
+        inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
+        inputData.normalWS, inputData.viewDirectionWS, inputData.normalizedScreenSpaceUV);
 
 //  Set up Lighting
     half lightIntensity = 0.0h;
@@ -231,8 +234,9 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
 //  Main Light
 #if defined(_LIGHT_LAYERS)
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+#endif
     { 
-#endif 
+
         NdotL = dot(inputData.normalWS, mainLight.direction);
         NdotL = saturate((NdotL + 1.0h) - diffuseStep);
 
@@ -270,21 +274,69 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
             #endif
             specularLighting = spec * atten;
         #endif
-#if defined(_LIGHT_LAYERS)
     }
-#endif
+
 
 //  Additional lights
     #ifdef _ADDITIONAL_LIGHTS
         uint pixelLightCount = GetAdditionalLightsCount();
-        
+
+        #if USE_FORWARD_PLUS
+            for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+            {
+                FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+            #ifdef _LIGHT_LAYERS
+                if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            #endif
+                {
+                    light.shadowAttenuation = smoothstep( (1.0h - shadowFalloff) * shadowFalloff, shadowFalloff, light.shadowAttenuation);
+                
+                    NdotL = dot(inputData.normalWS, light.direction);
+                    NdotL = saturate((NdotL + 1.0h) - diffuseStep);
+                    #if !defined(_RAMP_SMOOTHSAMPLING) && !defined(_RAMP_POINTSAMPLING)
+                        half quantizedNdotL = floor(NdotL * steps);
+                    //  IMPORTANT: no saturate on the 2nd param: NdotL - 0.01. 0.01 is eyballed.
+                        NdotL = (quantizedNdotL + aaStep(saturate(quantizedNdotL * oneOverSteps), NdotL - 0.01h, diffuseFalloff )) * oneOverSteps;
+                    #else
+                        #if defined(_RAMP_SMOOTHSAMPLING)
+                            NdotL = SAMPLE_TEXTURE2D(_GradientMap, s_linear_clamp_sampler, float2 (NdotL, 0.5f)).r;
+                        #else
+                            half NdotL0 = SAMPLE_TEXTURE2D(_GradientMap, s_point_clamp_sampler, float2 (NdotL, 0.5f)).r;
+                            half NdotL1 = SAMPLE_TEXTURE2D(_GradientMap, s_point_clamp_sampler, float2 (NdotL + fwidth(NdotL) * _GradientMap_TexelSize.x, 0.5f)).r;
+                            NdotL = (NdotL0 + NdotL1) * 0.5h;
+                        #endif
+                    #endif
+
+                //  No smoothstep here! as is totally fucks up the distanceAttenuation: It is not linear!
+                    //half distanceAttenuation = smoothstep(0, addLightFalloff, light.distanceAttenuation);
+                    half distanceAttenuation = (addLightFalloff < 1.0h) ? saturate(light.distanceAttenuation / addLightFalloff) : light.distanceAttenuation;
+                    atten = NdotL * distanceAttenuation * saturate(shadowBiasAdditional + light.shadowAttenuation);
+                    light.color = lerp(Luminance(light.color).xxx, light.color, lightColorContribution.xxx);
+                    lightColor += light.color * lerp(atten, distanceAttenuation, addLightAttenContribution);
+                    luminance = Luminance(light.color);
+                    lightIntensity += luminance * atten;
+                    #if !defined(_SPECULARHIGHLIGHTS_OFF)
+                        #if defined(_ANISOTROPIC)
+                            spec = LightingSpecularAniso_Toon (light, NdotL, inputData.normalWS, inputData.viewDirectionWS, tangentWS, bitangentWS, anisotropy, specular, specularSmoothness, smoothness, specularStep, specularUpper, energyConservation);
+                        #else
+                            spec = LightingSpecular_Toon(light, NdotL, inputData.normalWS, inputData.viewDirectionWS, specular, specularSmoothness, smoothness, specularStep, specularUpper, energyConservation);
+                        #endif
+                        specularLighting += spec * atten;
+                    #endif
+                }
+            }
+        #endif
+
+
         LIGHT_LOOP_BEGIN(pixelLightCount)
             Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
 
         #if defined(_LIGHT_LAYERS)
             if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
-            {
         #endif
+            {
+        
                 light.shadowAttenuation = smoothstep( (1.0h - shadowFalloff) * shadowFalloff, shadowFalloff, light.shadowAttenuation);
                 
                 NdotL = dot(inputData.normalWS, light.direction);
@@ -319,9 +371,7 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
                     #endif
                     specularLighting += spec * atten;
                 #endif
-        #if defined(_LIGHT_LAYERS)
             }
-        #endif
         LIGHT_LOOP_END
     #endif
 
@@ -344,7 +394,11 @@ half4 LuxURPToonFragmentPBR(InputData inputData,
         GI
         //inputData.bakedGI * albedo //litAlbedo
     //  direct diffuse lighting
-        + litAlbedo * lightColor
+        #if _ALPHAPREMULTIPLY_ON
+            + litAlbedo * lightColor * alpha
+        #else
+            + litAlbedo * lightColor
+        #endif
     //  spec lighting    
         #if !defined(_SPECULARHIGHLIGHTS_OFF)
             + (specularLighting * lightIntensity * lightColor)

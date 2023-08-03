@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 struct VertexInputDepthOnly
 {
@@ -21,7 +25,6 @@ VertexOutputDepthOnly DepthOnlyVertex(VertexInputDepthOnly input)
 {
     VertexOutputDepthOnly output = (VertexOutputDepthOnly)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
     #if defined(_ALPHATEST_ON)
         output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
@@ -32,11 +35,15 @@ VertexOutputDepthOnly DepthOnlyVertex(VertexInputDepthOnly input)
 
 half4 DepthOnlyFragment(VertexOutputDepthOnly input) : SV_TARGET
 {
-    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
+
     #if defined(_ALPHATEST_ON)
         half mask = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
         clip (mask - _Cutoff);
     #endif
-    return 0;
+    return input.positionCS.z;
 }

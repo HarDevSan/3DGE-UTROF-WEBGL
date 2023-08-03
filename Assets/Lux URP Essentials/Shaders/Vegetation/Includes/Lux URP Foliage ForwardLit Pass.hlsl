@@ -1,5 +1,8 @@
-//  Structs
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
 
+//  Structs
 struct Attributes
 {
     float3 positionOS                   : POSITION;
@@ -47,7 +50,7 @@ struct Varyings
         half4 color                     : COLOR;
     #endif
     
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -62,7 +65,7 @@ Varyings LitPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
 //  Set distance fade value
@@ -195,10 +198,20 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
     #endif
 }
 
-half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
+void LitPassFragment(
+    Varyings input, half facing : VFACE
+    , out half4 outColor : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;
@@ -242,5 +255,10 @@ half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
         color.rgb *= _DebugBrightness;
     #endif
 
-    return color;
+    outColor = color;
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    #endif
 }

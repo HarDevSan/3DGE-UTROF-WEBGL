@@ -4,6 +4,10 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 
 struct Attributes
@@ -120,6 +124,7 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
 {
     inputData = (InputData)0;
     inputData.positionWS = input.positionWS;
+    inputData.positionCS = input.positionCS;
 
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
 
@@ -166,6 +171,10 @@ FragmentOutput LitGBufferPassFragment(Varyings input)
 {
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;

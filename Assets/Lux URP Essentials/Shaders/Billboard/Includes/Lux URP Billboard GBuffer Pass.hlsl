@@ -1,5 +1,9 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 struct Attributes
 {
@@ -46,7 +50,7 @@ struct Varyings
         FRONT_FACE_TYPE cullFace        : FRONT_FACE_SEMANTIC;
     #endif
 
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -58,6 +62,7 @@ Varyings LitGBufferPassVertex (Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
 //  Instance world position
@@ -127,8 +132,12 @@ Varyings LitGBufferPassVertex (Attributes input)
 
 FragmentOutput LitGBufferPassFragment(Varyings input)
 {
-
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
     SurfaceData surfaceData;
 //  Get the surface description
@@ -137,6 +146,7 @@ FragmentOutput LitGBufferPassFragment(Varyings input)
 //  Transfer all to world space 
     InputData inputData = (InputData)0;
     inputData.positionWS = input.positionWS;
+    inputData.positionCS = input.positionCS;
 
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
 

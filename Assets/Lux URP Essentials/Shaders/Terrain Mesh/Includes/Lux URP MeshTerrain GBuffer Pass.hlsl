@@ -138,6 +138,8 @@ FragmentOutput frag(Varyings input)
     InputData inputData = (InputData)0;
     inputData.positionWS = input.positionWS;
 
+    inputData.positionCS = input.positionCS;
+
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
     #ifdef _NORMALMAP
         #if !defined(_TOPDOWNPROJECTION)
@@ -178,6 +180,8 @@ FragmentOutput frag(Varyings input)
 
     inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
     inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+
+    SETUP_DEBUG_TEXTURE_DATA(inputData, input.uv, _BaseMap);
 
 #ifdef _DBUFFER
     #if defined(_RECEIVEDECALS)

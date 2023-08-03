@@ -19,7 +19,7 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
 
         [Header(Shared Stencil Settings)]
         [Space(8)]
-        [IntRange] _StencilRef ("Stencil Reference", Range (0, 255)) = 0
+        [IntRange] _StencilRef ("Stencil Reference", Range (0, 255)) = 1
         [IntRange] _ReadMask ("     Read Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)] _StencilCompare ("Stencil Comparison", Int) = 6
 
@@ -59,7 +59,7 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
         {
             "RenderPipeline" = "UniversalPipeline"
             "RenderType" = "Opaque"
-            "Queue" = "Transparent+59" // +59 smalltest to get drawn on top of transparents
+            "Queue" = "Transparent+60" // +59 smalltest to get drawn on top of transparents
         }
         LOD 100
 
@@ -83,16 +83,14 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
             ColorMask 0
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
+            // Universal Pipeline keywords
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
@@ -106,43 +104,32 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/UnlitInput.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
-                half4 _Color;
-                half _Border;
-            CBUFFER_END
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
-            struct VertexInput
+        //  Include base inputs and all other needed "base" includes
+            #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
+            
+
+            Varyings vert (Attributes input)
             {
-                float4 vertex : POSITION;
-                float2 texcoord : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-
-            struct VertexOutput
-            {
-                float4 position                     : SV_POSITION;
-                float2 uv                           : TEXCOORD0;
-                #if defined(_APPLYFOG)
-                    half fogCoord                   : TEXCOORD1;
-                #endif
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            VertexOutput vert (VertexInput input)
-            {
-                VertexOutput o = (VertexOutput)0;
+                Varyings o = (Varyings)0;
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
-                o.position = TransformObjectToHClip(input.vertex.xyz);
+                o.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 return o;
             }
 
-            half4 frag (VertexOutput input ) : SV_Target
+            half4 frag (Varyings input ) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+
                 half alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
                 clip(alpha - _Cutoff);
                 return 0;
@@ -171,10 +158,6 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
             AlphaToMask [_Coverage]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
             #pragma target 2.0
 
             // -------------------------------------
@@ -186,6 +169,7 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
@@ -194,17 +178,20 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
 
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
+
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
 
         //--------------------------------------
         //  Vertex shader
 
-            VertexOutputSimple LitPassVertex(VertexInputSimple input)
+            Varyings LitPassVertex(Attributes input)
             {
-                VertexOutputSimple output = (VertexOutputSimple)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
                 VertexPositionInputs vertexInput;
@@ -255,7 +242,7 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
                 outSurfaceData.alpha = Alpha(shuffleAlpha, 1, _Cutoff);
             }
 
-            void InitializeInputData(VertexOutputSimple input, out InputData inputData)
+            void InitializeInputData(Varyings input, out InputData inputData)
             {
                 inputData = (InputData)0;
                 #if defined(_APPLYFOG)
@@ -263,10 +250,13 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
                 #endif
             }
 
-            half4 LitPassFragment(VertexOutputSimple input) : SV_Target
+            half4 LitPassFragment(Varyings input) : SV_Target
             {
-                UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
 
             //  Get the surface description
                 SurfaceDescriptionSimple surfaceData;
@@ -295,20 +285,20 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
             #pragma target 2.0
 
             // -------------------------------------
             // Material Keywords
             #define _ALPHATEST_ON
             #pragma shader_feature_local_fragment _ADAPTIVEOUTLINE
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
@@ -317,6 +307,10 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
 
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
+
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
 
@@ -324,11 +318,10 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
         //--------------------------------------
         //  Vertex shader
 
-            VertexOutputSimple DepthOnlyVertex(VertexInputSimple input)
+            Varyings DepthOnlyVertex(Attributes input)
             {
-                VertexOutputSimple output = (VertexOutputSimple)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
                 VertexPositionInputs vertexInput;
@@ -380,16 +373,19 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
                 outSurfaceData.alpha = Alpha(shuffleAlpha, 1, _Cutoff);
             }
 
-            half4 DepthOnlyFragment(VertexOutputSimple input) : SV_Target
+            half4 DepthOnlyFragment(Varyings input) : SV_Target
             {
-                UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
 
             //  Get the surface description
                 SurfaceDescriptionSimple surfaceData;
                 InitializeSurfaceData(input.uv, surfaceData);
 
-                return 0;  
+                return input.positionCS.z;  
             }
 
             ENDHLSL
@@ -402,14 +398,9 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
             Tags{"LightMode" = "DepthNormals"}
 
             ZWrite On
-            ColorMask 0
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
             #pragma target 2.0
 
             // -------------------------------------
@@ -421,8 +412,16 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
             // GPU Instancing
             #pragma multi_compile_instancing
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
+
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             #pragma vertex DepthNormalVertex
             #pragma fragment DepthNormalFragment
@@ -431,20 +430,19 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
         //--------------------------------------
         //  Vertex shader
 
-            VertexOutputSimple DepthNormalVertex(VertexInputSimple input)
+            Varyings DepthNormalVertex(Attributes input)
             {
-                VertexOutputSimple output = (VertexOutputSimple)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
                 VertexPositionInputs vertexInput;
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-            //    #if defined(_APPLYFOG)
-            //        output.fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
-            //    #endif
                 output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
                 output.positionCS = vertexInput.positionCS;
+
+                output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                
                 return output;
             }
 
@@ -486,16 +484,41 @@ Shader "Lux URP/Fast Outline AlphaTested Double Pass"
                 outSurfaceData.alpha = Alpha(shuffleAlpha, 1, _Cutoff);
             }
 
-            half4 DepthNormalFragment(VertexOutputSimple input) : SV_Target
+            //half4 DepthNormalFragment(Varyings input) : SV_Target
+            //{
+            void DepthNormalFragment(
+                Varyings input
+                , out half4 outNormalWS : SV_Target0
+            #ifdef _WRITE_RENDERING_LAYERS
+                , out float4 outRenderingLayers : SV_Target1
+            #endif
+            )
             {
-                UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
 
             //  Get the surface description
                 SurfaceDescriptionSimple surfaceData;
                 InitializeSurfaceData(input.uv, surfaceData);
 
-                return 0;  
+                #if defined(_GBUFFER_NORMALS_OCT)
+                    float3 normalWS = normalize(input.normalWS);
+                    float2 octNormalWS = PackNormalOctQuadEncode(normalWS);
+                    float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   
+                    half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      
+                    outNormalWS = half4(packedNormalWS, 0.0);
+                #else
+                    half3 normalWS = NormalizeNormalPerPixel(input.normalWS);
+                    outNormalWS = half4(normalWS, 0.0);
+                #endif
+
+                #ifdef _WRITE_RENDERING_LAYERS
+                    uint renderingLayers = GetMeshRenderingLayer();
+                    outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+                #endif 
             }
 
             ENDHLSL

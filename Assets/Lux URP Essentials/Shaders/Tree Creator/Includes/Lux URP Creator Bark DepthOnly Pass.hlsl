@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
     float3 positionOS               : POSITION;
@@ -43,6 +47,11 @@ Varyings DepthOnlyVertex(Attributes input)
 
 half4 DepthOnlyFragment(Varyings input) : SV_TARGET
 {
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
+
 //  Dither
     #if defined(BILLBOARD_FACE_CAMERA_POS) && defined(_ENABLEDITHERING)
         half coverage = 1.0h;
@@ -54,5 +63,5 @@ half4 DepthOnlyFragment(Varyings input) : SV_TARGET
         clip (coverage);
     #endif
 
-    return 0;
+    return input.positionCS.z;
 }

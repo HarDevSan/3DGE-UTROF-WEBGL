@@ -64,9 +64,6 @@ Shader "Lux URP/Projection/Decal Unlit"
             ZWrite Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma shader_feature_local ORTHO_SUPPORT
@@ -176,9 +173,9 @@ Shader "Lux URP/Projection/Decal Unlit"
         //  Decal MipmapLevel to avoid the 2x2 pixels artefacts on the edges where the decal is projected to.
             float2 ComputeDecalDDX(VertexOutput input, float2 uv, float2 decalUV) {
                 float2 ScreenDeltaX = float2(1, 0);
-                float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv - ScreenDeltaX).x;
+                float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv - ScreenDeltaX).x;
                 depth0 = LinearEyeDepth(depth0, _ZBufferParams);
-                float depth1 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv + ScreenDeltaX).x;
+                float depth1 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv + ScreenDeltaX).x;
                 depth1 = LinearEyeDepth(depth1, _ZBufferParams);
 
                 float2 UvDiffX0 = decalUV - ((input.camPosOS + input.viewRayOS.xyz * depth0).xz + float2(0.5, 0.5));
@@ -188,9 +185,9 @@ Shader "Lux URP/Projection/Decal Unlit"
             }
             float2 ComputeDecalDDY(VertexOutput input, float2 uv, float2 decalUV) {
                 float2 ScreenDeltaY = float2(0, 1);
-                float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv - ScreenDeltaY).x;
+                float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv - ScreenDeltaY).x;
                 depth0 = LinearEyeDepth(depth0, _ZBufferParams);
-                float depth1 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv + ScreenDeltaY).x;
+                float depth1 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv + ScreenDeltaY).x;
                 depth1 = LinearEyeDepth(depth1, _ZBufferParams);
 
                 float2 UvDiffY0 = decalUV - ((input.camPosOS + input.viewRayOS.xyz * depth0).xz + float2(0.5, 0.5));
@@ -216,7 +213,7 @@ Shader "Lux URP/Projection/Decal Unlit"
                 #if defined(SHADER_API_GLES)
                     float rawDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, uv, 0);
                 #else
-                    float rawDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv).x;
+                    float rawDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv).x;
                 #endif
 
                 float3 positionOS;

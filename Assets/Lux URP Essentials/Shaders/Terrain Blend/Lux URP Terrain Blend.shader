@@ -36,12 +36,20 @@ Shader "Lux URP/Terrain/Blend"
         _Cull                       ("Culling", Float) = 2
         [Enum(Off,0,On,1)]
         _ZWrite                     ("ZWrite", Int) = 1
+        [Enum(UnityEngine.Rendering.CompareFunction)]
+        _ZTest                      ("ZTest", Int) = 4
     //  [Toggle(_ALPHATEST_ON)]
     //  _AlphaClip                  ("Alpha Clipping", Float) = 0.0
     //  _Cutoff                     ("    Threshold", Range(0.0, 1.0)) = 0.5
         [ToggleOff(_RECEIVE_SHADOWS_OFF)]
         _ReceiveShadows             ("Receive Shadows", Float) = 1.0
 
+        [Header(Deferred Rendering)]
+        [Space(8)]
+        [Toggle]
+        _RenderInDeferred           ("Render in Deferred", Float) = 0
+        _BlendThresholdVertex       ("     Vertex Blend Threshold ", Float) = 2.0
+        _BlendThresholdPixel        ("     Pixel Blend Threshold", Float) = 1.0
 
         [Header(Surface Inputs)]
         [Space(8)]
@@ -87,27 +95,24 @@ Shader "Lux URP/Terrain/Blend"
         {
             "RenderPipeline" = "UniversalPipeline"
             "RenderType" = "Opaque"
-            "Queue" = "Geometry+2"
+            "Queue" = "Geometry-1"
+            "ShaderModel"="4.5"
         }
-        LOD 100
+        LOD 300
 
         Pass
         {
             Name "ForwardLit"
-            Tags{"LightMode" = "UniversalForward"}
-
-//ZTest LEqual
-// Blend gets overriden to On Zero ...
+            Tags{"LightMode" = "UniversalForwardOnly"}
             Blend SrcAlpha OneMinusSrcAlpha          
             ZWrite [_ZWrite]
-
+            ZTest [_ZTest]
+            //ZTest LEqual
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-            #pragma target 2.0
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
 
             #if !defined(DEPTH_SEMANTIC)
                 #if defined(SHADER_API_D3D11)
@@ -138,25 +143,41 @@ Shader "Lux URP/Terrain/Blend"
 
             // -------------------------------------
             // Universal Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
-#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
+
+
+// #if !defined(_ADDITIONAL_LIGHT_SHADOWS)
+//     #define _ADDITIONAL_LIGHT_SHADOWS
+// #endif
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Terrain Blend Inputs.hlsl"
@@ -167,6 +188,10 @@ Shader "Lux URP/Terrain/Blend"
         //--------------------------------------
         //  Vertex shader
 
+            inline float DecodeFloatRG( float2 enc ) {
+                float2 kDecodeDot = float2(1.0, 1/255.0);
+                return dot( enc, kDecodeDot );
+            }
 
             VertexOutput LitPassVertex(VertexInput input)
             {
@@ -183,8 +208,26 @@ Shader "Lux URP/Terrain/Blend"
                 half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
                 half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
+            
+            //  Get terrain height
+                float fadeFactor = 1.0;
+                UNITY_BRANCH if(_RenderInDeferred)
+                {
+                    float2 terrainUV = (vertexInput.positionWS.xz - _TerrainPos.xz) / _TerrainSize.xz;
+                    terrainUV = (terrainUV * (_TerrainHeightNormal_TexelSize.zw - 1.0f) + 0.5 ) * _TerrainHeightNormal_TexelSize.xy;
+                    half4 terrainSample = SAMPLE_TEXTURE2D_LOD(_TerrainHeightNormal, sampler_TerrainHeightNormal, terrainUV, 0);
+                    float terrainHeight = DecodeFloatRG(terrainSample.rg) * _TerrainSize.y + _TerrainPos.y;
+                    fadeFactor = saturate(terrainHeight + _BlendThresholdVertex - vertexInput.positionWS.y);
+                    if (fadeFactor == 0)
+                    {
+                        output.positionCS = vertexInput.positionCS / 0.0;
+                        return output; 
+                    }
+                } 
+
+
             //  Pull positionCS.z towards camera / fine but clipping issues if we come very close. NANs?
-                float fac = _ProjectionParams.y * 10;
+                float fac = _ProjectionParams.y * 10 * fadeFactor;
                 #if UNITY_REVERSED_Z
                     vertexInput.positionCS.z += _Shift / max(_ProjectionParams.y, vertexInput.positionCS.w) * fac;
                 #else
@@ -291,10 +334,7 @@ Shader "Lux URP/Terrain/Blend"
             }
 
 
-            inline float DecodeFloatRG( float2 enc ) {
-                float2 kDecodeDot = float2(1.0, 1/255.0);
-                return dot( enc, kDecodeDot );
-            }
+            
 
         //  half4 LitPassFragment(VertexOutput input, half facing : VFACE, out float outDepth : DEPTH_SEMANTIC) : SV_Target
             half4 LitPassFragment(VertexOutput input, half facing : VFACE) : SV_Target {
@@ -312,9 +352,14 @@ Shader "Lux URP/Terrain/Blend"
                 half4 terrainSample = SAMPLE_TEXTURE2D_LOD(_TerrainHeightNormal, sampler_TerrainHeightNormal, terrainUV, 0);
                 float terrainHeight = DecodeFloatRG(terrainSample.rg) * _TerrainSize.y + _TerrainPos.y;
 
-
-
                 surfaceData.alpha = smoothstep(0.0h, 1.0h, 1.0h - saturate( (terrainHeight - input.positionWS.y + _AlphaShift) * _AlphaWidth ) );   
+
+            //  In case we use deferred this shader shall only output a small ring along the intersection
+                UNITY_BRANCH if (_RenderInDeferred)
+                {
+                    surfaceData.alpha *= saturate(terrainHeight + _BlendThresholdPixel - input.positionWS.y);
+                    clip(surfaceData.alpha - 0.001);
+                }
 
             //  Blend geometry normal towards the terrain normal
                 half3 terrainNormal;
@@ -336,40 +381,24 @@ Shader "Lux URP/Terrain/Blend"
                 shadowShift *= _ShadowShift;
                 float3 finalShift = float3(0, shadowShift, 0) + viewShift;
 
-            //  Calculate shadowCoord. We have to do it per pixel :(
-//                 #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
-//                     #if defined(_MAIN_LIGHT_SHADOWS_CASCADE)
-//                         half cascadeIndex = ComputeCascadeIndex(input.positionWS);
-//                     #else
-//                         half cascadeIndex = 0;
-//                     #endif
-//                 //  As we do not want shadows on the blended parts from the geometry they intersect with we have to "somehow" shift the shadowCoords.
-//                 //  Shifting along view dir: Best so far...
-// //                  inputData.shadowCoord = mul(_MainLightWorldToShadow[cascadeIndex], float4(input.positionWS + inputData.viewDirectionWS * _ShadowShift /*_AlphaShift*/, 1.0));
-//                 //  Pulling pixels towards the light fails if we look along the light direction...
-// //                  inputData.shadowCoord = mul(_MainLightWorldToShadow[cascadeIndex], float4(input.positionWS + _MainLightPosition.xyz * _ShadowShift /*_AlphaShift*/, 1.0));
-//                 //  Shifting along the terrain normal?
-// //              inputData.shadowCoord = mul(_MainLightWorldToShadow[cascadeIndex], float4(input.positionWS   + terrainNormal * _ShadowShift * shadowShift , 1.0));
-//                 //  We simply lift the shadow sampling coord
-//                     inputData.shadowCoord = mul(_MainLightWorldToShadow[cascadeIndex], float4(input.positionWS + finalShift, 1.0));
-//                 #endif
-
-// Let's go with the built in macro
-#if ( defined(_MAIN_LIGHT_SHADOWS) || defined(_MAIN_LIGHT_SHADOWS_CASCADE) ) && !defined(_RECEIVE_SHADOWS_OFF)
-    inputData.shadowCoord = TransformWorldToShadowCoord(input.positionWS + finalShift);
-#endif
-
+            //  Let's go with the built in macro
+                #if ( defined(_MAIN_LIGHT_SHADOWS) || defined(_MAIN_LIGHT_SHADOWS_CASCADE) ) && !defined(_RECEIVE_SHADOWS_OFF)
+                    inputData.shadowCoord = TransformWorldToShadowCoord(input.positionWS + finalShift);
+                #endif
 
             //  Tweak viewDir
                 half3 tweakedViewDir = GetCameraPositionWS() - float3(input.positionWS.x, terrainHeight, input.positionWS.z);
                 tweakedViewDir = SafeNormalize(tweakedViewDir);
                 inputData.viewDirectionWS = lerp(tweakedViewDir, inputData.viewDirectionWS, normalBlend);
 
+            //  Decals
+                #ifdef _DBUFFER
+                    ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
+                #endif
+
             //  Apply lighting
                 //half4 color = UniversalFragmentPBR
-                half4 color = LuxFragmentBlendPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha,
-                    finalShift
-                );
+                half4 color = LuxFragmentBlendPBR(inputData, surfaceData, finalShift, normalBlend);
 
             //  Add fog
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
@@ -378,12 +407,6 @@ Shader "Lux URP/Terrain/Blend"
 
             ENDHLSL
         }
-
-
-
-
-
-
 
     //  Shadows -----------------------------------------------------
         
@@ -398,9 +421,6 @@ Shader "Lux URP/Terrain/Blend"
             Cull Back
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
@@ -411,7 +431,8 @@ Shader "Lux URP/Terrain/Blend"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -464,16 +485,14 @@ Shader "Lux URP/Terrain/Blend"
 
         Pass
         {
-            Tags{"LightMode" = "DepthOnly"}
+            Name "DepthOnlyXXX"
+            Tags{"LightMode" = "DepthOnlyXXX"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull Back
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma vertex DepthOnlyVertex
@@ -486,7 +505,8 @@ Shader "Lux URP/Terrain/Blend"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #define DEPTHONLYPASS
             #include "Includes/Lux URP Terrain Blend Inputs.hlsl"
@@ -516,23 +536,23 @@ Shader "Lux URP/Terrain/Blend"
                     clip (mask - _Cutoff);
                 #endif
 
-                return 0;
+                return input.positionCS.z;
             }
 
             ENDHLSL
         }
 
-        // This pass is used when drawing to a _CameraNormalsTexture texture
+    
+    //  We do not use this pass but rely on the 2nd material
         Pass
         {
-            Name "DepthNormals"
-            Tags{"LightMode" = "DepthNormals"}
+            Name "DepthNormalsXXXX"
+            Tags{"LightMode" = "DepthNormalsXXX"}
 
             ZWrite On
             Cull[_Cull]
 
             HLSLPROGRAM
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma vertex DepthNormalVertex
@@ -544,44 +564,21 @@ Shader "Lux URP/Terrain/Blend"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
+            #include "Includes/Lux URP Terrain Blend Inputs.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            CBUFFER_START(UnityPerMaterial)
-                float3  _TerrainPos;
-                float3  _TerrainSize;
-                float4  _TerrainHeightNormal_TexelSize;
-
-                float   _Shift;
-
-                half    _AlphaShift;
-                half    _AlphaWidth;
-                float   _ShadowShiftThreshold;
-                float   _ShadowShift;
-                float   _ShadowShiftView;
-                half    _NormalShift;
-                half    _NormalWidth;
-                half    _NormalThreshold;
-                half    _BumpScale;
-
-                half4   _BaseColor;
-                half    _Cutoff;
-                float4  _BaseMap_ST;
-                half    _Smoothness;
-                half4   _SpecColor;
-                //half    _OcclusionStrength;
-            CBUFFER_END
-            TEXTURE2D(_TerrainHeightNormal); SAMPLER(sampler_TerrainHeightNormal);
 
             //  Material Inputs
  
-            struct VertexInput {
+            struct VertexInputDN {
                 float3 positionOS                   : POSITION;
                 float3 normalOS                     : NORMAL;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct VertexOutput {
+            struct VertexOutputDN {
                 float4 positionCS     : SV_POSITION;
                 float3 positionWS     : TEXCOORD0;
                 float3 normalWS       : TEXCOORD1;
@@ -596,9 +593,9 @@ Shader "Lux URP/Terrain/Blend"
             }
 
 
-            VertexOutput DepthNormalVertex(VertexInput input)
+            VertexOutputDN DepthNormalVertex(VertexInputDN input)
             {
-                VertexOutput output = (VertexOutput)0;
+                VertexOutputDN output = (VertexOutputDN)0;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -646,7 +643,7 @@ Shader "Lux URP/Terrain/Blend"
                 return output;
             }
 
-            half4 DepthNormalFragment(VertexOutput input) : SV_TARGET
+            half4 DepthNormalFragment(VertexOutputDN input) : SV_TARGET
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
@@ -695,6 +692,7 @@ Shader "Lux URP/Terrain/Blend"
         
         Pass
         {
+            Name "Meta"
             Tags{"LightMode" = "Meta"}
 
             Cull Off

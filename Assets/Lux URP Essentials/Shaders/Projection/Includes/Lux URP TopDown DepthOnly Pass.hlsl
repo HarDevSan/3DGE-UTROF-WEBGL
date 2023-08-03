@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
     float3 positionOS               : POSITION;
@@ -28,9 +32,13 @@ half4 DepthOnlyFragment(Varyings input) : SV_TARGET
     //UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-    #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES) // enable dithering LOD transition if user select CrossFade transition in LOD group
-        LODDitheringTransition(input.positionCS.xyz, unity_LODFade.x);
+    // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES) // enable dithering LOD transition if user select CrossFade transition in LOD group
+    //     LODDitheringTransition(input.positionCS.xyz, unity_LODFade.x);
+    // #endif
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
     #endif
 
-    return 0;
+
+    return input.positionCS.z;
 }

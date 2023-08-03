@@ -72,11 +72,11 @@ inline void InitializeNormalData(Varyings input, out half3 normalTS)
             half3 n2 = topDownNormal.xyz;
             n1.z += 1.0h;
             n2.xy *= -1.0h;
-            topDownNormal = n1 * dot(n1, n2) / n1.z - n2;
+            topDownNormal = n1 * dot(n1, n2) / max(0.001, n1.z) - n2;
         //  Swizzle tangent space to world space
             topDownNormal = topDownNormal.xzy;
         //  3. Finally we blend both normals in world space 
-            normalTS = lerp(normalTS, topDownNormal, saturate(normalBlendFactor.xxx - _LowerNormalMinStrength) );
+            normalTS = lerp(normalTS, topDownNormal, saturate(normalBlendFactor - _LowerNormalMinStrength).xxx );
         //#endif
     #else
         #ifdef _NORMALMAP

@@ -1,5 +1,5 @@
-﻿// Shader uses custom editor to set double sided GI
-// Needs _Culling to be set properly
+﻿// Shader uses custom editor to set double sided GI.
+// Needs _Culling to be set properly.
 
 Shader "Lux URP/Human/Skin"
 {
@@ -130,8 +130,6 @@ Shader "Lux URP/Human/Skin"
         [HideInInspector] _Color    ("Color", Color) = (1,1,1,1)
         [HideInInspector] _Cutoff   ("Alpha Cutoff", Range(0.0, 1.0)) = 0.0
 
-    //  URP 10.1. needs this for the depthnormal pass 
-        [HideInInspector] _Cutoff   ("     Threshold", Range(0.0, 1.0)) = 0.5
         [HideInInspector] _Surface("__surface", Float) = 0.0
     }
 
@@ -199,7 +197,8 @@ Shader "Lux URP/Human/Skin"
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             // -------------------------------------
             // Unity defined keywords
@@ -208,6 +207,7 @@ Shader "Lux URP/Human/Skin"
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -215,7 +215,7 @@ Shader "Lux URP/Human/Skin"
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
-            // #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Skin Inputs.hlsl"
@@ -248,9 +248,11 @@ Shader "Lux URP/Human/Skin"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
             // -------------------------------------
             // Universal Pipeline keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #pragma vertex ShadowPassVertex
@@ -292,12 +294,14 @@ Shader "Lux URP/Human/Skin"
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
             #pragma vertex LitGBufferPassVertex
             #pragma fragment LitGBufferPassFragment
@@ -305,6 +309,9 @@ Shader "Lux URP/Human/Skin"
             #include "Includes/Lux URP Skin Inputs.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
             
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
            
             struct Attributes {
                 float3 positionOS                   : POSITION;
@@ -360,6 +367,10 @@ Shader "Lux URP/Human/Skin"
             {
                 //UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
                 
                 #if defined (_NORMALMAP) && defined(_NORMALINDEPTHNORMALPASS) && defined(_NORMALMAPDIFFUSE)
                     
@@ -385,10 +396,11 @@ Shader "Lux URP/Human/Skin"
     //  Depth Only -----------------------------------------------------
         Pass
         {
+            Name "DepthOnly"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull Back
 
             HLSLPROGRAM
@@ -401,9 +413,14 @@ Shader "Lux URP/Human/Skin"
             // -------------------------------------
             // Material Keywords
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
             
             #include "Includes/Lux URP Skin Inputs.hlsl"
             #include "Includes/Lux URP Skin DepthOnly Pass.hlsl"
@@ -437,11 +454,12 @@ Shader "Lux URP/Human/Skin"
             // Unity defined keywords
 //  Breaks decals
 //          #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
             #include "Includes/Lux URP Skin Inputs.hlsl"
             #include "Includes/Lux URP Skin DepthNormal Pass.hlsl"
@@ -451,6 +469,7 @@ Shader "Lux URP/Human/Skin"
     //  Meta -----------------------------------------------------
         Pass
         {
+            Name "Meta"
             Tags{"LightMode" = "Meta"}
 
             Cull Off
@@ -533,8 +552,6 @@ Shader "Lux URP/Human/Skin"
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
@@ -543,19 +560,24 @@ Shader "Lux URP/Human/Skin"
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Skin Inputs.hlsl"
@@ -589,9 +611,12 @@ Shader "Lux URP/Human/Skin"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             // -------------------------------------
             // Universal Pipeline keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #pragma vertex ShadowPassVertex
@@ -607,10 +632,11 @@ Shader "Lux URP/Human/Skin"
     //  Depth Only -----------------------------------------------------
         Pass
         {
+            Name "DepthOnly"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull Back
 
             HLSLPROGRAM
@@ -623,9 +649,15 @@ Shader "Lux URP/Human/Skin"
             // -------------------------------------
             // Material Keywords
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #include "Includes/Lux URP Skin Inputs.hlsl"
             #include "Includes/Lux URP Skin DepthOnly Pass.hlsl"
@@ -655,10 +687,15 @@ Shader "Lux URP/Human/Skin"
             #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
             #pragma shader_feature_local _NORMALMAPDIFFUSE
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             #include "Includes/Lux URP Skin Inputs.hlsl"
             #include "Includes/Lux URP Skin DepthNormal Pass.hlsl"
@@ -669,6 +706,7 @@ Shader "Lux URP/Human/Skin"
     //  Meta -----------------------------------------------------
         Pass
         {
+            Name "Meta"
             Tags{"LightMode" = "Meta"}
 
             Cull Off

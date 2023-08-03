@@ -36,13 +36,10 @@
             Tags{"LightMode" = "UniversalForwardOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
-            HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            HLSLPROGRAM 
             #pragma target 2.0
 
             #pragma vertex DepthOnlyVertex
@@ -51,6 +48,10 @@
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _ALPHATEST_ON
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
@@ -94,11 +95,17 @@
             half4 DepthOnlyFragment(VertexOutput input) : SV_TARGET
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+
                 #if defined(_ALPHATEST_ON)
                     half mask = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv.xy).a;
                     clip (mask - _Cutoff);
                 #endif
-                return 0;
+                
+                return input.positionCS.z;
             }
 
             ENDHLSL
@@ -108,5 +115,4 @@
     
     }
     FallBack "Hidden/Universal Render Pipeline/FallbackError"
-    //CustomEditor "LuxURPUniversalCustomShaderGUI"
 }

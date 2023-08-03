@@ -88,10 +88,6 @@ Shader "Lux URP/Versatile Blend"
             ZTest LEqual
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-
             #pragma target 2.0
 
             // -------------------------------------
@@ -132,8 +128,6 @@ Shader "Lux URP/Versatile Blend"
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
@@ -142,21 +136,33 @@ Shader "Lux URP/Versatile Blend"
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Versatile Blend Inputs.hlsl"
+
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
@@ -272,10 +278,20 @@ Shader "Lux URP/Versatile Blend"
                 inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUV);
             }
 
-            half4 LitPassFragment(VertexOutput input) : SV_Target
+            void LitPassFragment(
+                VertexOutput input
+                , out half4 outColor : SV_Target0
+            #ifdef _WRITE_RENDERING_LAYERS
+                , out float4 outRenderingLayers : SV_Target1
+            #endif
+            )
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
 
             //  Get the surface description
                 SurfaceData surfaceData;
@@ -290,14 +306,13 @@ Shader "Lux URP/Versatile Blend"
                 #if defined(SHADER_API_GLES)
                     float sceneDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV, 0);
                 #else
-                    float sceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * screenUV ).x;
+                    float sceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * screenUV ).x;
                 #endif
                 float perspectiveSceneDepth = LinearEyeDepth(sceneDepth, _ZBufferParams);
 
             //  Depth based blending
                 float depthDist = perspectiveSceneDepth - input.positionCS.w + _AlphaShift;
                 surfaceData.alpha = saturate(depthDist * _AlphaWidth);
-//surfaceData.alpha = 1;
 
             //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
                 InputData inputData;
@@ -338,20 +353,24 @@ Shader "Lux URP/Versatile Blend"
                     inputData.shadowCoord = TransformWorldToShadowCoord(input.positionWS + finalShift);
                 #endif  
 
-#ifdef _DBUFFER
-    ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
-#endif
+                #ifdef _DBUFFER
+                    ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
+                #endif
 
 
             //  Apply lighting
                 half4 color = UniversalFragmentPBR(inputData, surfaceData);
-//half4 color = LuxFragmentBlendPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha,
-//    finalShift
-//);
+                //half4 color = LuxFragmentBlendPBR(inputData, surfaceData, finalShift, shadowShift);
 
             //  Add fog
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
-                return color;
+                
+                outColor = color;
+
+                #ifdef _WRITE_RENDERING_LAYERS
+                    uint renderingLayers = GetMeshRenderingLayer();
+                    outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+                #endif
             }
 
             ENDHLSL
@@ -371,9 +390,6 @@ Shader "Lux URP/Versatile Blend"
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
@@ -384,7 +400,15 @@ Shader "Lux URP/Versatile Blend"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -393,8 +417,13 @@ Shader "Lux URP/Versatile Blend"
             #include "Includes/Lux URP Versatile Blend Inputs.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
             
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
+
         //  Shadow caster specific input
             float3 _LightDirection;
+            float3 _LightPosition;
 
             VertexOutput ShadowPassVertex(VertexInput input)
             {
@@ -409,11 +438,17 @@ Shader "Lux URP/Versatile Blend"
                 float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 float3 normalWS = TransformObjectToWorldDir(input.normalOS);
 
-                output.positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
-                #if UNITY_REVERSED_Z
-                    output.positionCS.z = min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+                #if _CASTING_PUNCTUAL_LIGHT_SHADOW
+                    float3 lightDirectionWS = normalize(_LightPosition - positionWS);
                 #else
-                    output.positionCS.z = max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+                    float3 lightDirectionWS = _LightDirection;
+                #endif
+
+                output.positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+                #if UNITY_REVERSED_Z
+                    output.positionCS.z = min(output.positionCS.z, UNITY_NEAR_CLIP_VALUE);
+                #else
+                    output.positionCS.z = max(output.positionCS.z, UNITY_NEAR_CLIP_VALUE);
                 #endif
                 return output;
             }
@@ -422,6 +457,10 @@ Shader "Lux URP/Versatile Blend"
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
 
                 #if defined(_ALPHATEST_ON)
                     half mask = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
@@ -433,6 +472,7 @@ Shader "Lux URP/Versatile Blend"
             ENDHLSL
         }
 
+
     //  Depth -----------------------------------------------------
 
         Pass
@@ -440,13 +480,10 @@ Shader "Lux URP/Versatile Blend"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma vertex DepthOnlyVertex
@@ -459,7 +496,8 @@ Shader "Lux URP/Versatile Blend"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #define DEPTHONLYPASS
             #include "Includes/Lux URP Versatile Blend Inputs.hlsl"
@@ -468,7 +506,6 @@ Shader "Lux URP/Versatile Blend"
             {
                 VertexOutput output = (VertexOutput)0;
                 UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
                 #if defined(_ALPHATEST_ON)
@@ -481,7 +518,6 @@ Shader "Lux URP/Versatile Blend"
 
             half4 DepthOnlyFragment(VertexOutput input) : SV_TARGET
             {
-                UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
                 #if defined(_ALPHATEST_ON)
@@ -489,7 +525,7 @@ Shader "Lux URP/Versatile Blend"
                     clip (mask - _Cutoff);
                 #endif
 
-                return 0;
+                return input.positionCS.z;
             }
 
             ENDHLSL
@@ -508,9 +544,6 @@ Shader "Lux URP/Versatile Blend"
         //     Cull[_Cull]
 
         //     HLSLPROGRAM
-        //     // Required to compile gles 2.0 with standard srp library
-        //     #pragma prefer_hlslcc gles
-        //     #pragma exclude_renderers d3d11_9x
         //     #pragma target 2.0
 
         //     #pragma vertex DepthNormalsVertex
@@ -541,9 +574,6 @@ Shader "Lux URP/Versatile Blend"
             Cull Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-
             #pragma vertex UniversalVertexMeta
             #pragma fragment UniversalFragmentMetaLit
 

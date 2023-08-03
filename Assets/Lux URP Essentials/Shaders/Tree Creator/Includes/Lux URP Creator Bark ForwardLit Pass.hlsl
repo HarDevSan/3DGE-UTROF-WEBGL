@@ -1,5 +1,8 @@
-//  Structs
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
 
+//  Structs
 struct Attributes
 {
     float3 positionOS                   : POSITION;
@@ -168,6 +171,10 @@ half4 LitPassFragment(Varyings input) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;

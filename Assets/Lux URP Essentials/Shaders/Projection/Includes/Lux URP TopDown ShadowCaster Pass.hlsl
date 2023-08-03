@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
     float3 positionOS               : POSITION;
@@ -40,8 +44,12 @@ Varyings ShadowPassVertex(Attributes input)
 
 half4 ShadowPassFragment(Varyings input) : SV_TARGET
 {
-    #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-        LODDitheringTransition(input.positionCS.xyz, unity_LODFade.x);
+    // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
+    //     LODDitheringTransition(input.positionCS.xyz, unity_LODFade.x);
+    // #endif
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
     #endif
+
     return 0;
 }

@@ -52,6 +52,11 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
         _TranslucencyViewDependency ("View dependency", Range(0,1)) = 0.7
         _ShadowStrength             ("Shadow Strength", Range(0,1)) = 0.8
 
+        [Header(Wind)]
+        [Space(8)]
+        [Toggle(_WINDFROMSCRIPT)]
+        _EnableWindFromScript       ("Enable Wind From Script", Float) = 0
+
         [Header(Advanced)]
         [Space(8)]
         [ToggleOff]
@@ -101,6 +106,8 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             #define _ALPHATEST_ON
             #define _NORMALMAP
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
             #pragma shader_feature _ENABLEDITHERING
             #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
 
@@ -120,14 +127,20 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             // -------------------------------------
             // Unity defined keywords
 
-        //  Trees do not support lightmapping
+        //  Trees do not support lightmapping or cross fading
+            // #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            // #pragma multi_compile _ SHADOWS_SHADOWMASK
             // #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             // #pragma multi_compile _ LIGHTMAP_ON
+            // #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            // #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -135,6 +148,13 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Tree Creator Inputs.hlsl"
@@ -168,6 +188,8 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // Material Keywords
             #define _ALPHATEST_ON
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
         //  Usually no shadows during the transition...
             #pragma shader_feature _ENABLEDITHERING
             #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
@@ -179,6 +201,17 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Tree Creator Inputs.hlsl"
@@ -210,11 +243,13 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             #define _NORMALMAP
             #define _ALPHATEST_ON
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
             #pragma shader_feature_local_fragment _RECEIVEDECALS
 
             #pragma shader_feature_local_fragment _ _GBUFFERLIGHTING_TRANSMISSION
         //  Needed in case Transmission is used
-        //  Built in keyword mifght fail once cookies were activated...
+        //  Built in keyword might fail once cookies were activated...
             #pragma shader_feature_local_fragment _SAMPLE_LIGHT_COOKIES
             
             #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
@@ -227,26 +262,34 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-            #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
             #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
 
             // -------------------------------------
             // Unity defined keywords
 
-        //  Trees do not support lightmapping
-            //#pragma multi_compile _ DIRLIGHTMAP_COMBINED
-            //#pragma multi_compile _ LIGHTMAP_ON
-            //#pragma multi_compile _ DYNAMICLIGHTMAP_ON
+        //  Trees do not support lightmapping - but we have to define these to make lighting work
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif
 
             #include "Includes/Lux URP Tree Creator Inputs.hlsl"
             #include "Includes/Lux URP Creator Leaves GBuffer Pass.hlsl"
@@ -265,7 +308,7 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull Back
 
             HLSLPROGRAM
@@ -276,12 +319,26 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // Material Keywords
             #define _ALPHATEST_ON
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
             #pragma shader_feature _ENABLEDITHERING
             #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif
+            
             
             #define DEPTHONLYPASS
             #include "Includes/Lux URP Tree Creator Inputs.hlsl"
@@ -311,14 +368,29 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // Material Keywords
             #define _ALPHATEST_ON
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
             #pragma shader_feature _ENABLEDITHERING
             #pragma shader_feature _NORMALINDEPTHNORMALPASS
             #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            // Universal Pipeline keywords
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif
+
             #define DEPTHNORMALONLYPASS
             #include "Includes/Lux URP Tree Creator Inputs.hlsl"
             #include "Includes/Lux URP Creator Leaves DepthNormal Pass.hlsl"
@@ -366,6 +438,8 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             #define _ALPHATEST_ON
             #define _NORMALMAP
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
             #pragma shader_feature _ENABLEDITHERING
             #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
 
@@ -378,21 +452,25 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
-            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
 
             // -------------------------------------
             // Unity defined keywords
 
         //  Trees do not support lightmapping
+            // #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            // #pragma multi_compile _ SHADOWS_SHADOWMASK
             // #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             // #pragma multi_compile _ LIGHTMAP_ON
+            // #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -433,6 +511,8 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // Material Keywords
             #define _ALPHATEST_ON
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
         //  Usually no shadows during the transition...
             #pragma shader_feature _ENABLEDITHERING
             #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
@@ -444,6 +524,10 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Tree Creator Inputs.hlsl"
@@ -462,7 +546,7 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull Back
 
             HLSLPROGRAM
@@ -473,8 +557,14 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // Material Keywords
             #define _ALPHATEST_ON
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
             #pragma shader_feature _ENABLEDITHERING
             #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
@@ -508,9 +598,15 @@ Shader "Lux URP/Nature/Tree Creator Leaves Optimized"
             // Material Keywords
             #define _ALPHATEST_ON
 
+            #pragma shader_feature_local_vertex _WINDFROMSCRIPT
+
             #pragma shader_feature _ENABLEDITHERING
             #pragma shader_feature _NORMALINDEPTHNORMALPASS
             #pragma multi_compile __ BILLBOARD_FACE_CAMERA_POS
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing

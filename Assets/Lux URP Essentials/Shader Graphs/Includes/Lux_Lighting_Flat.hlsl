@@ -66,9 +66,9 @@ void Lighting_half(
 //  Create custom per vertex normal // SafeNormalize does not work here on Android?!
     half3 tnormal = normalize(cross(ddy(positionWS), ddx(positionWS)));
 //  TODO: Vulkan on Android here shows inverted normals?
-    #if defined(SHADER_API_VULKAN)
-        tnormal *= -1;
-    #endif
+    // #if defined(SHADER_API_VULKAN)
+    //     tnormal *= -1;
+    // #endif
 
     if(enableNormalTS)
     {
@@ -154,7 +154,7 @@ void Lighting_half(
 
         half4 shadowMask = CalculateShadowMask(inputData);
         AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        uint meshRenderingLayers = GetMeshRenderingLayer();
 
         Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 
@@ -170,7 +170,8 @@ void Lighting_half(
             aoFactor.indirectAmbientOcclusion,
             inputData.positionWS,
             inputData.normalWS,
-            inputData.viewDirectionWS
+            inputData.viewDirectionWS,
+            inputData.normalizedScreenSpaceUV
         );
 
     //  Main Light
@@ -190,6 +191,22 @@ void Lighting_half(
         #ifdef _ADDITIONAL_LIGHTS
             uint pixelLightCount = GetAdditionalLightsCount();
 
+                #if USE_FORWARD_PLUS
+                    for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+                    {
+                        FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                        Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+                        #ifdef _LIGHT_LAYERS
+                            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                        #endif
+                        {
+                            lightingData.additionalLightsColor += LightingPhysicallyBased(brdfData, brdfData, light,
+                                                                        inputData.normalWS, inputData.viewDirectionWS,
+                                                                        surfaceData.clearCoatMask, specularHighlightsOff);
+                        }
+                    }
+                #endif
+
             LIGHT_LOOP_BEGIN(pixelLightCount)    
                     Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
                 #if defined(_LIGHT_LAYERS)
@@ -197,8 +214,8 @@ void Lighting_half(
                     {
                 #endif
                         lightingData.additionalLightsColor += LightingPhysicallyBased(brdfData, brdfData, light,
-                                                                          inputData.normalWS, inputData.viewDirectionWS,
-                                                                          surfaceData.clearCoatMask, specularHighlightsOff);
+                                                                        inputData.normalWS, inputData.viewDirectionWS,
+                                                                        surfaceData.clearCoatMask, specularHighlightsOff);
                 #if defined(_LIGHT_LAYERS)
                     }
                 #endif

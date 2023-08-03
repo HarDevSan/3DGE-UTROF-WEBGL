@@ -40,7 +40,7 @@ namespace LuxURPEssentials
 			GUILayout.BeginHorizontal();
 				GUILayout.Space(16);
 				EditorGUILayout.LabelField(
-					"Currently installed: Version 1.85.1 for URP 12.1.", _style_bodytxt);
+					"Currently installed: Version 1.95b for Unity 2022.2.16 and URP 14.0.7", _style_bodytxt);
 				GUILayout.Space(16);
 			GUILayout.EndHorizontal();
 
@@ -57,7 +57,7 @@ namespace LuxURPEssentials
 			GUILayout.BeginHorizontal();
 				GUILayout.Space(16);
 				EditorGUILayout.LabelField(
-					"The package you have downloaded from the asset store installed shaders compatible with URP 12.1. " + 
+					"The package you have downloaded from the asset store installed shaders compatible with URP 14.0.7. " + 
 					"In case you got any compilation errors this most likely is caused by the fact that you are using a different version of URP.\n" + 
 					"If so please have a look at the included sub packages and install the one you need.", _style_bodytxt);
 				GUILayout.Space(16);
@@ -97,6 +97,14 @@ namespace LuxURPEssentials
 				if (GUILayout.Button("Documentation"))
 				{
 					Application.OpenURL("https://docs.google.com/document/d/1ck3hmPzKUdewHfwsvmPYwSPCP8azwtpzN7aOLJHvMqE/edit");
+				}
+				if (GUILayout.Button("URP 12 and above"))
+				{
+					Application.OpenURL("https://docs.google.com/document/d/1ZtPZTo2KP7truLyMh-e0wEYI7AYUW9OsGL0niCL0MlY");
+				}
+				if (GUILayout.Button("What's new"))
+				{
+					Application.OpenURL("https://docs.google.com/document/d/10OYubrLPxG5EYBknbxTsJRZoA_4TzZGFFzmZtGsDcQ8/edit");
 				}
 				if (GUILayout.Button("Forum Thread"))
 				{

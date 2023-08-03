@@ -1,57 +1,96 @@
 #ifndef URP_BLENDLIGHTING_INCLUDED
 #define URP_BLENDLIGHTING_INCLUDED
 
-half4 LuxFragmentBlendPBR(InputData inputData, half3 albedo, half metallic, half3 specular,
-    half smoothness, half occlusion, half3 emission, half alpha, float3 shadowShift)
+half4 LuxFragmentBlendPBR(InputData inputData, SurfaceData surfaceData, float3 shadowShift, float normalBlend)
 {
-    BRDFData brdfData;
-    InitializeBRDFData(albedo, metallic, specular, smoothness, alpha, brdfData);
-    
-//  ShadowMask: To ensure backward compatibility we have to avoid using shadowMask input, as it is not present in older shaders
-    #if defined(SHADOWS_SHADOWMASK) && defined(LIGHTMAP_ON)
-        half4 shadowMask = inputData.shadowMask;
-    #elif !defined (LIGHTMAP_ON)
-        half4 shadowMask = unity_ProbesOcclusion;
+    #if defined(_SPECULARHIGHLIGHTS_OFF)
+        bool specularHighlightsOff = true;
     #else
-        half4 shadowMask = half4(1, 1, 1, 1);
+        bool specularHighlightsOff = false;
     #endif
+    
+    BRDFData brdfData;
+    InitializeBRDFData(surfaceData, brdfData);
 
-AmbientOcclusionFactor aoFactor = (AmbientOcclusionFactor)1;
-Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
-    //Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, shadowMask);
-    //Light mainLight = GetMainLight(inputData.shadowCoord);
+    #if defined(DEBUG_DISPLAY)
+        half4 debugColor;
+        if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
+        {
+            return debugColor;
+        }
+    #endif
+    
+    half4 shadowMask = CalculateShadowMask(inputData);
+    AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
+//  Reduce SSAO according to normalBlend
+    aoFactor.indirectAmbientOcclusion = lerp(surfaceData.occlusion, aoFactor.indirectAmbientOcclusion, normalBlend);
+    aoFactor.directAmbientOcclusion = lerp(1, aoFactor.directAmbientOcclusion, normalBlend);    
 
-//  SSAO
-    // #if defined(_SCREEN_SPACE_OCCLUSION)
-    //     AmbientOcclusionFactor aoFactor = GetScreenSpaceAmbientOcclusion(inputData.normalizedScreenSpaceUV);
-    //     mainLight.color *= aoFactor.directAmbientOcclusion;
-    //     occlusion = min(occlusion, aoFactor.indirectAmbientOcclusion);
-    // #endif
+    uint meshRenderingLayers = GetMeshRenderingLayer();
+    Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 
     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
 
-    half3 color = GlobalIllumination(brdfData, inputData.bakedGI, occlusion, inputData.normalWS, inputData.viewDirectionWS);
-    color += LightingPhysicallyBased(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS);
+    LightingData lightingData = CreateLightingData(inputData, surfaceData);
 
-#ifdef _ADDITIONAL_LIGHTS
-    uint pixelLightCount = GetAdditionalLightsCount();
-    for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
+    lightingData.giColor = GlobalIllumination(brdfData, brdfData, 0.0h,
+        inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
+        inputData.normalWS, inputData.viewDirectionWS, inputData.normalizedScreenSpaceUV);
+    
+#ifdef _LIGHT_LAYERS
+    if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+#endif
     {
-//      shadowShift is > 0 only for pixels around or below the intersection. So using inputData.positionWS + shadowShift should be ok.
-        //Light light = GetAdditionalLight(lightIndex, inputData.positionWS + shadowShift);
-    //  URP 10: We have to use the new GetAdditionalLight function
-        Light light = GetAdditionalLight(lightIndex, inputData.positionWS + shadowShift, shadowMask);
-        #if defined(_SCREEN_SPACE_OCCLUSION)
-            light.color *= aoFactor.directAmbientOcclusion;
-        #endif
-        color += LightingPhysicallyBased(brdfData, light, inputData.normalWS, inputData.viewDirectionWS);
+        lightingData.mainLightColor = LightingPhysicallyBased(brdfData, brdfData, mainLight,
+                                                              inputData.normalWS, inputData.viewDirectionWS,
+                                                              0.0h, specularHighlightsOff);
     }
-#endif
 
-#ifdef _ADDITIONAL_LIGHTS_VERTEX
-    color += inputData.vertexLighting * brdfData.diffuse;
-#endif
-    color += emission;
-    return half4(color, alpha);
+    #if defined(_ADDITIONAL_LIGHTS)
+        uint pixelLightCount = GetAdditionalLightsCount();
+
+        #if USE_FORWARD_PLUS
+            for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+            {
+                FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+            #ifdef _LIGHT_LAYERS
+                if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            #endif
+                {
+                    lightingData.additionalLightsColor += LightingPhysicallyBased(brdfData, brdfData, light,
+                                                                                  inputData.normalWS, inputData.viewDirectionWS,
+                                                                                  0.0h, specularHighlightsOff);
+                }
+            }
+        #endif
+
+    //  Add shadow shift for additional lights
+        inputData.positionWS += shadowShift;
+
+        LIGHT_LOOP_BEGIN(pixelLightCount)
+        //  shadowShift is > 0 only for pixels around or below the intersection. So using inputData.positionWS + shadowShift should be ok.
+            //Light light = GetAdditionalLight(lightIndex, inputData.positionWS + shadowShift);
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+            
+        #ifdef _LIGHT_LAYERS
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        #endif
+            {
+                #if defined(_SCREEN_SPACE_OCCLUSION)
+                    light.color *= aoFactor.directAmbientOcclusion;
+                #endif
+                lightingData.additionalLightsColor += LightingPhysicallyBased(brdfData, brdfData, light,
+                                                                            inputData.normalWS, inputData.viewDirectionWS,
+                                                                            0.0h, specularHighlightsOff);
+            }
+        LIGHT_LOOP_END
+    #endif
+
+    #ifdef _ADDITIONAL_LIGHTS_VERTEX
+        lightingData.vertexLightingColor += inputData.vertexLighting * brdfData.diffuse;
+    #endif
+    
+    return CalculateFinalColor(lightingData, surfaceData.alpha);
 }
 #endif

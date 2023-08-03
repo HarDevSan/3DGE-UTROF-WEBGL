@@ -1,8 +1,6 @@
 #ifndef INPUT_LUXURP_BASE_INCLUDED
 #define INPUT_LUXURP_BASE_INCLUDED
 
-
-
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 //  defines a bunch of helper functions (like lerpwhiteto)
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"  
@@ -79,8 +77,10 @@
     //  Outline
         half4   _OutlineColor;
         half    _Border;
-//        float4  _BaseMap_TexelSize;
 
+        half    _Surface;
+        half    _LuxSurface;
+        half    _LuxBlend;
     CBUFFER_END
 
 //  Additional textures
@@ -92,8 +92,18 @@
         TEXTURE2D(_MaskMap); SAMPLER(sampler_MaskMap);
     #endif
 
-
 //  Global Inputs
+
+//  DOTS - we only define a minimal set here. The user might extend it to whatever is needed.
+    #ifdef UNITY_DOTS_INSTANCING_ENABLED
+        UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
+            UNITY_DOTS_INSTANCED_PROP(float4, _BaseColor)
+            UNITY_DOTS_INSTANCED_PROP(float , _Surface)
+        UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
+        
+        #define _BaseColor              UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float4 , _BaseColor)
+        #define _Surface                UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float  , _Surface)
+    #endif
 
 //  Structs
     struct VertexInput

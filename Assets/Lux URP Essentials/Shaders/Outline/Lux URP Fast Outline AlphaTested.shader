@@ -17,7 +17,7 @@ Shader "Lux URP/Fast Outline AlphaTested"
         _Coverage                   ("Alpha To Coverage", Float) = 0
 
         [Space(5)]
-        [IntRange] _StencilRef      ("Stencil Reference", Range (0, 255)) = 0
+        [IntRange] _StencilRef      ("Stencil Reference", Range (0, 255)) = 1
         [IntRange] _ReadMask        ("     Read Mask", Range (0, 255)) = 255
         [Enum(UnityEngine.Rendering.CompareFunction)]
         _StencilCompare             ("Stencil Comparison", Int) = 6
@@ -52,7 +52,7 @@ Shader "Lux URP/Fast Outline AlphaTested"
         {
             "RenderPipeline" = "UniversalPipeline"
             "RenderType" = "Opaque"
-            "Queue" = "Transparent+59" // +59 smalltest to get drawn on top of transparents
+            "Queue" = "Transparent+60" // +59 smallest to get drawn on top of transparents
         }
         LOD 100
 
@@ -75,10 +75,6 @@ Shader "Lux URP/Fast Outline AlphaTested"
             AlphaToMask [_Coverage]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
             #pragma target 2.0
 
             // -------------------------------------
@@ -94,6 +90,8 @@ Shader "Lux URP/Fast Outline AlphaTested"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
@@ -104,9 +102,9 @@ Shader "Lux URP/Fast Outline AlphaTested"
         //--------------------------------------
         //  Vertex shader
 
-            VertexOutputSimple LitPassVertex(VertexInputSimple input)
+            Varyings LitPassVertex(Attributes input)
             {
-                VertexOutputSimple output = (VertexOutputSimple)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -159,7 +157,7 @@ Shader "Lux URP/Fast Outline AlphaTested"
                 outSurfaceData.alpha = Alpha(shuffleAlpha, 1, _Cutoff);
             }
 
-            void InitializeInputData(VertexOutputSimple input, out InputData inputData)
+            void InitializeInputData(Varyings input, out InputData inputData)
             {
                 inputData = (InputData)0;
                 #if defined(_APPLYFOG)
@@ -167,7 +165,7 @@ Shader "Lux URP/Fast Outline AlphaTested"
                 #endif
             }
 
-            half4 LitPassFragment(VertexOutputSimple input) : SV_Target
+            half4 LitPassFragment(Varyings input) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
@@ -199,14 +197,10 @@ Shader "Lux URP/Fast Outline AlphaTested"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
             #pragma target 2.0
 
             // -------------------------------------
@@ -217,6 +211,8 @@ Shader "Lux URP/Fast Outline AlphaTested"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
@@ -228,18 +224,15 @@ Shader "Lux URP/Fast Outline AlphaTested"
         //--------------------------------------
         //  Vertex shader
 
-            VertexOutputSimple DepthOnlyVertex(VertexInputSimple input)
+            Varyings DepthOnlyVertex(Attributes input)
             {
-                VertexOutputSimple output = (VertexOutputSimple)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
                 VertexPositionInputs vertexInput;
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-            //    #if defined(_APPLYFOG)
-            //        output.fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
-            //    #endif
                 output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
                 output.positionCS = vertexInput.positionCS;
 
@@ -284,7 +277,7 @@ Shader "Lux URP/Fast Outline AlphaTested"
                 outSurfaceData.alpha = Alpha(shuffleAlpha, 1, _Cutoff);
             }
 
-            half4 DepthOnlyFragment(VertexOutputSimple input) : SV_Target
+            half4 DepthOnlyFragment(Varyings input) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
@@ -293,7 +286,7 @@ Shader "Lux URP/Fast Outline AlphaTested"
                 SurfaceDescriptionSimple surfaceData;
                 InitializeSurfaceData(input.uv, surfaceData);
 
-                return 0;  
+                return input.positionCS.z;  
             }
 
             ENDHLSL
@@ -310,10 +303,6 @@ Shader "Lux URP/Fast Outline AlphaTested"
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-        //  Shader target needs to be 3.0 due to tex2Dlod in the vertex shader and VFACE
             #pragma target 2.0
 
             // -------------------------------------
@@ -324,6 +313,8 @@ Shader "Lux URP/Fast Outline AlphaTested"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Fast Outlines AlphaTested Inputs.hlsl"
@@ -335,18 +326,15 @@ Shader "Lux URP/Fast Outline AlphaTested"
         //--------------------------------------
         //  Vertex shader
 
-            VertexOutputSimple DepthNormalVertex(VertexInputSimple input)
+            Varyings DepthNormalVertex(Attributes input)
             {
-                VertexOutputSimple output = (VertexOutputSimple)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
                 VertexPositionInputs vertexInput;
                 vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-            //    #if defined(_APPLYFOG)
-            //        output.fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
-            //    #endif
                 output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
                 output.positionCS = vertexInput.positionCS;
                 return output;
@@ -390,7 +378,7 @@ Shader "Lux URP/Fast Outline AlphaTested"
                 outSurfaceData.alpha = Alpha(shuffleAlpha, 1, _Cutoff);
             }
 
-            half4 DepthNormalFragment(VertexOutputSimple input) : SV_Target
+            half4 DepthNormalFragment(Varyings input) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);

@@ -8,7 +8,7 @@ inline void InitializeSurfaceData(Varyings input, half2 fadeOcclusion, out Surfa
 //  Early out
     outSurfaceData.alpha = Alpha(albedoAlpha.a, 1, _Cutoff);
     
-    outSurfaceData.albedo = albedoAlpha.rgb;
+    outSurfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
     outSurfaceData.metallic = 0;
     outSurfaceData.specular = _SpecColor.rgb;
 //  Normal Map

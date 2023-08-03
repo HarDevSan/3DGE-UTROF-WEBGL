@@ -258,7 +258,7 @@ void Lighting_half(
 
         half4 shadowMask = CalculateShadowMask(inputData);
         AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        uint meshRenderingLayers = GetMeshRenderingLayer();
 
         Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
         half3 mainLightColor = mainLight.color;
@@ -276,7 +276,8 @@ void Lighting_half(
             aoFactor.indirectAmbientOcclusion,
             inputData.positionWS,
             inputData.normalWS,
-            inputData.viewDirectionWS
+            inputData.viewDirectionWS,
+            inputData.normalizedScreenSpaceUV
         );
 
         half NdotL;
@@ -284,8 +285,9 @@ void Lighting_half(
     //  Main Light
         #if defined(_LIGHT_LAYERS)
             if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
-            {
         #endif
+            {
+        
                 NdotL = saturate(dot(inputData.normalWS, mainLight.direction));
                 lightingData.mainLightColor = LightingPhysicallyBased_LuxCharlieSheen(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
 
@@ -296,12 +298,34 @@ void Lighting_half(
                     transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
                     lightingData.mainLightColor += brdfData.diffuse * transDot * (1.0h - NdotL) * mainLightColor * lerp(1.0h, mainLight.shadowAttenuation, transmissionShadowstrength) * transmissionStrength * 4;
                 }
-        #if defined(_LIGHT_LAYERS)
             }
-        #endif
 
         #ifdef _ADDITIONAL_LIGHTS
             uint pixelLightCount = GetAdditionalLightsCount();
+
+            #if USE_FORWARD_PLUS
+                for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+                {
+                    FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                    Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+                #ifdef _LIGHT_LAYERS
+                    if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                #endif
+                    {
+                        half3 lightColor = light.color;
+                        NdotL = saturate(dot(inputData.normalWS, light.direction ));
+                        lightingData.additionalLightsColor += LightingPhysicallyBased_LuxCharlieSheen(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+
+                    //  Transmission
+                        if (enableTransmission) {
+                            half3 transLightDir = light.direction + normalWS * transmissionDistortion;
+                            half transDot = dot( transLightDir, -viewDirectionWS );
+                            transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
+                            lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, transmissionShadowstrength) * light.distanceAttenuation * transmissionStrength * 4;
+                        }
+                    }
+                }
+            #endif
 
             LIGHT_LOOP_BEGIN(pixelLightCount)    
                     Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);

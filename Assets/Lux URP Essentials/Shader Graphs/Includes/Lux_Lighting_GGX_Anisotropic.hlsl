@@ -39,21 +39,23 @@
             half NdotV = saturate(dot(normalWS, viewDirectionWS ));
 
         //  GGX Aniso
-            float TdotH = dot(addData.tangentWS, halfDir);
-            float TdotL = dot(addData.tangentWS, lightDirectionWS);
-            float BdotH = dot(addData.bitangentWS, halfDir);
-            float BdotL = dot(addData.bitangentWS, lightDirectionWS);
+            float3 tangentWS = float3(addData.tangentWS);
+            float3 bitangentWS = float3(addData.bitangentWS);
 
-            float3 F = F_Schlick(brdfData.specular, LoH);
+            float TdotH = dot(tangentWS, halfDir);
+            float TdotL = dot(tangentWS, lightDirectionWSFloat3);
+            float BdotH = dot(bitangentWS, halfDir);
+            float BdotL = dot(bitangentWS, lightDirectionWSFloat3);
 
-            //float TdotV = dot(addData.tangentWS, viewDirectionWS);
-            //float BdotV = dot(addData.bitangentWS, viewDirectionWS);
+            half3 F = F_Schlick(brdfData.specular, LoH); // 1.91: was float3
+
+            //float TdotV = dot(tangentWS, viewDirectionWS);
+            //float BdotV = dot(bitangentWS, viewDirectionWS);
 
             float DV = DV_SmithJointGGXAniso(
                 TdotH, BdotH, NoH, NdotV, TdotL, BdotL, NdotL,
                 addData.roughnessT, addData.roughnessB, addData.partLambdaV
             );
-            // Check NdotL gets factores in outside as well.. correct?
             half3 specularLighting = F * DV;
 
             return specularLighting + brdfData.diffuse;
@@ -71,6 +73,41 @@
         half3 LightingPhysicallyBased_LuxGGXAniso(BRDFData brdfData, AdditionalData addData, Light light, half3 normalWS, half3 viewDirectionWS, half NdotL)
         {
             return LightingPhysicallyBased_LuxGGXAniso(brdfData, addData, light.color, light.direction, light.distanceAttenuation * light.shadowAttenuation, normalWS, viewDirectionWS, NdotL);
+        }
+
+    //  As we need both normals here - otherwise kept in sync with latest URP function
+        half3 GlobalIllumination_LuxAniso(BRDFData brdfData, BRDFData brdfDataClearCoat, float clearCoatMask,
+            half3 bakedGI, half occlusion, float3 positionWS,
+            half3 anisoReflectionNormal,
+            half3 normalWS, half3 viewDirectionWS, float2 normalizedScreenSpaceUV)
+        {
+            half3 reflectVector = reflect(-viewDirectionWS, anisoReflectionNormal);
+            half NoV = saturate(dot(normalWS, viewDirectionWS));
+            half fresnelTerm = Pow4(1.0 - NoV);
+
+            half3 indirectDiffuse = bakedGI;
+            half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, 1.0h, normalizedScreenSpaceUV);
+
+            half3 color = EnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);
+
+            if (IsOnlyAOLightingFeatureEnabled())
+            {
+                color = half3(1,1,1); // "Base white" for AO debug lighting mode
+            }
+
+        #if defined(_CLEARCOAT) || defined(_CLEARCOATMAP)
+            half3 coatIndirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfDataClearCoat.perceptualRoughness, 1.0h, normalizedScreenSpaceUV);
+            // TODO: "grazing term" causes problems on full roughness
+            half3 coatColor = EnvironmentBRDFClearCoat(brdfDataClearCoat, clearCoatMask, coatIndirectSpecular, fresnelTerm);
+
+            // Blend with base layer using khronos glTF recommended way using NoV
+            // Smooth surface & "ambiguous" lighting
+            // NOTE: fresnelTerm (above) is pow4 instead of pow5, but should be ok as blend weight.
+            half coatFresnel = kDielectricSpec.x + kDielectricSpec.a * fresnelTerm;
+            return (color * (1.0 - coatFresnel * clearCoatMask) + coatColor) * occlusion;
+        #else
+            return color * occlusion;
+        #endif
         }
 
     #endif
@@ -204,8 +241,8 @@ void Lighting_half(
         if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
         {
             //return debugColor;
-            FinalLighting = debugColor;
-            MetaAlbedo = debugColor;
+            FinalLighting = debugColor.rgb;
+            MetaAlbedo = debugColor.rgb;
             MetaSpecular = specular;
             MetaSmoothness = smoothness;
             MetaOcclusion = occlusion;
@@ -240,12 +277,12 @@ void Lighting_half(
         addData.anisoReflectionNormal = GetAnisotropicModifiedNormal(grainDirWS, inputData.normalWS, inputData.viewDirectionWS, stretch);
         half iblPerceptualRoughness = brdfData.perceptualRoughness * saturate(1.2 - abs(anisotropy));
 
-    //  Overwrite perceptual roughness for ambient specular reflections
+    //  Override perceptual roughness for ambient specular reflections
         brdfData.perceptualRoughness = iblPerceptualRoughness;
 
         half4 shadowMask = CalculateShadowMask(inputData);
         AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        uint meshRenderingLayers = GetMeshRenderingLayer();
 
         Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
         half3 mainLightColor = mainLight.color;
@@ -255,15 +292,17 @@ void Lighting_half(
         LightingData lightingData = CreateLightingData(inputData, surfaceData);
 
     //  In order to use probe blending and proper AO we have to use the new GlobalIllumination function
-        lightingData.giColor = GlobalIllumination(
+        lightingData.giColor = GlobalIllumination_LuxAniso(
             brdfData,
             brdfData,   // brdfDataClearCoat,
             0,          // surfaceData.clearCoatMask
             inputData.bakedGI,
             aoFactor.indirectAmbientOcclusion,
             inputData.positionWS,
+            addData.anisoReflectionNormal,
             inputData.normalWS,
-            inputData.viewDirectionWS
+            inputData.viewDirectionWS,
+            inputData.normalizedScreenSpaceUV
         );
 
         half NdotL;
@@ -271,8 +310,9 @@ void Lighting_half(
     //  Main Light
         #if defined(_LIGHT_LAYERS)
             if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
-            {
         #endif
+            {
+        
                 NdotL = saturate(dot(inputData.normalWS, mainLight.direction));
                 lightingData.mainLightColor = LightingPhysicallyBased_LuxGGXAniso(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
 
@@ -283,19 +323,20 @@ void Lighting_half(
                     transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
                     lightingData.mainLightColor += brdfData.diffuse * transDot * (1.0h - NdotL) * mainLightColor * lerp(1.0h, mainLight.shadowAttenuation, transmissionShadowstrength) * transmissionStrength * 4;
                 }
-        #if defined(_LIGHT_LAYERS)
             }
-        #endif
 
         #ifdef _ADDITIONAL_LIGHTS
             uint pixelLightCount = GetAdditionalLightsCount();
 
-            LIGHT_LOOP_BEGIN(pixelLightCount)    
+            #if USE_FORWARD_PLUS
+                for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+                {
+                    FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
                     Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
                 #if defined(_LIGHT_LAYERS)
                     if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
-                    {
                 #endif
+                    {
                         half3 lightColor = light.color;
                         NdotL = saturate(dot(inputData.normalWS, light.direction ));
                         lightingData.additionalLightsColor += LightingPhysicallyBased_LuxGGXAniso(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
@@ -307,9 +348,28 @@ void Lighting_half(
                             transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
                             lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, transmissionShadowstrength) * light.distanceAttenuation * transmissionStrength * 4;
                         }
-                #if defined(_LIGHT_LAYERS)
                     }
+                }
+            #endif
+
+            LIGHT_LOOP_BEGIN(pixelLightCount)    
+                    Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+                #if defined(_LIGHT_LAYERS)
+                    if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
                 #endif
+                    {
+                        half3 lightColor = light.color;
+                        NdotL = saturate(dot(inputData.normalWS, light.direction ));
+                        lightingData.additionalLightsColor += LightingPhysicallyBased_LuxGGXAniso(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+
+                    //  Transmission
+                        if (enableTransmission) {
+                            half3 transLightDir = light.direction + inputData.normalWS * transmissionDistortion;
+                            half transDot = dot( transLightDir, -inputData.viewDirectionWS );
+                            transDot = exp2(saturate(transDot) * transmissionPower - transmissionPower);
+                            lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, transmissionShadowstrength) * light.distanceAttenuation * transmissionStrength * 4;
+                        }
+                    }
             LIGHT_LOOP_END
         #endif
 

@@ -1,5 +1,9 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 struct Attributes
 {
@@ -41,7 +45,7 @@ struct Varyings
         float2  dynamicLightmapUV       : TEXCOORD8;
     #endif
     float4 positionCS                   : SV_POSITION;
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -54,7 +58,7 @@ Varyings LitGBufferPassVertex (Attributes input)
     Varyings output = (Varyings)0;
     
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
@@ -113,8 +117,12 @@ Varyings LitGBufferPassVertex (Attributes input)
 
 FragmentOutput LitGBufferPassFragment(Varyings input)
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
     SurfaceData surfaceData;
     AdditionalSurfaceData additionalSurfaceData;
@@ -125,6 +133,7 @@ FragmentOutput LitGBufferPassFragment(Varyings input)
 //  Transfer all to world space 
     InputData inputData = (InputData)0;
     inputData.positionWS = input.positionWS;
+    inputData.positionCS = input.positionCS;
 
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
     #ifdef _NORMALMAP

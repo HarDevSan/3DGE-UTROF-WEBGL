@@ -107,7 +107,7 @@ inline void InitializeStandardLitSurfaceData(
         //  Swizzle tangent space to world space
             topDownNormal = topDownNormal.xzy;
         //  3. Finally we blend both normals in world space 
-            outSurfaceData.normalTS = lerp(outSurfaceData.normalTS, topDownNormal, saturate(normalBlendFactor.xxx - _LowerNormalMinStrength) );
+            outSurfaceData.normalTS = lerp(outSurfaceData.normalTS, topDownNormal, saturate(normalBlendFactor - _LowerNormalMinStrength).xxx );
         #endif
     #else
         #ifdef _NORMALMAP

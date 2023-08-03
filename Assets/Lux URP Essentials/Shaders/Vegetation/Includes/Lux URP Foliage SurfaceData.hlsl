@@ -16,7 +16,7 @@ inline void InitializeSurfaceData(
 //  Early out
     outSurfaceData.alpha = Alpha(albedoAlpha.a, 1.0h, _Cutoff);
 
-    outSurfaceData.albedo = albedoAlpha.rgb;
+    outSurfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
     outSurfaceData.metallic = 0.0h;
     outSurfaceData.specular = _SpecColor.rgb;
 

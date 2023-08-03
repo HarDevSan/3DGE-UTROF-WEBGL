@@ -1,17 +1,30 @@
 CBUFFER_START(UnityPerMaterial)
-    half4 _Color;
+    half4 _BaseColor;
     half _Border;
     half _Cutoff;
 CBUFFER_END
+
+//  DOTS - we only define a minimal set here. The user might extend it to whatever is needed.
+    #ifdef UNITY_DOTS_INSTANCING_ENABLED
+        UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
+            UNITY_DOTS_INSTANCED_PROP(float4, _BaseColor)
+        UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
+        
+        #define _BaseColor              UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float4 , _BaseColor)
+    #endif
 
 #if defined(_ALPHATEST_ON)
     TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap); float4 _BaseMap_ST;
 #endif
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
-    float4 vertex           : POSITION;
-    float3 normal           : NORMAL;
+    float4 positionOS       : POSITION;
+    float3 normalOS         : NORMAL;
     #if defined(_ALPHATEST_ON)
         float2 texcoord     : TEXCOORD0;
     #endif
@@ -20,13 +33,17 @@ struct Attributes
 
 struct Varyings
 {
-    float4 position : POSITION;
+    float4 positionCS : SV_POSITION;
     #if defined(LITPASS)
         half fogCoord : TEXCOORD0;
     #endif
-    #if defined(_ALPHATEST_ON)
-        float2 uv     : TEXCOORD1;
+    #if defined(DEPTHNORMALSPASS)
+        half3 normalWS : TEXCOORD1;
     #endif
+    #if defined(_ALPHATEST_ON)
+        float2 uv     : TEXCOORD2;
+    #endif
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -36,9 +53,10 @@ struct Varyings
 
 Varyings vert (Attributes input)
 {
-    Varyings o = (Varyings)0;
+    Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     #if !defined(_ALPHATEST_ON)
     //  Extrude
@@ -49,7 +67,7 @@ Varyings vert (Attributes input)
                 scale.y = length(float3(UNITY_MATRIX_M[0].y, UNITY_MATRIX_M[1].y, UNITY_MATRIX_M[2].y));
                 scale.z = length(float3(UNITY_MATRIX_M[0].z, UNITY_MATRIX_M[1].z, UNITY_MATRIX_M[2].z));
             #endif
-                input.vertex.xyz += input.normal * 0.001 * _Border
+                input.positionOS.xyz += input.normalOS * 0.001 * _Border
             #if defined(_COMPENSATESCALE) 
                 / scale
             #endif
@@ -57,10 +75,10 @@ Varyings vert (Attributes input)
         #endif
     #endif
 
-    o.position = TransformObjectToHClip(input.vertex.xyz);
+    output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
 
     #if defined(LITPASS)
-        o.fogCoord = ComputeFogFactor(o.position.z);
+        output.fogCoord = ComputeFogFactor(output.positionCS.z);
     #endif
 
     #if !defined(_ALPHATEST_ON)
@@ -68,20 +86,24 @@ Varyings vert (Attributes input)
         #if defined(_OUTLINEINSCREENSPACE)
             if (_Border > 0.0h) {
                 //float3 normal = mul(UNITY_MATRIX_MVP, float4(v.normal, 0)).xyz; // to clip space
-                float3 normal = mul(GetWorldToHClipMatrix(), mul(GetObjectToWorldMatrix(), float4(v.normal, 0.0))).xyz;
+                float3 normal = mul(GetWorldToHClipMatrix(), TransformObjectToWorldNormal(input.normalOS) ).xyz;
                 float2 offset = normalize(normal.xy);
                 float2 ndc = _ScreenParams.xy * 0.5;
-                o.position.xy += ((offset * _Border) / ndc * o.position.w);
+                output.positionCS.xy += ((offset * _Border) / ndc * output.positionCS.w);
             }
         #endif
     #endif
 
 //  Alpha testing
     #if defined(_ALPHATEST_ON)
-       o.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+        output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
     #endif
 
-    return o;
+    #if defined(DEPTHNORMALSPASS)
+        output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+    #endif
+
+    return output;
 }
 
 //--------------------------------------
@@ -92,9 +114,24 @@ inline float2 shufflefast (float2 offset, float2 shift) {
     return offset * shift;
 }
 
-half4 frag (Varyings input) : SV_Target
-{
+#if defined(DEPTHNORMALSPASS)
+    void frag(
+        Varyings input
+        , out half4 outNormalWS : SV_Target0
+    #ifdef _WRITE_RENDERING_LAYERS
+        , out float4 outRenderingLayers : SV_Target1
+    #endif
+    )
+#else
+    half4 frag (Varyings input) : SV_Target
+#endif
+    {
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
     #if defined(_ALPHATEST_ON)
         
@@ -129,9 +166,27 @@ half4 frag (Varyings input) : SV_Target
     #endif
 
     #if defined(LITPASS)
-        _Color.rgb = MixFog(_Color.rgb, input.fogCoord);
-        return half4(_Color);
+        half4 color = _BaseColor;
+        color.rgb = MixFog(color.rgb, input.fogCoord);
+        return half4(color);
     #else
-        return 0;
+        #if defined(DEPTHONLYPASS)
+            return input.positionCS.z;
+        #else 
+            #if defined(_GBUFFER_NORMALS_OCT)
+                float3 normalWS = normalize(input.normalWS);
+                float2 octNormalWS = PackNormalOctQuadEncode(normalWS);           // values between [-1, +1], must use fp32 on some platforms.
+                float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   // values between [ 0,  1]
+                half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      // values between [ 0,  1]
+                outNormalWS = half4(packedNormalWS, 0.0);
+            #else
+                float3 normalWS = NormalizeNormalPerPixel(input.normalWS);
+                outNormalWS = half4(normalWS, 0.0);
+            #endif 
+            #ifdef _WRITE_RENDERING_LAYERS
+                uint renderingLayers = GetMeshRenderingLayer();
+                outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+            #endif 
+        #endif  
     #endif
 }

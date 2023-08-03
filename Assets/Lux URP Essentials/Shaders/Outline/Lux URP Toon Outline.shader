@@ -10,7 +10,7 @@
 
         [Header(Outline)]
         [Space(8)]
-        _Color ("Color", Color) = (0,0,0,1)
+        _BaseColor ("Color", Color) = (0,0,0,1)
         _Border ("Width", Float) = 3
         [Toggle(_COMPENSATESCALE)]
         _CompensateScale            ("     Compensate Scale", Float) = 0
@@ -51,9 +51,6 @@
             ZWrite On
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
@@ -70,10 +67,13 @@
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #pragma vertex vert
             #pragma fragment frag
@@ -92,13 +92,10 @@
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
@@ -107,9 +104,17 @@
             #pragma shader_feature_local _OUTLINEINSCREENSPACE
             #pragma shader_feature_local _ALPHATEST_ON
 
+            #define DEPTHONLYPASS
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             #pragma vertex vert
             #pragma fragment frag
@@ -127,13 +132,9 @@
             Tags{"LightMode" = "DepthNormals"}
 
             ZWrite On
-            ColorMask 0
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
@@ -142,9 +143,21 @@
             #pragma shader_feature_local _OUTLINEINSCREENSPACE
             #pragma shader_feature_local _ALPHATEST_ON
 
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
+
+            #define DEPTHNORMALSPASS
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             #pragma vertex vert
             #pragma fragment frag

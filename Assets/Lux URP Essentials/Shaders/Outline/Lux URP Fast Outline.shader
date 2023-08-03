@@ -30,7 +30,7 @@
             "RenderPipeline" = "UniversalPipeline"
             "RenderType"="Opaque"
             "IgnoreProjector" = "True"
-            "Queue"= "Transparent+59" // +59 smalltest to get drawn on top of transparents
+            "Queue"= "Transparent+60" // +59 smalltest to get drawn on top of transparents
         }
 
         Pass
@@ -54,9 +54,6 @@
             ZWrite On
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma shader_feature_local _APPLYFOG
@@ -71,6 +68,8 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #pragma vertex vert
             #pragma fragment frag
@@ -97,7 +96,7 @@
 
             struct VertexOutput
             {
-                float4 position : POSITION;
+                float4 position : SV_POSITION;
 
                 #if defined(_APPLYFOG)
                     half fogCoord : TEXCOORD0;
@@ -141,4 +140,3 @@
     }
     FallBack "Hidden/InternalErrorShader"
 }
-

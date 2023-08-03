@@ -4,6 +4,10 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 
 struct Attributes
@@ -50,7 +54,7 @@ struct Varyings
 
     float4 positionCS                   : SV_POSITION;
         
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -66,7 +70,7 @@ Varyings LitGBufferPassVertex(Attributes input)
     Varyings output = (Varyings)0;
 
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
 //  Set distance fade value
@@ -142,6 +146,7 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
 {
     inputData = (InputData)0;
     inputData.positionWS = input.positionWS;
+    inputData.positionCS = input.positionCS;
 
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
 
@@ -201,8 +206,12 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
 // Used in Standard (Physically Based) shader
 FragmentOutput LitGBufferPassFragment(Varyings input, half facing : VFACE)
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;
@@ -219,7 +228,7 @@ FragmentOutput LitGBufferPassFragment(Varyings input, half facing : VFACE)
 #endif
 
     #if defined(_GBUFFERLIGHTING_TRANSMISSION)
-        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        uint meshRenderingLayers = GetMeshRenderingLayer();
     //  Beta 5: must be commented as otherwise screen space shadows bug
         //inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
         half4 shadowMask = CalculateShadowMask(inputData);

@@ -26,7 +26,7 @@
         _Lower                      ("     Lower", Range(0,1)) = 0
         _Upper                      ("     Upper", Range(0,4)) = 1
         //[Space(5)]
-        //_SoftEdge                   ("     Soft Edge Factor", Float) = 2.0
+        //_SoftEdge                 ("     Soft Edge Factor", Float) = 2.0
 
         [Space(5)]
         [Toggle(_APPLYFOG)]
@@ -57,9 +57,6 @@
             ZWrite Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma shader_feature_local _ENABLEGRADIENT
@@ -79,6 +76,8 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #pragma vertex vert
             #pragma fragment frag
@@ -171,7 +170,7 @@
                 o.positionCS = vertexInput.positionCS;
                 o.projectedPosition = vertexInput.positionNDC.xy;
                 o.positionWS = vertexInput.positionWS;
-                o.cameraPositionOS = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1)).xyz;
+                o.cameraPositionOS = mul(UNITY_MATRIX_I_M, float4(_WorldSpaceCameraPos, 1)).xyz;
 
                 float4x4 ObjectToWorldMatrix = GetObjectToWorldMatrix();
                 float3 worldScale = float3(
@@ -258,7 +257,7 @@
                 #if defined(SHADER_API_GLES)
                     float sceneZ = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV, 0);
                 #else
-                    float sceneZ = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * screenUV).x;
+                    float sceneZ = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * screenUV).x;
                 #endif
                 sceneZ = GetProperEyeDepth(sceneZ);
             

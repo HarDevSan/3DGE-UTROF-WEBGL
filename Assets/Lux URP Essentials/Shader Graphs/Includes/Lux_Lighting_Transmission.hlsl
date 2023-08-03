@@ -54,6 +54,8 @@ void Lighting_half(
     half alpha,
 
 //  Lighting specific inputs
+    bool overrideTransmissionColor,
+    half3 customTransMissionColor,
     half transmissionStrength,
     half transmissionPower,
     half transmissionDistortion,
@@ -139,7 +141,6 @@ void Lighting_half(
         ApplyDecalToSurfaceData(float4(positionCS, 0, 0), surfaceData, inputData);
     #endif
 
-
 //  From here on we rely on surfaceData and inputData only! (except debug which outputs the original values)
 
     BRDFData brdfData;
@@ -151,8 +152,8 @@ void Lighting_half(
         if (CanDebugOverrideOutputColor(inputData, surfaceData, brdfData, debugColor))
         {
             //return debugColor;
-            FinalLighting = debugColor;
-            MetaAlbedo = debugColor;
+            FinalLighting = debugColor.rgb;
+            MetaAlbedo = debugColor.rgb;
             MetaSpecular = specular;
             MetaSmoothness = smoothness;
             MetaOcclusion = occlusion;
@@ -163,7 +164,7 @@ void Lighting_half(
 
     half4 shadowMask = CalculateShadowMask(inputData);
     AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
 
     Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
     half3 mainLightColor = mainLight.color;
@@ -181,7 +182,8 @@ void Lighting_half(
         aoFactor.indirectAmbientOcclusion,
         inputData.positionWS,
         inputData.normalWS,
-        inputData.viewDirectionWS
+        inputData.viewDirectionWS,
+        inputData.normalizedScreenSpaceUV
     );
 
     #if defined(_CUSTOMWRAP)
@@ -195,71 +197,110 @@ void Lighting_half(
     half WrappedNormalization = rcp((1.0h + w) * (1.0h + w));
     half NdotL;
 
-    #if defined(_LIGHT_LAYERS)
-        if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
-        {
-    #endif
-        //  Wrapped Diffuse   
-            NdotL = saturate((dot(inputData.normalWS, mainLight.direction) + w) * WrappedNormalization );
-            lightingData.mainLightColor = LightingPhysicallyBasedWrapped(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
-        
-        //  Translucency
-            half transPower = transmissionPower;
-            half3 transLightDir = mainLight.direction + inputData.normalWS * transmissionDistortion;
-            half transDot = dot( transLightDir, -inputData.viewDirectionWS );
-            transDot = exp2(saturate(transDot) * transPower - transPower);
-            lightingData.mainLightColor += 
-                #if defined(_STANDARDLIGHTING)
-                    mask *
-                #endif
-                transDot * (1.0 - NdotL) * mainLight.color * lerp(1.0h, mainLight.shadowAttenuation, transmissionShadowstrength) * brdfData.diffuse * transmissionStrength;
-    #if defined(_LIGHT_LAYERS)
-        }
-    #endif
+    half3 transMissionColor = (overrideTransmissionColor) ? customTransMissionColor : brdfData.diffuse;
+
+#if defined(_LIGHT_LAYERS)
+    if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+#endif
+    {
+
+    //  Wrapped Diffuse   
+        NdotL = saturate((dot(inputData.normalWS, mainLight.direction) + w) * WrappedNormalization );
+        lightingData.mainLightColor = LightingPhysicallyBasedWrapped(brdfData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+    
+    //  Translucency
+        half transPower = transmissionPower;
+        half3 transLightDir = mainLight.direction + inputData.normalWS * transmissionDistortion;
+        half transDot = dot( transLightDir, -inputData.viewDirectionWS );
+        transDot = exp2(saturate(transDot) * transPower - transPower);
+        lightingData.mainLightColor += 
+            #if defined(_STANDARDLIGHTING)
+                mask *
+            #endif
+            transDot * (1.0 - NdotL) * mainLight.color * lerp(1.0h, mainLight.shadowAttenuation, transmissionShadowstrength) * transMissionColor * transmissionStrength;
+    }
 
     #ifdef _ADDITIONAL_LIGHTS
         uint pixelLightCount = GetAdditionalLightsCount();
+
+        #if USE_FORWARD_PLUS
+            for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+            {
+                FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+            #if defined(_LIGHT_LAYERS)
+                if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            #endif
+                {
+                //  Wrapped Diffuse
+                    NdotL = saturate((dot(inputData.normalWS, light.direction) + w) * WrappedNormalization );
+                    lightingData.additionalLightsColor += LightingPhysicallyBasedWrapped(
+                        brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+                //  Translucency
+                    half3 lightColor = light.color;
+                //  Mask by incoming shadow strength
+                    #if USE_CLUSTERED_LIGHTING
+                        int index = lightIndex;
+                    #else
+                        int index = GetPerObjectLightIndex(lightIndex);
+                    #endif
+                    half4 shadowParams = GetAdditionalLightShadowParams(index);
+                    #if !defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
+                        lightColor *= lerp(1, 0, transmissionMaskByShadowstrength);
+                    #else
+                    //  half isPointLight = shadowParams.z;
+                        lightColor *= lerp(1, shadowParams.x, transmissionMaskByShadowstrength);
+                    #endif
+                //  Apply Translucency
+                    half transPower = transmissionPower;
+                    half3 transLightDir = light.direction + inputData.normalWS * transmissionDistortion;
+                    half transDot = dot( transLightDir, -inputData.viewDirectionWS );
+                    transDot = exp2(saturate(transDot) * transPower - transPower);
+                    lightingData.additionalLightsColor += 
+                        #if defined(_STANDARDLIGHTING)
+                            mask *
+                        #endif
+                        transMissionColor * transDot * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, transmissionShadowstrength) * light.distanceAttenuation * transmissionStrength;
+                }
+            }
+        #endif
 
         LIGHT_LOOP_BEGIN(pixelLightCount)    
                 Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
             #if defined(_LIGHT_LAYERS)
                 if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            #endif
                 {
-            #endif
-            //  Wrapped Diffuse
-                NdotL = saturate((dot(inputData.normalWS, light.direction) + w) * WrappedNormalization );
-                lightingData.additionalLightsColor += LightingPhysicallyBasedWrapped(
-                    brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
-            
-            //  Translucency
-                half3 lightColor = light.color;
-            //  Mask by incoming shadow strength
-                #if USE_CLUSTERED_LIGHTING
-                    int index = lightIndex;
-                #else
-                    int index = GetPerObjectLightIndex(lightIndex);
-                #endif
-                half4 shadowParams = GetAdditionalLightShadowParams(index);
-                #if !defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
-                    lightColor *= lerp(1, 0, transmissionMaskByShadowstrength);
-                #else
-                //  half isPointLight = shadowParams.z;
-                    lightColor *= lerp(1, shadowParams.x, transmissionMaskByShadowstrength);
-                #endif
-            //  Apply Translucency
-                half transPower = transmissionPower;
-                half3 transLightDir = light.direction + inputData.normalWS * transmissionDistortion;
-                half transDot = dot( transLightDir, -inputData.viewDirectionWS );
-                transDot = exp2(saturate(transDot) * transPower - transPower);
-                lightingData.additionalLightsColor += 
-                    #if defined(_STANDARDLIGHTING)
-                        mask *
+                //  Wrapped Diffuse
+                    NdotL = saturate((dot(inputData.normalWS, light.direction) + w) * WrappedNormalization );
+                    lightingData.additionalLightsColor += LightingPhysicallyBasedWrapped(
+                        brdfData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+                //  Translucency
+                    half3 lightColor = light.color;
+                //  Mask by incoming shadow strength
+                    #if USE_CLUSTERED_LIGHTING
+                        int index = lightIndex;
+                    #else
+                        int index = GetPerObjectLightIndex(lightIndex);
                     #endif
-                    brdfData.diffuse * transDot * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, transmissionShadowstrength) * light.distanceAttenuation * transmissionStrength;
-                
-            #if defined(_LIGHT_LAYERS)
+                    half4 shadowParams = GetAdditionalLightShadowParams(index);
+                    #if !defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
+                        lightColor *= lerp(1, 0, transmissionMaskByShadowstrength);
+                    #else
+                    //  half isPointLight = shadowParams.z;
+                        lightColor *= lerp(1, shadowParams.x, transmissionMaskByShadowstrength);
+                    #endif
+                //  Apply Translucency
+                    half transPower = transmissionPower;
+                    half3 transLightDir = light.direction + inputData.normalWS * transmissionDistortion;
+                    half transDot = dot( transLightDir, -inputData.viewDirectionWS );
+                    transDot = exp2(saturate(transDot) * transPower - transPower);
+                    lightingData.additionalLightsColor += 
+                        #if defined(_STANDARDLIGHTING)
+                            mask *
+                        #endif
+                        transMissionColor * transDot * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, transmissionShadowstrength) * light.distanceAttenuation * transmissionStrength;
                 }
-            #endif
         LIGHT_LOOP_END
     #endif
 
@@ -312,6 +353,8 @@ void Lighting_float(
     half alpha,
 
 //  Lighting specific inputs
+    bool overrideTransmissionColor,
+    half3 customTransMissionColor,
     half transmissionStrength,
     half transmissionPower,
     half transmissionDistortion,
@@ -334,6 +377,7 @@ void Lighting_float(
     Lighting_half(
         positionWS, positionSP, viewDirectionWS, normalWS, tangentWS, bitangentWS, enableNormalMapping, normalTS, 
         albedo, metallic, specular, smoothness, occlusion, alpha,
+        overrideTransmissionColor, customTransMissionColor,
         transmissionStrength, transmissionPower, transmissionDistortion, transmissionShadowstrength, transmissionMaskByShadowstrength,
         lightMapUV, dynamicLightMapUV, MetaAlbedo, FinalLighting, MetaSpecular, MetaSmoothness, MetaOcclusion, MetaNormal);
 }

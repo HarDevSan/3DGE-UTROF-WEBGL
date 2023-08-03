@@ -23,6 +23,7 @@ struct AdditionalData {
     half reflectivity;
     half grazingTerm;
     half specOcclusion;
+    half refractionScale;
 };
 
 half3 DirectBDRF_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS, half NdotL)
@@ -36,41 +37,33 @@ half3 DirectBDRF_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 n
 //  Base Lobe
     float NoH = saturate(dot(float3(normalWS), halfDir));
     float d = NoH * NoH * brdfData.roughness2MinusOne + 1.00001f;
-    half d2 = half(d * d);
-
-    half LoH2 = LoH * LoH;
-    LoH2 = max(0.1h, LoH2);
-    half specularTerm = brdfData.roughness2 / (d2 * max(half(0.1), LoH2) * brdfData.normalizationTerm);
-
-    #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+    half LoH2 = max(0.1h, LoH * LoH);
+    half specularTerm = brdfData.roughness2 / ((d * d) * LoH2 * brdfData.normalizationTerm);
+    #if REAL_IS_HALF
         specularTerm = specularTerm - HALF_MIN;
         specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
     #endif
 
     half3 spec = specularTerm * brdfData.specular * NdotL;
 
-//  Coat Lobe
-//  From HDRP: Scale base specular
+//  Coat Lobe / From HDRP: Scale base specular?
     #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
         [branch]
-        if (addData.coatThickness > 0.0h) {
+        if (addData.coatThickness > 0.0h)
     #endif
-            half coatF = F_Schlick(addData.reflectivity /*addData.coatSpecular*/ /*CLEAR_COAT_F0*/, LoH) * addData.coatThickness;
+        {
+            half coatF = F_Schlick(addData.reflectivity, LoH) * addData.coatThickness;
             spec *= Sq(1.0h - coatF);
             //spec *= (1.0h - coatF); // as used by filament, na, not really
             NoH = saturate(dot(float3(addData.normalWS), halfDir));
             d = NoH * NoH * addData.roughness2MinusOne + 1.00001f;
-            d2 = half(d * d);
-            //LoH2 = LoH * LoH; no need to recalculate LoH2!
-            specularTerm = addData.roughness2 / (d2 * max(half(0.1), LoH2) * addData.normalizationTerm);
-            #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+            specularTerm = addData.roughness2 / ((d * d) * LoH2 * addData.normalizationTerm);
+            #if REAL_IS_HALF
                 specularTerm = specularTerm - HALF_MIN;
                 specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
             #endif
             spec += specularTerm * addData.coatSpecular * saturate(dot(addData.normalWS, lightDirectionWS));
-    #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
         }
-    #endif
     half3 color = spec + brdfData.diffuse * NdotL; // from HDRP (but does not do much?) * lerp(1.0h, 1.0h - coatF, addData.coatThickness);
     return color;
 #else
@@ -99,28 +92,37 @@ half3 EnvironmentBRDF_LuxClearCoat(BRDFData brdfData, AdditionalData addData, ha
 }
 
 
-half3 GlobalIllumination_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 bakedGI, half occlusion, float3 positionWS, half3 normalWS, half3 baseNormalWS, half3 viewDirectionWS, half NdotV)
+half3 GlobalIllumination_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 bakedGI,
+    half occlusion, float3 positionWS, half3 normalWS, half3 baseNormalWS, half3 viewDirectionWS,
+    half NdotV, float2 normalizedScreenSpaceUV)
 {
     half3 reflectVector = reflect(-viewDirectionWS, normalWS);
     half fresnelTerm = Pow4(1.0 - NdotV);
 
-    half3 indirectDiffuse = bakedGI * occlusion; 
-    half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, addData.perceptualRoughness, addData.specOcclusion);
+    half3 indirectDiffuse = bakedGI * occlusion;
+
+//  In case we have a secondary lobe and no coat
+    #if defined(_SECONDARYLOBE)
+
+//  latest URP 14.
+//  half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, 1.0h /* occlusion*/, normalizedScreenSpaceUV);
+        half3 indirectSpecular = (addData.coatThickness == 0.0h) ? 0.0h : GlossyEnvironmentReflection(reflectVector, positionWS, addData.perceptualRoughness, addData.specOcclusion, normalizedScreenSpaceUV);
+    #else
+        half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, addData.perceptualRoughness, addData.specOcclusion, normalizedScreenSpaceUV);
+    #endif
 
     half3 res = EnvironmentBRDF_LuxClearCoat(brdfData, addData, indirectDiffuse, indirectSpecular, fresnelTerm);
 
     #if defined(_SECONDARYLOBE)
-        #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
-            [branch]
-            if (addData.coatThickness > 0.0h) {
-        #endif
-                reflectVector = reflect(-viewDirectionWS, baseNormalWS);
-                indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, occlusion);
-                float surfaceReduction = 1.0 / (brdfData.roughness2 + 1.0);
-                res += NdotV * surfaceReduction * indirectSpecular * lerp(brdfData.specular, brdfData.grazingTerm, fresnelTerm);
-        #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
-            }
-        #endif
+        reflectVector = reflect(-viewDirectionWS, baseNormalWS);
+        indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, occlusion, normalizedScreenSpaceUV);
+        float surfaceReduction = 1.0 / (brdfData.roughness2 + 1.0);
+    //  Recalculate NdotV and fresnel using the basenormal
+        NdotV = saturate( dot(baseNormalWS, viewDirectionWS) );
+        fresnelTerm = Pow4(1.0 - NdotV);
+    //  We use NdotV to reduce reflections from secondary lobe
+    //  Secondary lobe also takes occlusion into account!
+        res += occlusion * NdotV * surfaceReduction * indirectSpecular * lerp(brdfData.specular, brdfData.grazingTerm, fresnelTerm);
     #endif
 
 //  Debug
@@ -136,7 +138,7 @@ half3 f0ClearCoatToSurface_Lux(half3 f0)
 {
     // Approximation of iorTof0(f0ToIor(f0), 1.5)
     // This assumes that the clear coat layer has an IOR of 1.5
-#if defined(SHADER_API_MOBILE)
+#if REAL_IS_HALF
     return saturate(f0 * (f0 * 0.526868h + 0.529324h) - 0.0482256h);
 #else
     return saturate(f0 * (f0 * (0.941892h - 0.263008h * f0) + 0.346479h) - 0.0285998h);
@@ -190,7 +192,7 @@ half4 LuxClearCoatFragmentPBR(InputData inputData,
     //AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
     AmbientOcclusionFactor aoFactor = GetScreenSpaceAmbientOcclusion(inputData.normalizedScreenSpaceUV);
     half minAmbientOcclusion = min(aoFactor.indirectAmbientOcclusion, surfaceData.occlusion);
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
 
     AdditionalData addData; //  = (AdditionalData)0;
     #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
@@ -227,6 +229,9 @@ half4 LuxClearCoatFragmentPBR(InputData inputData,
         }
     #endif
 
+//  Approximation of refraction on BRDF
+    addData.refractionScale = ((NdotV * 0.5h + 0.5h) * NdotV - 1.0h) * saturate(1.25h - 1.25h * (1.0h - surfaceData.clearCoatSmoothness)) + 1.0h;
+
 //  Now fix aoFactor.indirectAmbientOcclusion
     aoFactor.indirectAmbientOcclusion = minAmbientOcclusion;
     
@@ -236,12 +241,9 @@ half4 LuxClearCoatFragmentPBR(InputData inputData,
 
     LightingData lightingData = CreateLightingData(inputData, surfaceData);
 
-//  Approximation of refraction on BRDF
-    half refractionScale = ((NdotV * 0.5h + 0.5h) * NdotV - 1.0h) * saturate(1.25h - 1.25h * (1.0h - surfaceData.clearCoatSmoothness)) + 1.0h;
-    brdfData.diffuse = lerp(brdfData.diffuse, brdfData.diffuse * refractionScale, surfaceData.clearCoatMask);
-//  brdfData.specular = brdfData.specular * lerp(1.0, refractionScale, clearcoatThickness);
+    brdfData.diffuse = lerp(brdfData.diffuse, brdfData.diffuse * addData.refractionScale, surfaceData.clearCoatMask);
 
-    lightingData.giColor = GlobalIllumination_LuxClearCoat(brdfData, addData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS, addData.normalWS, inputData.normalWS, inputData.viewDirectionWS, NdotV);
+    lightingData.giColor = GlobalIllumination_LuxClearCoat(brdfData, addData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS, addData.normalWS, inputData.normalWS, inputData.viewDirectionWS, NdotV, inputData.normalizedScreenSpaceUV);
 
 //  Adjust base specular as we have a transition from coat to material and not air to material
     #if defined(_ADJUSTSPEC)
@@ -250,22 +252,22 @@ half4 LuxClearCoatFragmentPBR(InputData inputData,
 
 #if defined(_LIGHT_LAYERS)
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+#endif
     {
-#endif
-    lightingData.mainLightColor = LightingPhysicallyBased_LuxClearCoat(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS);
-#if defined(_LIGHT_LAYERS)
+        lightingData.mainLightColor = LightingPhysicallyBased_LuxClearCoat(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS);
     }
-#endif
 
     #if defined(_ADDITIONAL_LIGHTS)
         uint pixelLightCount = GetAdditionalLightsCount();
 
-        #if USE_CLUSTERED_LIGHTING
-            for (uint lightIndex = 0; lightIndex < min(_AdditionalLightsDirectionalCount, MAX_VISIBLE_LIGHTS); lightIndex++)
+        #if USE_FORWARD_PLUS
+            for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
             {
+                FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
                 Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
-
+            #ifdef _LIGHT_LAYERS
                 if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            #endif
                 {
                     lightingData.additionalLightsColor += LightingPhysicallyBased_LuxClearCoat(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS);
                 }
@@ -274,19 +276,13 @@ half4 LuxClearCoatFragmentPBR(InputData inputData,
         
         LIGHT_LOOP_BEGIN(pixelLightCount)
             Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
-        #if defined(_LIGHT_LAYERS)
+        #ifdef _LIGHT_LAYERS
             if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        #endif
             {
-        #endif
-            #if defined(_SCREEN_SPACE_OCCLUSION)
-                light.color *= aoFactor.directAmbientOcclusion;
-            #endif
-            lightingData.additionalLightsColor += LightingPhysicallyBased_LuxClearCoat(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS);
-        #if defined(_LIGHT_LAYERS)
+                lightingData.additionalLightsColor += LightingPhysicallyBased_LuxClearCoat(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS);
             }
-        #endif
         LIGHT_LOOP_END
-
     #endif
 
     #ifdef _ADDITIONAL_LIGHTS_VERTEX

@@ -13,8 +13,8 @@
  
     #include "../Includes/Lux URP Clear Coat Lighting.hlsl"
 
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
+    //#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+    //#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
 //  Material Inputs
     CBUFFER_START(UnityPerMaterial)
@@ -62,8 +62,18 @@
         TEXTURE2D(_SecondaryMask); SAMPLER(sampler_SecondaryMask);
     #endif
 
-
 //  Global Inputs
+
+//  DOTS - we only define a minimal set here. The user might extend it to whatever is needed.
+    #ifdef UNITY_DOTS_INSTANCING_ENABLED
+        UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
+            UNITY_DOTS_INSTANCED_PROP(float4, _BaseColor)
+            UNITY_DOTS_INSTANCED_PROP(float , _Surface)
+        UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
+        
+        #define _BaseColor              UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float4 , _BaseColor)
+        #define _Surface                UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float  , _Surface)
+    #endif
 
 //  Structs
     struct VertexInput

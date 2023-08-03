@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 struct Attributes
 {
@@ -192,10 +196,21 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
 
 }
 
-half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
+void LitPassFragment(
+    Varyings input, half facing : VFACE
+    , out half4 outColor : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
+
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;
@@ -205,6 +220,12 @@ half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
 //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
     InputData inputData;
     InitializeInputData(input, surfaceData.normalTS, facing, inputData);
+
+#ifdef _DBUFFER
+    #if defined(_RECEIVEDECALS)
+        ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
+    #endif
+#endif
 
     #if defined(_RIMLIGHTING)
         half rim = saturate(1.0h - saturate( dot(inputData.normalWS, inputData.viewDirectionWS) ) );
@@ -221,11 +242,7 @@ half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
         float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
     #endif
 
-    #ifdef _DBUFFER
-        #if defined(_RECEIVEDECALS)
-            ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
-        #endif
-    #endif
+
 
 //  Apply lighting
     half4 color = LuxURPClothFragmentPBR(
@@ -247,5 +264,10 @@ half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
 //  Add fog
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
 
-    return color;
+    outColor = color;
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    #endif
 }

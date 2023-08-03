@@ -2,13 +2,12 @@
 #define INPUT_LUXURP_BASE_INCLUDED
 
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-//  defines a bunch of helper functions (like lerpwhiteto)
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"  
-//  defines SurfaceData, textures and the functions Alpha, SampleAlbedoAlpha, SampleNormal, SampleEmission
-    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
+//  SRP Batcher always complained - so we drop this    
+    //#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
+    //#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+    //#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
 //  Material Inputs
     CBUFFER_START(UnityPerMaterial)
@@ -17,24 +16,49 @@
         half    _Cutoff;
         half4   _OutlineColor;
         half    _Border;
+        float4  _BaseMap_TexelSize;
+        float4  _BaseMap_MipInfo;
     CBUFFER_END
+
+    TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
 
 //  Additional textures
 
 //  Global Inputs
 
+//  Helper functions as we do not include SurfaceInput.hlsl anymore
+    half Alpha(half albedoAlpha, half4 color, half cutoff)
+    {
+    #if !defined(_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A) && !defined(_GLOSSINESS_FROM_BASE_ALPHA)
+        half alpha = albedoAlpha * color.a;
+    #else
+        half alpha = color.a;
+    #endif
+
+        alpha = AlphaDiscard(alpha, cutoff);
+
+        return alpha;
+    }
+    
+    half4 SampleAlbedoAlpha(float2 uv, TEXTURE2D_PARAM(albedoAlphaMap, sampler_albedoAlphaMap))
+    {
+        return half4(SAMPLE_TEXTURE2D(albedoAlphaMap, sampler_albedoAlphaMap, uv));
+    }
+
 //  Structs
-    struct VertexInputSimple
+    struct Attributes
     {
         float3 positionOS                   : POSITION;
         float2 texcoord                     : TEXCOORD0;
+        float3 normalOS                     : NORMAL;
         UNITY_VERTEX_INPUT_INSTANCE_ID
     };
     
-    struct VertexOutputSimple
+    struct Varyings
     {
         float4 positionCS                   : SV_POSITION;
         float2 uv                           : TEXCOORD0;
+        half3 normalWS                      : TEXCOORD2;
         #if defined(_APPLYFOG)
             half fogFactor                  : TEXCOORD1;
         #endif

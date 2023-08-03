@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 
 struct Attributes
@@ -42,7 +46,7 @@ struct Varyings
 
     float4 positionCS                   : SV_POSITION;
 
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -57,7 +61,7 @@ Varyings LitPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
@@ -160,10 +164,23 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
     #endif
 }
 
-half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
+//half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
+//{
+void LitPassFragment(
+    Varyings input, half facing : VFACE
+    , out half4 outColor : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;
@@ -174,9 +191,14 @@ half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
     InitializeInputData(input, surfaceData.normalTS, facing, inputData);
 
 //  SurfaceData.albedo only contains sample from texture - not the base color.
-//  So we combine colors here in order to be able to apply decal albedo proeperly.
+//  So we combine colors here in order to be able to apply decal albedo properly.
     half NdotV = saturate( dot(input.normalWS, inputData.viewDirectionWS) );
-    surfaceData.albedo = lerp(_SecondaryColor.rgb, _BaseColor.rgb * surfaceData.albedo, NdotV);
+    
+    #if defined(_SECONDARYCOLOR)
+        surfaceData.albedo = lerp(_SecondaryColor.rgb, surfaceData.albedo * _BaseColor.rgb, NdotV);
+    #else 
+        surfaceData.albedo *= _BaseColor.rgb;
+    #endif
 
 #ifdef _DBUFFER
     #if defined(_RECEIVEDECALS)
@@ -205,5 +227,10 @@ half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
 //  Add fog
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
 
-    return color;
+    outColor = color;
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    #endif
 }

@@ -91,27 +91,29 @@ half3 DirectBDRF_LuxCloth(BRDFData brdfData, AdditionalData addData, half3 norma
         return saturate(specularLighting) + brdfData.diffuse * FabricLambert_Lux(brdfData.roughness);
     
     #else
-        float TdotH = dot(addData.tangentWS, halfDir);
-        float TdotL = dot(addData.tangentWS, lightDirectionWS);
-        float BdotH = dot(addData.bitangentWS, halfDir);
-        float BdotL = dot(addData.bitangentWS, lightDirectionWS);
+        float3 tangentWS = float3(addData.tangentWS);
+        float3 bitangentWS = float3(addData.bitangentWS);
 
-        float3 F = F_Schlick(brdfData.specular, LoH);
+        float TdotH = dot(tangentWS, halfDir);
+        float TdotL = dot(tangentWS, lightDirectionWSFloat3);
+        float BdotH = dot(bitangentWS, halfDir);
+        float BdotL = dot(bitangentWS, lightDirectionWSFloat3);
 
-        //float TdotV = dot(addData.tangentWS, viewDirectionWS);
-        //float BdotV = dot(addData.bitangentWS, viewDirectionWS);
+        half3 F = F_Schlick(brdfData.specular, LoH); // 1.91: was float3
+
+        //float TdotV = dot(tangentWS, viewDirectionWS);
+        //float BdotV = dot(bitangentWS, viewDirectionWS);
 
         float DV = DV_SmithJointGGXAniso(
             TdotH, BdotH, NoH, NdotV, TdotL, BdotL, NdotL,
             addData.roughnessT, addData.roughnessB, addData.partLambdaV
         );
-        // Check NdotL gets factores in outside as well.. correct?
         half3 specularLighting = F * DV;
 
         return specularLighting + brdfData.diffuse;
+    
     #endif
-    //half3 color = specularTerm * brdfData.specular + brdfData.diffuse;
-    //return color;
+
 #else
     return brdfData.diffuse;
 #endif
@@ -126,6 +128,41 @@ half3 LightingPhysicallyBased_LuxCloth(BRDFData brdfData, AdditionalData addData
 half3 LightingPhysicallyBased_LuxCloth(BRDFData brdfData, AdditionalData addData, Light light, half3 normalWS, half3 viewDirectionWS, half NdotL)
 {
     return LightingPhysicallyBased_LuxCloth(brdfData, addData, light.color, light.direction, light.distanceAttenuation * light.shadowAttenuation, normalWS, viewDirectionWS, NdotL);
+}
+
+//  As we need both normals here - otherwise kept in sync with latest URP function
+half3 GlobalIllumination_LuxAniso(BRDFData brdfData, BRDFData brdfDataClearCoat, float clearCoatMask,
+    half3 bakedGI, half occlusion, float3 positionWS,
+    half3 anisoReflectionNormal,
+    half3 normalWS, half3 viewDirectionWS, float2 normalizedScreenSpaceUV)
+{
+    half3 reflectVector = reflect(-viewDirectionWS, anisoReflectionNormal);
+    half NoV = saturate(dot(normalWS, viewDirectionWS));
+    half fresnelTerm = Pow4(1.0 - NoV);
+
+    half3 indirectDiffuse = bakedGI;
+    half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, 1.0h, normalizedScreenSpaceUV);
+
+    half3 color = EnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);
+
+    if (IsOnlyAOLightingFeatureEnabled())
+    {
+        color = half3(1,1,1); // "Base white" for AO debug lighting mode
+    }
+
+#if defined(_CLEARCOAT) || defined(_CLEARCOATMAP)
+    half3 coatIndirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfDataClearCoat.perceptualRoughness, 1.0h, normalizedScreenSpaceUV);
+    // TODO: "grazing term" causes problems on full roughness
+    half3 coatColor = EnvironmentBRDFClearCoat(brdfDataClearCoat, clearCoatMask, coatIndirectSpecular, fresnelTerm);
+
+    // Blend with base layer using khronos glTF recommended way using NoV
+    // Smooth surface & "ambiguous" lighting
+    // NOTE: fresnelTerm (above) is pow4 instead of pow5, but should be ok as blend weight.
+    half coatFresnel = kDielectricSpec.x + kDielectricSpec.a * fresnelTerm;
+    return (color * (1.0 - coatFresnel * clearCoatMask) + coatColor) * occlusion;
+#else
+    return color * occlusion;
+#endif
 }
 
 
@@ -177,7 +214,7 @@ half4 LuxURPClothFragmentPBR(InputData inputData, SurfaceData surfaceData, half3
         addData.anisoReflectionNormal = GetAnisotropicModifiedNormal(grainDirWS, inputData.normalWS, inputData.viewDirectionWS, stretch);
         half iblPerceptualRoughness = brdfData.perceptualRoughness * saturate(1.2 - abs(anisotropy));
 
-    //  Overwrite perceptual roughness for ambient specular reflections
+    //  Override perceptual roughness for ambient specular reflections
         brdfData.perceptualRoughness = iblPerceptualRoughness;
     #else
     //  partLambdaV should be 0.0f in case of cotton wool
@@ -199,7 +236,7 @@ half4 LuxURPClothFragmentPBR(InputData inputData, SurfaceData surfaceData, half3
 
     half4 shadowMask = CalculateShadowMask(inputData);
     AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
 
     Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
     half3 mainLightColor = mainLight.color;
@@ -208,20 +245,26 @@ half4 LuxURPClothFragmentPBR(InputData inputData, SurfaceData surfaceData, half3
 
     LightingData lightingData = CreateLightingData(inputData, surfaceData);
 
-    lightingData.giColor = GlobalIllumination(
+//  NOTE: We use addData.anisoReflectionNormal here!
+    lightingData.giColor = GlobalIllumination_LuxAniso(
         brdfData,
         brdfData, // brdfDataClearCoat
         0, // surfaceData.clearCoatMask,
-        inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
-        inputData.normalWS, inputData.viewDirectionWS
+        inputData.bakedGI,
+        aoFactor.indirectAmbientOcclusion,
+        inputData.positionWS,
+        addData.anisoReflectionNormal,
+        inputData.normalWS,
+        inputData.viewDirectionWS,
+        inputData.normalizedScreenSpaceUV
     );
 
     half NdotL;
     
 #if defined(_LIGHT_LAYERS)
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
-    {
 #endif
+    {
     NdotL = saturate(dot(inputData.normalWS, mainLight.direction ));
     lightingData.mainLightColor = LightingPhysicallyBased_LuxCloth(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS, NdotL);
 
@@ -232,19 +275,20 @@ half4 LuxURPClothFragmentPBR(InputData inputData, SurfaceData surfaceData, half3
         transDot = exp2(saturate(transDot) * transPower - transPower);
         lightingData.mainLightColor += brdfData.diffuse * transDot * (1.0h - NdotL) * mainLightColor * lerp(1.0h, mainLight.shadowAttenuation, translucency.z) * translucency.x * 4;
     #endif
-#if defined(_LIGHT_LAYERS)
     }
-#endif
 
     #ifdef _ADDITIONAL_LIGHTS
         uint pixelLightCount = GetAdditionalLightsCount();
         
-        LIGHT_LOOP_BEGIN(pixelLightCount)
-            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
-        #if defined(_LIGHT_LAYERS)
-            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        #if USE_FORWARD_PLUS
+            for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
             {
+                FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+        #ifdef _LIGHT_LAYERS
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
         #endif
+            {
                 half3 lightColor = light.color;
                 NdotL = saturate(dot(inputData.normalWS, light.direction ));
                 lightingData.additionalLightsColor += LightingPhysicallyBased_LuxCloth(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
@@ -256,9 +300,28 @@ half4 LuxURPClothFragmentPBR(InputData inputData, SurfaceData surfaceData, half3
                     transDotA = exp2(saturate(transDotA) * transPowerA - transPowerA);
                     lightingData.additionalLightsColor += brdfData.diffuse * transDotA * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation * translucency.x * 4;
                 #endif
-        #if defined(_LIGHT_LAYERS)
             }
+        }
         #endif
+
+        LIGHT_LOOP_BEGIN(pixelLightCount)
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        #endif
+            {
+                half3 lightColor = light.color;
+                NdotL = saturate(dot(inputData.normalWS, light.direction ));
+                lightingData.additionalLightsColor += LightingPhysicallyBased_LuxCloth(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS, NdotL);
+            //  translucency
+                #if defined(_SCATTERING)
+                    half transPowerA = translucency.y;
+                    half3 transLightDirA = light.direction + inputData.normalWS * translucency.w;
+                    half transDotA = dot( transLightDirA, -inputData.viewDirectionWS );
+                    transDotA = exp2(saturate(transDotA) * transPowerA - transPowerA);
+                    lightingData.additionalLightsColor += brdfData.diffuse * transDotA * (1.0h - NdotL) * lightColor * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation * translucency.x * 4;
+                #endif
+            }
         LIGHT_LOOP_END
     #endif
 

@@ -91,14 +91,11 @@
             ZWrite Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
             // Material Keywords
-            // _NORMALMAP must NOT be shader_feature_local – otherwise fade fails?! Na, it just fails. Toggling "Mask Map" may help bringing back the decal.
+            // _NORMALMAP must NOT be shader_feature_local – otherwise fade fails?! Na, it just fails. Toggling "Mask Map" may help bringing back the decal.
             #pragma shader_feature _NORMALMAP
             #pragma shader_feature_local _COMBINEDTEXTURE
             #pragma shader_feature_local _DECALNORMAL
@@ -110,19 +107,24 @@
             #pragma shader_feature_local ORTHO_SUPPORT
             #pragma shader_feature_local_fragment HQ_SAMPLING
 
-#pragma multi_compile_fragment _ NORMALS_SAMPLING
-#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
-
+            #pragma multi_compile_fragment _ NORMALS_SAMPLING
+            
 
             #define _SPECULAR_SETUP 1
 
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-            // #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _FORWARD_PLUS
 
             // -------------------------------------
             // Unity defined keywords
@@ -131,7 +133,8 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #pragma vertex vert
             #pragma fragment frag
@@ -140,10 +143,8 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/UnlitInput.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
-        //	Latest notes from Uty: do not if else here.
                 half4   _Color;
                 half    _Smoothness;
                 half3   _SpecColor;
@@ -152,8 +153,11 @@
                 half3   _EmissionColor;
                 half    _Occlusion;
                 half    _DecalNormalStrength;
-                //float4  _BaseMap_TexelSize;
+
+                float4  _BaseMap_TexelSize;
             CBUFFER_END
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+            TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
             
             #if defined(SHADER_API_GLES)
                 TEXTURE2D(_CameraDepthTexture); SAMPLER(sampler_CameraDepthTexture);
@@ -209,7 +213,7 @@
                 output.positionCS = TransformObjectToHClip(v.vertex.xyz);
 
             //  We do all calculations in Object Space
-                float4 positionVS = mul(UNITY_MATRIX_V, mul(UNITY_MATRIX_M, v.vertex)); //mul(UNITY_MATRIX_MV, v.vertex);
+                float4 positionVS = mul(UNITY_MATRIX_V, mul(UNITY_MATRIX_M, v.vertex));
                 float3 viewRayVS = positionVS.xyz;
 
             //  positionVS.z here acts as view space to object space ratio (negative)
@@ -268,9 +272,9 @@
 
             void ComputeDecalDDX(VertexOutput input, float2 uv, float2 decalUV, out float2 uvDiff, out float2 depths) {
                 float2 ScreenDeltaX = float2(1, 0);
-                float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv - ScreenDeltaX).x;
+                float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv - ScreenDeltaX).x;
                 depth0 = LinearEyeDepth(depth0, _ZBufferParams);
-                float depth1 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv + ScreenDeltaX).x;
+                float depth1 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv + ScreenDeltaX).x;
                 depth1 = LinearEyeDepth(depth1, _ZBufferParams);
 
                 float2 UvDiffX0 = decalUV - ((input.camPosOS + input.viewRayOS.xyz * depth0).xz + float2(0.5, 0.5));
@@ -283,9 +287,9 @@
             //float2 ComputeDecalDDY(VertexOutput input, float2 uv, float2 decalUV) {
             void ComputeDecalDDY(VertexOutput input, float2 uv, float2 decalUV, out float2 uvDiff, out float2 depths) {
                 float2 ScreenDeltaY = float2(0, 1);
-                float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv - ScreenDeltaY).x;
+                float depth0 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv - ScreenDeltaY).x;
                 depth0 = LinearEyeDepth(depth0, _ZBufferParams);
-                float depth1 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * uv + ScreenDeltaY).x;
+                float depth1 = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * uv + ScreenDeltaY).x;
                 depth1 = LinearEyeDepth(depth1, _ZBufferParams);
 
                 float2 UvDiffY0 = decalUV - ((input.camPosOS + input.viewRayOS.xyz * depth0).xz + float2(0.5, 0.5));
@@ -314,9 +318,9 @@
                 #if defined(SHADER_API_GLES)
                     float rawDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, uv, 0);
                 #else
-                    float rawDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, uint2(_CameraDepthTexture_TexelSize.zw * uv )).x;
-                    //float2 sampleCoords = (floor(uv * _CameraDepthTexture_TexelSize.zw) + 0.5) / _CameraDepthTexture_TexelSize.zw;
-                    //float rawDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, uint2(_CameraDepthTexture_TexelSize.zw * sampleCoords )).x;
+                    float rawDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, uint2(_ScaledScreenParams.xy * uv )).x;
+                    //float2 sampleCoords = (floor(uv * _ScaledScreenParams.xy) + 0.5) / _ScaledScreenParams.xy;
+                    //float rawDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, uint2(_ScaledScreenParams.xy * sampleCoords )).x;
                 #endif
 
                 float3 positionOS;
@@ -375,9 +379,6 @@
 
             //  HQ Decal Sampling
                 #if defined(HQ_SAMPLING) && !defined(ORTHO_SUPPORT)
-                    
-                    //float2 UvPixelDiffX = ComputeDecalDDX(input, uv, texUV) * _BaseMap_TexelSize.zw;
-                    //float2 UvPixelDiffY = ComputeDecalDDY(input, uv, texUV) * _BaseMap_TexelSize.zw;
                     float2 UvPixelDiffX;
                     float2 UvPixelDiffY;
                     float2 depthX;
@@ -422,28 +423,30 @@
 
             //  Prepare inputs for the lighting function and get normals
 
-            //	I hat this ZERO initialize - but it is just the quicket way here
+            //	I hate this ZERO initialize - but it is just the quicket way here
                 InputData inputData = (InputData)0;
                 inputData.positionWS = positionWS;
 
             //	SSAO
-                #if defined(_SCREEN_SPACE_OCCLUSION)
-					inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-                #endif
+                // #if defined(_SCREEN_SPACE_OCCLUSION)
+				// 	inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
+                // #endif
+
+            //  URP 14: normalizedScreenSpaceUV are needed for GI as well
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
 
             //	Normals
 				#if defined(NORMALS_SAMPLING) && defined(_SCREEN_SPACE_OCCLUSION) 
 				//	view space normal!
-					//float2 nSample = LOAD_TEXTURE2D_X(_CameraNormalsTexture, _CameraDepthTexture_TexelSize.zw * uv).rg;
+					//float2 nSample = LOAD_TEXTURE2D_X(_CameraNormalsTexture, _ScaledScreenParams.xy * uv).rg;
 					//inputData.normalWS = UnpackNormalOctRectEncode(nSample.rg);
 					//inputData.normalWS = mul((float3x3)UNITY_MATRIX_I_V, inputData.normalWS );
                 //  URP 12
-                    inputData.normalWS = LOAD_TEXTURE2D_X(_CameraNormalsTexture, _CameraDepthTexture_TexelSize.zw * uv).rgb;
-				
+                    inputData.normalWS = LOAD_TEXTURE2D_X(_CameraNormalsTexture, _ScaledScreenParams.xy * uv).rgb;
 				#else
                 
 	            //  As ddx and ddy may return super small values we have to normalize on platforms where half actually means something 
-	                #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+	                #if REAL_IS_HALF
 	                    inputData.normalWS = normalize( cross( ddy(positionWS), ddx(positionWS) ) );
 	                #else
 	                    #if defined(_DECALNORMAL)
@@ -457,33 +460,31 @@
 	                #if defined(_DECALNORMAL)
 	                    inputData.normalWS = (lerp(inputData.normalWS, input.normalWS.xyz, _DecalNormalStrength));
 	                #endif
-#if defined(HQ_SAMPLING)
 
-        //positionOS = input.camPosOS + input.viewRayOS.xyz * depth;
-        //positionWS = mul(GetObjectToWorldMatrix(), float4(positionOS, 1)).xyz;
-        float3 RayWS = mul((float3x3)GetObjectToWorldMatrix(), input.viewRayOS.xyz);
-        //float3 posWS = _WorldSpaceCameraPos + RayWS * min(depthX.x, min(depthX.y, min(depthY.x, depthY.y)));
-        float3 posWS = _WorldSpaceCameraPos + normalize(RayWS) * (depthX.x + depthX.y + depthY.x +depthY.y) / 4;
-posWS = (posWS + positionWS) / 2;
+                    #if defined(HQ_SAMPLING) && !defined(ORTHO_SUPPORT)
+                        //positionOS = input.camPosOS + input.viewRayOS.xyz * depth;
+                        //positionWS = mul(GetObjectToWorldMatrix(), float4(positionOS, 1)).xyz;
+                        float3 RayWS = mul((float3x3)GetObjectToWorldMatrix(), input.viewRayOS.xyz);
+                        //float3 posWS = _WorldSpaceCameraPos + RayWS * min(depthX.x, min(depthX.y, min(depthY.x, depthY.y)));
+                        float3 posWS = _WorldSpaceCameraPos + normalize(RayWS) * (depthX.x + depthX.y + depthY.x +depthY.y) / 4;
+                        posWS = (posWS + positionWS) / 2;
 
-RayWS = normalize(RayWS);
+                        RayWS = normalize(RayWS);
 
-float3 p1 = _WorldSpaceCameraPos + RayWS * depthX.x;
-float3 p2 = _WorldSpaceCameraPos + RayWS * depthX.y;
-float3 p3 = _WorldSpaceCameraPos + RayWS * depthY.x;
-float3 p4 = _WorldSpaceCameraPos + RayWS * depthY.y;
+                        float3 p1 = _WorldSpaceCameraPos + RayWS * depthX.x;
+                        float3 p2 = _WorldSpaceCameraPos + RayWS * depthX.y;
+                        float3 p3 = _WorldSpaceCameraPos + RayWS * depthY.x;
+                        float3 p4 = _WorldSpaceCameraPos + RayWS * depthY.y;
 
-// get the difference between the current and each offset position
-    float3 hDeriv = p2 - p1; //positionWS;
-    float3 vDeriv = p4 - p3; //positionWS;
+                    //  get the difference between the current and each offset position
+                        float3 hDeriv = p2 - p1; //positionWS;
+                        float3 vDeriv = p4 - p3; //positionWS;
 
-    // get view space normal from the cross product of the diffs
-    inputData.normalWS = half3(normalize(cross(vDeriv, hDeriv)));
-
-posWS = (p1 + p2 + p3 + p4) / 4; // schlecht!
-
-inputData.normalWS = normalize( cross( ddy(posWS), ddx(posWS) ) );
-#endif                    
+                    //  get view space normal from the cross product of the diffs
+                        inputData.normalWS = half3(normalize(cross(vDeriv, hDeriv)));
+                        posWS = (p1 + p2 + p3 + p4) / 4; // schlecht!
+                        inputData.normalWS = normalize( cross( ddy(posWS), ddx(posWS) ) );
+                    #endif                    
 
 				#endif
 
@@ -504,12 +505,12 @@ inputData.normalWS = normalize( cross( ddy(posWS), ddx(posWS) ) );
                 #endif
                     
                 inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                inputData.viewDirectionWS = SafeNormalize( _WorldSpaceCameraPos - positionWS);
+                inputData.viewDirectionWS = GetWorldSpaceNormalizeViewDir(positionWS);
 
                 #if defined(_MAIN_LIGHT_SHADOWS_SCREEN)
                     inputData.shadowCoord = input.screenUV;
                 #else
-                    inputData.shadowCoord = TransformWorldToShadowCoord(positionWS); //vertexInput.positionWS);
+                    inputData.shadowCoord = TransformWorldToShadowCoord(positionWS);
                 #endif
 
                 inputData.fogCoord = 0;
@@ -518,22 +519,30 @@ inputData.normalWS = normalize( cross( ddy(posWS), ddx(posWS) ) );
             //  So we have to sample SH fully per pixel
                 inputData.bakedGI = SampleSH(inputData.normalWS);
 
-                col = UniversalFragmentPBR(
-                    inputData, 
-                    col.rgb, 
-                    0, //surfaceData.metallic, 
-                    specular, 
-                    smoothness,
-                    occlusion,
-                    emission,
-                    alpha);
+                // col = UniversalFragmentPBR(
+                //     inputData, 
+                //     col.rgb, 
+                //     0, //surfaceData.metallic, 
+                //     specular, 
+                //     smoothness,
+                //     occlusion,
+                //     emission,
+                //     alpha);
+
+            //  URP 14: We have to use latest lighting here to make glossienvironmentreflections work properly.
+                
+                SurfaceData surfaceData = (SurfaceData)0;
+                surfaceData.albedo = col.rgb;
+                surfaceData.metallic = 0;
+                surfaceData.specular = specular;
+                surfaceData.smoothness = smoothness;
+                surfaceData.occlusion = occlusion;
+                surfaceData.emission = emission;
+                surfaceData.alpha = alpha;
+                
+                col = UniversalFragmentPBR(inputData, surfaceData);
 
                 col.rgb = MixFog(col.rgb, input.fogCoord);
-
-//col.rgb = inputData.normalWS * 0.5 + 0.5;
-#if defined(HQ_SAMPLING)
-        //col.rgb = (p3 - p4) * 100; //RayWS * 0.5 + 0.5;
-#endif
 
                 return half4(col.rgb, alpha);
             }

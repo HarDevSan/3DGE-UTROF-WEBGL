@@ -192,8 +192,6 @@ Shader "Lux URP/Cloth"
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
@@ -202,14 +200,17 @@ Shader "Lux URP/Cloth"
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
-
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -217,7 +218,7 @@ Shader "Lux URP/Cloth"
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Cloth Inputs.hlsl"
@@ -225,6 +226,7 @@ Shader "Lux URP/Cloth"
 
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
+            
             ENDHLSL
         }
 
@@ -250,11 +252,15 @@ Shader "Lux URP/Cloth"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -298,13 +304,15 @@ Shader "Lux URP/Cloth"
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
-            //#pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+        //  Note: Minimal GBuffer Pass does not need per pixel instance ID 
 
         //  As we do not store the alpha mask with the base map we have to use custom functions 
             #pragma vertex LitGBufferPassVertex
@@ -316,6 +324,10 @@ Shader "Lux URP/Cloth"
 
             //#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             //#include "Packages/com.unity.render-pipelines.universal/Shaders/LitGBufferPass.hlsl"
+
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             //  Material Inputs
             //  We include LitInput.hlsl - so no cbuffer definition here
@@ -377,6 +389,11 @@ Shader "Lux URP/Cloth"
             {
                 //UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+
                 #if defined(_ALPHATEST_ON) && defined(_MASKMAP)
                     half mask = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, input.uv.zw).a;
                     clip (mask - _Cutoff);
@@ -404,11 +421,12 @@ Shader "Lux URP/Cloth"
     //  Depth Only -----------------------------------------------------
         Pass
         {
+            Name "DepthOnly"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
-            Cull Off
+            ColorMask R
+            Cull[_Cull]
 
             HLSLPROGRAM
             #pragma exclude_renderers gles gles3 glcore
@@ -422,10 +440,14 @@ Shader "Lux URP/Cloth"
             #pragma shader_feature_local _ALPHATEST_ON        // not per fragment!
             #pragma shader_feature_local _MASKMAP
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
             
             #define DEPTHONLYPASS
             #include "Includes/Lux URP Cloth Inputs.hlsl"
@@ -462,11 +484,14 @@ Shader "Lux URP/Cloth"
             // Unity defined keywords
 //  Breaks decals
 //          #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            // Universal Pipeline keywords
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
             
             #include "Includes/Lux URP Cloth Inputs.hlsl"
             #include "Includes/Lux URP Cloth DepthNormal Pass.hlsl"
@@ -559,8 +584,6 @@ Shader "Lux URP/Cloth"
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
@@ -569,18 +592,24 @@ Shader "Lux URP/Cloth"
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Cloth Inputs.hlsl"
@@ -613,14 +642,19 @@ Shader "Lux URP/Cloth"
             #pragma shader_feature_local _ALPHATEST_ON      // not per fragment!
             #pragma shader_feature_local _MASKMAP
 
-
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -636,11 +670,12 @@ Shader "Lux URP/Cloth"
     //  Depth -----------------------------------------------------
         Pass
         {
+            Name "DepthOnly"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
-            Cull Off
+            ColorMask R
+            Cull[_Cull]
 
             HLSLPROGRAM
             #pragma only_renderers gles gles3 glcore d3d11
@@ -654,9 +689,15 @@ Shader "Lux URP/Cloth"
             #pragma shader_feature_local _ALPHATEST_ON        // not per fragment!
             #pragma shader_feature_local _MASKMAP
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #include "Includes/Lux URP Cloth Inputs.hlsl"
             #include "Includes/Lux URP Cloth DepthOnly Pass.hlsl"
@@ -688,9 +729,15 @@ Shader "Lux URP/Cloth"
             #pragma shader_feature_local _NORMALMAP
             #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #define DEPTHNORMALPASS
             #include "Includes/Lux URP Cloth Inputs.hlsl"
@@ -703,7 +750,8 @@ Shader "Lux URP/Cloth"
         
         Pass
         {
-            Tags{"LightMode" = "MetaXXXX"}
+            Name "Meta"
+            Tags{"LightMode" = "Meta"}
 
             Cull Off
 

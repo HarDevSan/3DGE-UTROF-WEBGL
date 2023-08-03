@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.XR;
 
 namespace Lux_SRP_GrassDisplacement
@@ -30,7 +30,7 @@ namespace Lux_SRP_GrassDisplacement
         public override void Create()
         {
             m_GrassDisplacementPass = new GrassDisplacementPass();
-            m_GrassDisplacementPass.renderPassEvent = UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRenderingShadows;
+            m_GrassDisplacementPass.renderPassEvent = RenderPassEvent.BeforeRendering; //BeforeRenderingShadows;
 
         //  Apply settings
             m_GrassDisplacementPass.m_Resolution = (int)settings.Resolution;
@@ -38,8 +38,9 @@ namespace Lux_SRP_GrassDisplacement
             m_GrassDisplacementPass.m_ShiftRenderTex = settings.ShiftRenderTex;
         }
         
-        public override void AddRenderPasses(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, ref UnityEngine.Rendering.Universal.RenderingData renderingData)
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
+            m_GrassDisplacementPass.Setup(renderingData);
             renderer.EnqueuePass(m_GrassDisplacementPass);
         }
     }
@@ -50,11 +51,11 @@ namespace Lux_SRP_GrassDisplacement
 //  ---------------------------------------------------------
 //  The Pass
 
-    public class GrassDisplacementPass : UnityEngine.Rendering.Universal.ScriptableRenderPass
+    public class GrassDisplacementPass : ScriptableRenderPass
     {
         
         private const string ProfilerTag = "Render Lux Grass Displacement FX";
-        private static ProfilingSampler m_ProfilingSampler = new ProfilingSampler(ProfilerTag);
+        private static ProfilingSampler m_ProfilingSampler = new(ProfilerTag);
 
         ShaderTagId m_GrassDisplacementFXShaderTag = new ShaderTagId("LuxGrassDisplacementFX");
 
@@ -63,8 +64,7 @@ namespace Lux_SRP_GrassDisplacement
     //  There is no 0.5 in 8bit colors...
         Color m_ClearColor = new Color(127.0f/255.0f, 127.0f/255.0f,1,1);
 
-    //  In case of XR enabled this most likely will be an array        
-        UnityEngine.Rendering.Universal.RenderTargetHandle m_GrassDisplacementFX = UnityEngine.Rendering.Universal.RenderTargetHandle.CameraTarget;
+        private RTHandle m_GrassDisplacementFX;
 
         private Matrix4x4 projectionMatrix;
         private Matrix4x4 worldToCameraMatrix;
@@ -72,34 +72,31 @@ namespace Lux_SRP_GrassDisplacement
         public float m_Size = 20.0f;
         public int m_Resolution = 256;
         public bool m_ShiftRenderTex = false;
-        //public bool m_SinglePassInstancing = false;
 
         private float stepSize;
         private float oneOverStepSize;
 
         private Vector4 posSize = Vector4.zero;
-        private static int DisplacementTexPosSizePID = Shader.PropertyToID("_Lux_DisplacementPosition");
+        private static readonly int DisplacementTexPosSizePID = Shader.PropertyToID("_Lux_DisplacementPosition");
+        private static readonly int _Lux_DisplacementRT = Shader.PropertyToID("_Lux_DisplacementRT");
 
         private FilteringSettings transparentFilterSettings { get; set; }
 
-        public GrassDisplacementPass()
-        {
-            m_GrassDisplacementFX.Init("_Lux_DisplacementRT");
-            transparentFilterSettings = new FilteringSettings(RenderQueueRange.transparent);
-        }
+        private RenderTextureDescriptor descriptor;
 
-        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
-        {
-            cameraTextureDescriptor.depthBufferBits = 0;
-            cameraTextureDescriptor.width = m_Resolution;
-            cameraTextureDescriptor.height = m_Resolution;
-            cameraTextureDescriptor.colorFormat = RenderTextureFormat.Default;
-        //  XR: force our RT to be always 2D
-            cameraTextureDescriptor.dimension = TextureDimension.Tex2D;
 
-            cmd.GetTemporaryRT(m_GrassDisplacementFX.id, cameraTextureDescriptor, FilterMode.Bilinear);
-            ConfigureTarget(m_GrassDisplacementFX.Identifier());
-            ConfigureClear(ClearFlag.Color, m_ClearColor);
+        public void Setup(in RenderingData renderingData)
+        {
+            descriptor = new RenderTextureDescriptor(m_Resolution, m_Resolution);
+            descriptor.depthBufferBits = 0;
+            descriptor.colorFormat = RenderTextureFormat.Default;
+            descriptor.dimension = TextureDimension.Tex2D;
+        //  to quiet unity - but why do we need the same msaa quality? Na, it is the editor
+            //var cameraTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
+            //msaaSamples = cameraTargetDescriptor.msaaSamples;
+            //descriptor.msaaSamples = msaaSamples;
+            RenderingUtils.ReAllocateIfNeeded(ref m_GrassDisplacementFX, descriptor, name: "_Lux_DisplacementRT");
+            Shader.SetGlobalTexture(_Lux_DisplacementRT, m_GrassDisplacementFX.rt);
 
         //  Set up all constants
             stepSize = m_Size / (float)m_Resolution;
@@ -111,15 +108,22 @@ namespace Lux_SRP_GrassDisplacement
             worldToCameraMatrix.SetRow(1, new Vector4(0,0,1,0) ); //last is z pos
             worldToCameraMatrix.SetRow(2, new Vector4(0,1,0,0) ); //last is y pos
             worldToCameraMatrix.SetRow(3, new Vector4(0,0,0,1) );
+
+            transparentFilterSettings = new FilteringSettings(RenderQueueRange.transparent);
+
         }
 
-        public override void Execute(ScriptableRenderContext context, ref UnityEngine.Rendering.Universal.RenderingData renderingData)
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
-            CommandBuffer cmd = CommandBufferPool.Get(ProfilerTag);
+            ConfigureTarget(m_GrassDisplacementFX);
+            ConfigureClear(ClearFlag.Color, m_ClearColor);
+        }
 
+        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        {
+            CommandBuffer cmd = CommandBufferPool.Get();
             using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
-                context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
 
                 var drawSettings = CreateDrawingSettings(m_GrassDisplacementFXShaderTag, ref renderingData, SortingCriteria.CommonTransparent);
@@ -183,18 +187,14 @@ namespace Lux_SRP_GrassDisplacement
                 if (isStereoEnabled) {
                     cmd.SetSinglePassStereo(m_StereoRenderingMode);
                 }
+
+            //  ---------------------------------------------------------
+            //  Call execute a 2nd time
+                context.ExecuteCommandBuffer(cmd);
+                cmd.Clear();
 #endif
             }
-            
-        //  ---------------------------------------------------------
-        //  Call execute a 2nd time
-            context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
-        }
-
-        public override void OnCameraCleanup(CommandBuffer cmd)
-        {
-            cmd.ReleaseTemporaryRT(m_GrassDisplacementFX.id);
         }
     }
 }

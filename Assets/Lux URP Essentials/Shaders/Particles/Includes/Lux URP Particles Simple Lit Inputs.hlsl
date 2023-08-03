@@ -58,7 +58,7 @@ float Lux_SoftParticles(float near, float far, float4 projection)
     if (near > 0.0 || far > 0.0)
     {
         //float sceneZ = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, projection.xy / projection.w), _ZBufferParams);
-float sceneDepth = LOAD_TEXTURE2D_X_LOD(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * (projection.xy / projection.w), 0).x;
+float sceneDepth = LOAD_TEXTURE2D_X_LOD(_CameraDepthTexture, _ScaledScreenParams.xy * (projection.xy / projection.w), 0).x;
 float sceneZ = LinearEyeDepth(sceneDepth, _ZBufferParams);
         float thisZ = LinearEyeDepth(projection.z / projection.w, _ZBufferParams);
         fade = saturate (far * ((sceneZ - near) - thisZ));

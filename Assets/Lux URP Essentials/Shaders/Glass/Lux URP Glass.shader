@@ -137,10 +137,8 @@ Shader "Lux URP/Glass"
             Cull [_Cull]
             Blend [_SrcBlend] [_DstBlend]
 
+
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
@@ -149,7 +147,8 @@ Shader "Lux URP/Glass"
 
             // #pragma shader_feature _ALPHATEST_ON
 
-            #define _ALPHAPREMULTIPLY_ON
+            // Only defining the keyword bugged in URP 13.1.8. So we set it to 1
+            #define _ALPHAPREMULTIPLY_ON 1
 
             #pragma shader_feature_local _NORMALMAP
 
@@ -172,26 +171,41 @@ Shader "Lux URP/Glass"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
+
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Glass Inputs.hlsl"
+
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
@@ -225,7 +239,10 @@ Shader "Lux URP/Glass"
                     output.tangentWS = half4(normalInput.tangentWS.xyz, sign);
                 #endif
 
-                OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
+                OUTPUT_LIGHTMAP_UV(input.staticLightmapUV, unity_LightmapST, output.staticLightmapUV);
+                #ifdef DYNAMICLIGHTMAP_ON
+                    output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+                #endif
                 OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
                 
                 output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
@@ -265,7 +282,9 @@ Shader "Lux URP/Glass"
                 float3 positionWS,
                 float scale,
                 half facing,
-                out SurfaceDescription outSurfaceData)
+                out SurfaceDescription outSurfaceData,
+                out float refractionDepth
+            )
             {
 
                 #if defined(_BASEMAP)
@@ -351,8 +370,8 @@ Shader "Lux URP/Glass"
                     #if defined(SHADER_API_GLES)
                         float refractedSceneDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV.xy, 0);
                     #else
-                        //float refractedSceneDepth = LOAD_TEXTURE2D_X_LOD(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * screenUV.xy, 0).x;
-                        float refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * saturate(screenUV.xy)).x;
+                        //float refractedSceneDepth = LOAD_TEXTURE2D_X_LOD(_CameraDepthTexture, _ScaledScreenParams.xy * screenUV.xy, 0).x;
+                        float refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * saturate(screenUV.xy)).x;
                     #endif
                 //  TODO: add ortho support
                     refractedSceneDepth = LinearEyeDepth(refractedSceneDepth, _ZBufferParams);
@@ -384,7 +403,10 @@ Shader "Lux URP/Glass"
             //  Tint glass
                 half3 glassTint = outSurfaceData.albedo;
                 outSurfaceData.emission = RefractionSample * glassTint * max(0.5h, 1.0h - F_Schlick(_SpecColor.rgb, NdotV)) * (1.0h - outSurfaceData.alpha);
-
+refractionDepth = 0;
+#if defined(_EXCLUDEFOREGROUND)
+refractionDepth = refractedSceneDepth; // max(0.5h, 1.0h - F_Schlick(_SpecColor.rgb, NdotV)) * (1.0h - outSurfaceData.alpha);
+#endif
                 //outSurfaceData.emission = weight;
 
             //  ///////////////////////////////////////
@@ -434,13 +456,34 @@ Shader "Lux URP/Glass"
                 #endif
                 inputData.fogCoord = input.fogFactorAndVertexLight.x;
                 inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
-                inputData.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH, inputData.normalWS);
+                
+                // inputData.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH, inputData.normalWS);
+
+                #if defined(DYNAMICLIGHTMAP_ON)
+                    inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
+                #else
+                    inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+                #endif
+            
+            //  New:
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
+                inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
             }
 
-            half4 LitPassFragment(VertexOutput input, half facing : VFACE) : SV_Target
+            void LitPassFragment(
+                VertexOutput input, half facing : VFACE
+                , out half4 outColor : SV_Target0
+            #ifdef _WRITE_RENDERING_LAYERS
+                , out float4 outRenderingLayers : SV_Target1
+            #endif
+            )
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
 
             //  We need viewDirWS and normalWS already in the surface function, so we get them up front
                 half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
@@ -448,7 +491,8 @@ Shader "Lux URP/Glass"
 
             //  Get the surface description
                 SurfaceDescription surfaceData;
-                InitializeSurfaceData(input.uv, input.projectionCoord, input.normalWS.xyz, viewDirWS, input.positionWS, input.scale, facing, surfaceData);
+                float refractionDepth;
+                InitializeSurfaceData(input.uv, input.projectionCoord, input.normalWS.xyz, viewDirWS, input.positionWS, input.scale, facing, surfaceData, refractionDepth);
 
             //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
             //  NOTE: viewDirWS and normalWS are already (almost) set up
@@ -488,7 +532,12 @@ Shader "Lux URP/Glass"
                     color.rgb = MixFog(color.rgb, inputData.fogCoord);
                 #endif
 
-                return color;
+                outColor = color;
+
+                #ifdef _WRITE_RENDERING_LAYERS
+                    uint renderingLayers = GetMeshRenderingLayer();
+                    outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+                #endif
             }
 
             ENDHLSL
@@ -498,6 +547,7 @@ Shader "Lux URP/Glass"
         
         Pass
         {
+            Name "Meta"
             Tags{"LightMode" = "Meta"}
 
             Cull Off

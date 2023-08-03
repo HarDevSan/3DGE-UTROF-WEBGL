@@ -1,5 +1,9 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 struct Attributes
 {
@@ -42,11 +46,7 @@ struct Varyings
     #endif
     float4 positionCS                   : SV_POSITION;
 
-    #if defined(SHADER_STAGE_FRAGMENT)
-        FRONT_FACE_TYPE cullFace        : FRONT_FACE_SEMANTIC;
-    #endif
-
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -59,7 +59,7 @@ Varyings LitGBufferPassVertex (Attributes input)
     Varyings output = (Varyings)0;
     
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
@@ -109,10 +109,14 @@ Varyings LitGBufferPassVertex (Attributes input)
     return output;
 }
 
-FragmentOutput LitGBufferPassFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FACE_SEMANTIC)
+FragmentOutput LitGBufferPassFragment(Varyings input, half facing : VFACE)
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
     SurfaceData surfaceData;
     AdditionalSurfaceData additionalSurfaceData;
@@ -122,20 +126,17 @@ FragmentOutput LitGBufferPassFragment(Varyings input, FRONT_FACE_TYPE frontFace 
 //  Transfer all to world space 
     InputData inputData = (InputData)0;
     inputData.positionWS = input.positionWS;
+    inputData.positionCS = input.positionCS;
 
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
 
-    bool cullFace = IS_FRONT_VFACE(frontFace, true, false);
-
     #ifdef _NORMALMAP
-        //surfaceData.normalTS.z *= facing;
-        surfaceData.normalTS.z *= cullFace ? 1 : -1;
+        surfaceData.normalTS.z *= facing;
         float sgn = input.tangentWS.w;
         float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
         inputData.normalWS = TransformTangentToWorld(surfaceData.normalTS, half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz));
     #else
-        inputData.normalWS = input.normalWS; // * facing;
-        inputData.normalWS *= cullFace ? 1 : -1;
+        inputData.normalWS = input.normalWS * facing;
     #endif
 
     inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);

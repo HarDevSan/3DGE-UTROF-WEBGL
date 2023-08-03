@@ -39,13 +39,11 @@ inline void InitializeSurfaceData(
 
 //  Coat
     outSurfaceData.clearCoatSmoothness = _ClearCoatSmoothness;
-    //outSurfaceData.clearCoatThickness = _ClearCoatThickness;
     outSurfaceData.clearCoatMask = _ClearCoatThickness;
 
     #if defined(_MASKMAP)
         half4 maskSample = SAMPLE_TEXTURE2D(_CoatMask, sampler_CoatMask, input.uv.zw);
         outSurfaceData.clearCoatSmoothness *= maskSample.a;
-        //outSurfaceData.clearCoatThickness *= maskSample.g;
         outSurfaceData.clearCoatMask *= maskSample.g;
     #endif
 }

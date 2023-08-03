@@ -83,6 +83,7 @@ Shader "Lux URP/Water"
 
         Pass
         {
+            Name "ForwardLit"
             Tags {"LightMode" = "UniversalForward"}
 //          Blend SrcAlpha OneMinusSrcAlpha
             Blend One [_DstBlend]
@@ -91,9 +92,6 @@ Shader "Lux URP/Water"
             ZWrite [_ZWrite]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
@@ -110,28 +108,36 @@ Shader "Lux URP/Water"
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
-            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            //#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            //#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
+
 
             #define _SPECULAR_SETUP 1
             #define _NORMALMAP 1
@@ -149,7 +155,7 @@ Shader "Lux URP/Water"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
-            struct VertexInput
+            struct Attributes
             {
                 float4 positionOS               : POSITION;
                 float3 normalOS                 : NORMAL;
@@ -158,15 +164,21 @@ Shader "Lux URP/Water"
                 #ifdef LIGHTMAP_ON
                     float2 staticLightmapUV     : TEXCOORD1;
                 #endif
+                #ifdef DYNAMICLIGHTMAP_ON
+                    float2  dynamicLightmapUV   : TEXCOORD2;
+                #endif
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct VertexOutput
+            struct Varyings
             {
                 float4 positionCS : SV_POSITION;
                 float4 uv : TEXCOORD0;                          // xy textccord, zw water
 
                 DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 1);
+                #ifdef DYNAMICLIGHTMAP_ON
+                    float2  dynamicLightmapUV   : TEXCOORD8; // Dynamic lightmap UVs
+                #endif
 
                 float3 positionWS               : TEXCOORD2;
                 
@@ -223,17 +235,22 @@ Shader "Lux URP/Water"
                 //SAMPLER(sampler_PointClamp); // Using Load means no sampling or filtering anyway
             #endif
             TEXTURE2D_X(_CameraOpaqueTexture);
-            SAMPLER(sampler_LinearClamp);
-            SAMPLER(sampler_PointClamp);
+            
+        //  Not needed since URP 14.0.6    
+            //SAMPLER(sampler_LinearClamp);
+            //SAMPLER(sampler_PointClamp);
+            
             float4 _CameraDepthTexture_TexelSize;
             float4 _CameraOpaqueTexture_TexelSize;
             float4 _CameraOpaqueTexture_ST;
 
-            TEXTURE2D(_FoamMap); SAMPLER(sampler_FoamMap); float4 _FoamMap_TexelSize;
+            TEXTURE2D(_FoamMap);
+            SAMPLER(sampler_FoamMap);
+            float4 _FoamMap_TexelSize;
    
-            VertexOutput vert (VertexInput input)
+            Varyings vert (Attributes input)
             {
-                VertexOutput output = (VertexOutput)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
                 //UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -265,6 +282,10 @@ Shader "Lux URP/Water"
                 half3 vertexLight = VertexLighting(output.positionWS, output.normalWS.xyz);
 
                 OUTPUT_LIGHTMAP_UV(input.staticLightmapUV, unity_LightmapST, output.staticLightmapUV);
+                #ifdef DYNAMICLIGHTMAP_ON
+                    output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+                #endif
+                
                 OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
                 output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 
@@ -303,7 +324,13 @@ Shader "Lux URP/Water"
             }
 
 
-            half4 frag (VertexOutput input) : SV_Target
+            void frag(
+                Varyings input
+                , out half4 outColor : SV_Target0
+            #ifdef _WRITE_RENDERING_LAYERS
+                , out float4 outRenderingLayers : SV_Target1
+            #endif
+            )
             {
                 //UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
@@ -387,7 +414,7 @@ Shader "Lux URP/Water"
                 #if defined(SHADER_API_GLES)
                     float refractedSceneDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV + offset, 0);
                 #else
-                    float refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * saturate(screenUV + offset) * 0.9999f ).x;
+                    float refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * saturate(screenUV + offset) * 0.9999f ).x;
                     //float refractedSceneDepth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_PointClamp, saturate(screenUV + offset)).x;
                 #endif
                 refractedSceneDepth = GetProperEyeDepth(refractedSceneDepth);
@@ -400,7 +427,7 @@ Shader "Lux URP/Water"
                     #if defined(SHADER_API_GLES)
                         refractedSceneDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, offset, 0);   
                     #else
-                        refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, (_CameraDepthTexture_TexelSize.zw * saturate(offset) * 0.9999f  )).x;
+                        refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, (_ScaledScreenParams.xy * saturate(offset) * 0.9999f  )).x;
                         //refractedSceneDepth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_PointClamp, saturate(offset)).x;
                     #endif
                     refractedSceneDepth = GetProperEyeDepth(refractedSceneDepth);
@@ -429,7 +456,7 @@ Shader "Lux URP/Water"
                     #if defined(SHADER_API_GLES)
                         refractedSceneDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV, 0);
                     #else
-                        refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * screenUV).x;
+                        refractedSceneDepth = LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * screenUV).x;
                     #endif
                     refractedSceneDepth = GetProperEyeDepth(refractedSceneDepth);
                     viewDepth = refractedSceneDepth - surfaceEyeDepth;
@@ -453,9 +480,10 @@ Shader "Lux URP/Water"
 
 
             //  ////////////    
-            //  Transfer all to world space and prepare inputData (for convenience)
+            //  Transfer all to world space and prepare inputData (for convenience? no needed for forward+)
                 InputData inputData = (InputData)0;
                 inputData.positionWS = input.positionWS;
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
 
                 #ifdef _NORMALMAP
                     inputData.normalWS = normalWS;
@@ -465,23 +493,22 @@ Shader "Lux URP/Water"
                     inputData.viewDirectionWS = SafeNormalize(input.viewDirWS);
                 #endif
 
-//  Refract shadows / * input.positionCS.w because unity will divide                
-/*
-#if defined(_MAIN_LIGHT_SHADOWS)
-    #if SHADOWS_SCREEN
-    
-        #if defined(_REFRACTION)
-            inputData.shadowCoord = float4(offset * input.positionCS.w, input.shadowCoord.zw);
-        #else
-            inputData.shadowCoord = float4(screenUV * input.positionCS.w, input.shadowCoord.zw);
-        #endif
-    #else
-        inputData.shadowCoord = input.shadowCoord;
-    #endif
-#else
-    inputData.shadowCoord = float4(0, 0, 0, 0);
-#endif
-*/
+                //  Refract shadows / * input.positionCS.w because unity will divide                
+                // #if defined(_MAIN_LIGHT_SHADOWS)
+                //     #if SHADOWS_SCREEN
+                    
+                //         #if defined(_REFRACTION)
+                //             inputData.shadowCoord = float4(offset * input.positionCS.w, input.shadowCoord.zw);
+                //         #else
+                //             inputData.shadowCoord = float4(screenUV * input.positionCS.w, input.shadowCoord.zw);
+                //         #endif
+                //     #else
+                //         inputData.shadowCoord = input.shadowCoord;
+                //     #endif
+                // #else
+                //     inputData.shadowCoord = float4(0, 0, 0, 0);
+                // #endif
+
   
             //  No refracted shadows any more...
                 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
@@ -509,7 +536,12 @@ Shader "Lux URP/Water"
 
                 inputData.fogCoord = input.fogFactorAndVertexLight.x;
                 inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
-                inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+                
+                #if defined(DYNAMICLIGHTMAP_ON)
+                    inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
+                #else
+                    inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
+                #endif
 
                 inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
 
@@ -542,78 +574,144 @@ Shader "Lux URP/Water"
                 AmbientOcclusionFactor aoFactor;
                 aoFactor.directAmbientOcclusion = 1;
                 aoFactor.indirectAmbientOcclusion = 1;
-                uint meshRenderingLayers = GetMeshRenderingLightLayer();
+                
+                uint meshRenderingLayers = GetMeshRenderingLayer();
 
-            //  Get light
-                //Light mainLight = GetMainLight(inputData.shadowCoord);
-                //Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, shadowMask);
+            //  Get main light
                 Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 
-                half3 lightColorAndAttenuation = mainLight.color * (mainLight.distanceAttenuation * mainLight.shadowAttenuation);
+                //MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
+                MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
 
-half3 shad =  lightColorAndAttenuation;               
 
-                MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
-
-                #ifdef _ADDITIONAL_LIGHTS
-                    uint pixelLightCount = GetAdditionalLightsCount();
-                #endif
-
-                half NdotL = saturate(dot( inputData.normalWS, mainLight.direction));
-                half3 VertexAndGILighting = input.fogFactorAndVertexLight.yzw + inputData.bakedGI;
-
-            //  Diffuse underwater lighting
-                //half diffuse_nl = saturate(dot(half3(0,1,0), mainLight.direction));
-            //  Add something fom the geo normal
-                half diffuse_nl = saturate(dot( lerp(input.normalWS.xyz, half3(0,1,0), _DiffuseNormalUp.xxx), mainLight.direction));
-                half3 diffuseUnderwaterLighting = _Color.rgb * (lightColorAndAttenuation * diffuse_nl + VertexAndGILighting);
-            //  Deprecated
-            //  Shadows are sampled at the bottom surface. So we attenuate them by underwaterFogDensity. Just a hack but it looks better than not doing anything here.
-                // half3 diffuseUnderwaterLighting = _Color.rgb * (VertexAndGILighting + (diffuse_nl * 
-                //     mainLight.color * mainLight.distanceAttenuation * 
-                //     lerp( mainLight.shadowAttenuation, 1 , underwaterFogDensity )
-                //     )
-                // );
-
-            //  Add foam
-                #if defined(_FOAM)
-                    half3 foamLighting = rawFoamSample.rgb * (lightColorAndAttenuation * NdotL + VertexAndGILighting);
-                #endif
-
-            //  Specular Lighting
+            //  Prepare variables
+                half3 diffuseUnderwaterLighting = 0;
                 half3 specularLighting = 0;
-                #if !defined(_SPECULARHIGHLIGHTS_OFF)
-
-                    float3 lightDirectionWSFloat3 = float3(mainLight.direction);
-                    float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(inputData.viewDirectionWS));
-
-                    float NoH = saturate(dot(float3(inputData.normalWS), halfDir));
-                    half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
-                    
-                    float d = NoH * NoH * float(roughness2 - 1.h) + 1.0001f;
-                    half d2 = half(d * d);
-
-                    half LoH2 = LoH * LoH;
-                    half specularTerm = roughness2 / (d2 * max(0.1h, LoH2) * normalizationTerm );
-                    #if defined (SHADER_API_MOBILE)
-                        specularTerm = specularTerm - HALF_MIN;
-                        specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
-                    #endif
-                    specularLighting = specularTerm * specular * lightColorAndAttenuation;
-                    specularLighting *= NdotL;
+                #if defined(_FOAM)
+                    half3 foamLighting = 0;
                 #endif
+
+            //  GI and Vertex
+                half3 VertexAndGILighting = input.fogFactorAndVertexLight.yzw + inputData.bakedGI;
+                diffuseUnderwaterLighting += _Color.rgb * VertexAndGILighting;
+                #if defined(_FOAM)
+                    foamLighting += rawFoamSample.rgb * VertexAndGILighting;
+                #endif
+
                 
+            #ifdef _LIGHT_LAYERS
+                if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+            #endif
+                {
+                    half3 lightColorAndAttenuation = mainLight.color * (mainLight.distanceAttenuation * mainLight.shadowAttenuation);
+                    half NdotL = saturate(dot( inputData.normalWS, mainLight.direction));
+
+                //  Diffuse underwater lighting
+                    //half diffuse_nl = saturate(dot(half3(0,1,0), mainLight.direction));
+                //  Add something fom the geo normal
+                    half diffuse_nl = saturate(dot( lerp(input.normalWS.xyz, half3(0,1,0), _DiffuseNormalUp.xxx), mainLight.direction));
+                    diffuseUnderwaterLighting += _Color.rgb * (lightColorAndAttenuation * diffuse_nl);
+                //  Deprecated
+                //  Shadows are sampled at the bottom surface. So we attenuate them by underwaterFogDensity. Just a hack but it looks better than not doing anything here.
+                    // half3 diffuseUnderwaterLighting = _Color.rgb * (VertexAndGILighting + (diffuse_nl * 
+                    //     mainLight.color * mainLight.distanceAttenuation * 
+                    //     lerp( mainLight.shadowAttenuation, 1 , underwaterFogDensity )
+                    //     )
+                    // );
+
+                //  Add foam
+                    #if defined(_FOAM)
+                        foamLighting += rawFoamSample.rgb * (lightColorAndAttenuation * NdotL);
+                    #endif
+
+                //  Specular Lighting
+                    #if !defined(_SPECULARHIGHLIGHTS_OFF)
+
+                        float3 lightDirectionWSFloat3 = float3(mainLight.direction);
+                        float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(inputData.viewDirectionWS));
+
+                        float NoH = saturate(dot(float3(inputData.normalWS), halfDir));
+                        half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
+                        
+                        float d = NoH * NoH * float(roughness2 - 1.h) + 1.0001f;
+                        //half d2 = half(d * d);
+
+                        half LoH2 = LoH * LoH;
+                        //half specularTerm = roughness2 / (d2 * max(0.1h, LoH2) * normalizationTerm );
+                        half specularTerm = roughness2 / ((d * d) * max(0.1h, LoH2) * normalizationTerm);
+                        #if REAL_IS_HALF
+                            specularTerm = specularTerm - HALF_MIN;
+                            specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+                        #endif
+                        specularLighting = specularTerm * specular * lightColorAndAttenuation;
+                        specularLighting *= NdotL;
+                    #endif
+                }
+
+
                 #ifdef _ADDITIONAL_LIGHTS
+                    
+                    uint pixelLightCount = GetAdditionalLightsCount();
+
+                    #if USE_FORWARD_PLUS
+
+                //  Handles only additional directional lights, so distanceAttenuation could be dropped...
+
+                        for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+                        {
+                            FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+
+                            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+                        #ifdef _LIGHT_LAYERS
+                            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                        #endif
+                            {
+                                half NdotL = saturate(dot(inputData.normalWS, light.direction));
+                                half diffuse_nl = saturate(dot(half3(0,1,0), light.direction));
+                                
+                                half3 addLightColorAndAttenuation = light.color * light.distanceAttenuation * light.shadowAttenuation;
+                                
+                                diffuseUnderwaterLighting += _Color.rgb * addLightColorAndAttenuation * diffuse_nl;
+                                #if defined(_FOAM)
+                                    foamLighting += rawFoamSample.rgb * addLightColorAndAttenuation * NdotL;
+                                #endif
+
+                                #if !defined(_SPECULARHIGHLIGHTS_OFF)
+
+                                    float3 lightDirectionWSFloat3 = float3(light.direction);
+                                    float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(inputData.viewDirectionWS));
+
+                                    float NoH = saturate(dot(float3(inputData.normalWS), halfDir));
+                                    half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
+
+                                    float d = NoH * NoH * float(roughness2 - 1.h) + 1.0001f;
+                                    //half d2 = half(d * d);
+
+                                    half LoH2 = LoH * LoH;
+                                    //specularTerm = roughness2 / (d2 * max(0.1h, LoH2) * normalizationTerm );
+                                    half specularTerm = roughness2 / ((d * d) * max(0.1h, LoH2) * normalizationTerm);
+                                    #if REAL_IS_HALF
+                                        specularTerm = specularTerm - HALF_MIN;
+                                        specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+                                    #endif
+                                    specularLighting += specularTerm * specular * addLightColorAndAttenuation;
+                                #endif
+                            }
+                        }
+
+                    #endif
+
+
                     LIGHT_LOOP_BEGIN(pixelLightCount) 
-                        //Light light = GetAdditionalLight(lightIndex, inputData.positionWS);
                         Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
 
                     #if defined(_LIGHT_LAYERS)
                         if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
-                        {
                     #endif
-                            NdotL = saturate(dot(inputData.normalWS, light.direction));
-                            diffuse_nl = saturate(dot(half3(0,1,0), light.direction));
+                        {
+                            half NdotL = saturate(dot(inputData.normalWS, light.direction));
+                            half diffuse_nl = saturate(dot(half3(0,1,0), light.direction));
                             
                             half3 addLightColorAndAttenuation = light.color * light.distanceAttenuation * light.shadowAttenuation;
                             
@@ -624,27 +722,28 @@ half3 shad =  lightColorAndAttenuation;
 
                             #if !defined(_SPECULARHIGHLIGHTS_OFF)
 
-                                lightDirectionWSFloat3 = float3(light.direction);
-                                halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(inputData.viewDirectionWS));
+                                float3 lightDirectionWSFloat3 = float3(light.direction);
+                                float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(inputData.viewDirectionWS));
 
-                                NoH = saturate(dot(float3(inputData.normalWS), halfDir));
-                                LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
+                                float NoH = saturate(dot(float3(inputData.normalWS), halfDir));
+                                half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
 
-                                d = NoH * NoH * float(roughness2 - 1.h) + 1.0001f;
-                                half d2 = half(d * d);
+                                float d = NoH * NoH * float(roughness2 - 1.h) + 1.0001f;
+                                //half d2 = half(d * d);
 
-                                LoH2 = LoH * LoH;
-                                specularTerm = roughness2 / (d2 * max(0.1h, LoH2) * normalizationTerm );
-                                #if defined (SHADER_API_MOBILE)
+                                half LoH2 = LoH * LoH;
+                                //half specularTerm = roughness2 / (d2 * max(0.1h, LoH2) * normalizationTerm );
+                                half specularTerm = roughness2 / ((d * d) * max(0.1h, LoH2) * normalizationTerm);
+                                #if REAL_IS_HALF
                                     specularTerm = specularTerm - HALF_MIN;
                                     specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
                                 #endif
                                 specularLighting += specularTerm * specular * addLightColorAndAttenuation;
                             #endif
-                    #if defined(_LIGHT_LAYERS)
                         }
-                    #endif
+
                     LIGHT_LOOP_END
+                
                 #endif
 
             //  Fog - diffuseUnderwaterLighting
@@ -676,8 +775,7 @@ half3 shad =  lightColorAndAttenuation;
                     half3 reflectionVector = reflect(-inputData.viewDirectionWS, reflectionNormal);
                     half fresnelTerm = Pow4(1.0 - saturate(dot(inputData.normalWS, inputData.viewDirectionWS)));
                     
-                    //half3 reflections = GlossyEnvironmentReflection(reflectionVector, perceptualRoughness, occlusion);
-                    half3 reflections = GlossyEnvironmentReflection(reflectionVector, inputData.positionWS, perceptualRoughness, occlusion);
+                    half3 reflections = GlossyEnvironmentReflection(reflectionVector, inputData.positionWS, perceptualRoughness, occlusion, inputData.normalizedScreenSpaceUV);
                     
                     float surfaceReduction = 1.0 / (roughness2 + 1.0);
                     half grazingTerm = saturate(smoothness + reflectivity);
@@ -732,7 +830,12 @@ half3 shad =  lightColorAndAttenuation;
 //color.rgb = surfaceEyeDepth;
 //color.rgb = viewDepth;
 
-                return color;
+                outColor = color;
+
+                #ifdef _WRITE_RENDERING_LAYERS
+                    uint renderingLayers = GetMeshRenderingLayer();
+                    outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+                #endif
             }
             ENDHLSL
         }

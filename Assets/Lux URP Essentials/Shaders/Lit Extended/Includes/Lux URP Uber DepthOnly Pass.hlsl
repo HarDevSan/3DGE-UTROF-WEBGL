@@ -16,6 +16,10 @@
 //#define REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR
 //#endif
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
     float4 positionOS       : POSITION;
@@ -80,8 +84,11 @@ half4 DepthOnlyFragment(Varyings input, half facing : VFACE) : SV_TARGET
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
 //  LOD crossfading
-    #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-        clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+    // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
+    //     clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+    // #endif
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
     #endif
 
     #if defined(_ALPHATEST_ON)
@@ -112,5 +119,5 @@ half4 DepthOnlyFragment(Varyings input, half facing : VFACE) : SV_TARGET
         clip (alpha - _Cutoff);
     #endif
 
-    return 0;
+    return input.positionCS.z;
 }

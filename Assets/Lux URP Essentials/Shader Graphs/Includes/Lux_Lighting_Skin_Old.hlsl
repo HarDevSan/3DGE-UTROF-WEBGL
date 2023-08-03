@@ -237,7 +237,7 @@ void Lighting_half(
 
         half4 shadowMask = CalculateShadowMask(inputData);
         AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        uint meshRenderingLayers = GetMeshRenderingLayer();
 
         Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
         half3 mainLightColor = mainLight.color;

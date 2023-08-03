@@ -55,19 +55,21 @@ Shader "Lux URP/Transmission"
         _MaskMap                    ("     Mask (R) Thickness (G) Occlusion (B) Smoothness (A)", 2D) = "white" {}
         _Occlusion                  ("     Occlusion", Range(0.0, 1.0)) = 1
 
-
-
         [Header(Transmission)]
         [Space(8)]
         _TranslucencyPower          ("Power", Range(0.0, 32.0)) = 7.0
-        _TranslucencyStrength       ("Strength", Range(0.0, 1.0)) = 1.0
+        _TranslucencyStrength       ("Strength", Range(0.0, 4.0)) = 1.0
         _ShadowStrength             ("Shadow Strength", Range(0.0, 1.0)) = 0.7
         _MaskByShadowStrength       ("Mask by incoming Shadow Strength", Range(0.0, 1.0)) = 0.0
         _Distortion                 ("Distortion", Range(0.0, 0.1)) = 0.01
 
         [Space(8)]
-        _CustomWrap                 ("Wrapped Lighting", Range(0.0, 1.0)) = 0.4
+        [Toggle]
+        _OverrideTransmission       ("Override Transmission Color", Float) = 0
+        _TransmissionColor          ("     Custom Transmission Color", Color) = (0.73,0.85,0.41,1)
 
+        [Space(8)]
+        _CustomWrap                 ("Wrapped Lighting", Range(0.0, 1.0)) = 0.4
 
         [Header(Rim Lighting)]
         [Space(8)]
@@ -78,7 +80,6 @@ Shader "Lux URP/Transmission"
         _RimFrequency               ("Rim Frequency", Float) = 0
         _RimMinPower                ("     Rim Min Power", Float) = 1
         _RimPerPositionFrequency    ("     Rim Per Position Frequency", Range(0.0, 1.0)) = 1
-
 
         [Header(Stencil)]
         [Space(8)]
@@ -94,7 +95,6 @@ Shader "Lux URP/Transmission"
         [Enum(UnityEngine.Rendering.StencilOp)] 
         _StencilZFail               ("Stencil ZFail Op", Int) = 0       // 0 = keep
 
-
         [Header(Advanced)]
         [Space(8)]
         [ToggleOff]
@@ -103,7 +103,6 @@ Shader "Lux URP/Transmission"
         _EnvironmentReflections     ("Environment Reflections", Float) = 1.0
         [Space(8)]
 
-
         [Header(Render Queue)]
         [Space(8)]
         [IntRange] _QueueOffset     ("Queue Offset", Range(-50, 50)) = 0
@@ -111,6 +110,8 @@ Shader "Lux URP/Transmission"
     //  Lightmapper and outline selection shader need _MainTex, _Color and _Cutoff
         [HideInInspector] _MainTex  ("Albedo", 2D) = "white" {}
         [HideInInspector] _Color    ("Color", Color) = (1,1,1,1)
+
+        [HideInInspector] _Surface("__surface", Float) = 0.0
     }
 
     SubShader
@@ -172,23 +173,25 @@ Shader "Lux URP/Transmission"
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
-            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -196,6 +199,14 @@ Shader "Lux URP/Transmission"
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Transmission Inputs.hlsl"
@@ -230,6 +241,11 @@ Shader "Lux URP/Transmission"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             // -------------------------------------
             // Universal Pipeline keywords
@@ -277,6 +293,7 @@ Shader "Lux URP/Transmission"
             // Unity defined keywords
             //#pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
 
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
         //  Not per fragment as we use it to kill triangles in the vertex shader
             #pragma multi_compile _ _GBUFFER_NORMALS_OCT
 
@@ -284,7 +301,14 @@ Shader "Lux URP/Transmission"
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
-            //#pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif
 
         //  As we do not store the alpha mask with the base map we have to use custom functions 
             #pragma vertex LitGBufferPassVertex
@@ -292,6 +316,10 @@ Shader "Lux URP/Transmission"
 
             #include "Includes/Lux URP Transmission Inputs.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
+
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
         //  Material Inputs
         //  We include LitInput.hlsl - so no cbuffer definition here
@@ -350,6 +378,10 @@ Shader "Lux URP/Transmission"
             {
                 //UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
                 
                 #if defined(_ALPHATEST_ON)
                     half mask = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
@@ -381,7 +413,7 @@ Shader "Lux URP/Transmission"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull[_Cull]
 
             HLSLPROGRAM
@@ -395,9 +427,22 @@ Shader "Lux URP/Transmission"
             // Material Keywords
             #pragma shader_feature _ALPHATEST_ON
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif           
             
             #define DEPTHONLYPASS
             #include "Includes/Lux URP Transmission Inputs.hlsl"
@@ -429,9 +474,21 @@ Shader "Lux URP/Transmission"
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+
+// Property 'unity_LODFade' shares the same constant buffer offset with 'unity_RenderingLayer'. Ignoring.
+#ifdef LOD_FADE_CROSSFADE
+    #ifdef INSTANCING_ON 
+        #undef INSTANCING_ON
+    #endif 
+#endif
             
             #include "Includes/Lux URP Transmission Inputs.hlsl"
             #include "Includes/Lux URP Transmission DepthNormal Pass.hlsl"
@@ -519,8 +576,6 @@ Shader "Lux URP/Transmission"
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
@@ -529,12 +584,15 @@ Shader "Lux URP/Transmission"
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -542,6 +600,8 @@ Shader "Lux URP/Transmission"
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Transmission Inputs.hlsl"
@@ -576,10 +636,16 @@ Shader "Lux URP/Transmission"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -597,7 +663,7 @@ Shader "Lux URP/Transmission"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull[_Cull]
 
             HLSLPROGRAM
@@ -611,9 +677,15 @@ Shader "Lux URP/Transmission"
             // Material Keywords
             #pragma shader_feature _ALPHATEST_ON
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #define DEPTHONLYPASS
             #include "Includes/Lux URP Transmission Inputs.hlsl"
@@ -645,9 +717,15 @@ Shader "Lux URP/Transmission"
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #include "Includes/Lux URP Transmission Inputs.hlsl"
             #include "Includes/Lux URP Transmission DepthNormal Pass.hlsl"

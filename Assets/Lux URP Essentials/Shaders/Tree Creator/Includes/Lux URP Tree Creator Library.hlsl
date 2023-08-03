@@ -57,6 +57,19 @@ float4 SmoothTriangleWave( float4 x ) {
     return SmoothCurve( TriangleWave( x ) );
 }
 
+half2 SmoothCurve( half2 x ) {   
+    return x * x *( 3.0h - 2.0h * x );   
+}
+half2 TriangleWave( half2 x ) {   
+    return abs( frac( x + 0.5h ) * 2.0h - 1.0h );   
+}
+half2 SmoothTriangleWave( half2 x ) {   
+    return SmoothCurve( TriangleWave( x ) );   
+}
+
+float4 _LuxURPWindDirSize;
+float4 _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency;
+
 // Detail bending
 inline float3 AnimateVertex(float3 pos, float3 normal, float4 animParams)
 {
@@ -66,31 +79,61 @@ inline float3 AnimateVertex(float3 pos, float3 normal, float4 animParams)
     // animParams.z = primary factor
     // animParams.w = secondary factor
 
+    float mainWindAnim = 1;
+    float branchWindAnim = 1;
+
 //  Fade in Wind
-    float4 wind = UNITY_ACCESS_INSTANCED_PROP(Props, _Wind) * UNITY_ACCESS_INSTANCED_PROP(Props, _SquashAmount);
+    float4 wind;
+
+    #if defined(_WINDFROMSCRIPT)
+        wind.xyz = TransformWorldToObjectDir(_LuxURPWindDirSize.xyz);
+    //  In case we have no Wind Prefab foliage will vanish otherwise.
+        wind.xyz = clamp(wind.xyz, -1, 1);
+        wind.xyz *= _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.x;
+        wind.w = _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.y;
+
+    //  Animate incoming wind
+        float3 objectWorldPos = UNITY_MATRIX_M._m03_m13_m23;
+        float3 absObjectWorldPos = abs(objectWorldPos.xyz * 0.125h);
+        half sinuswave = _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.w;
+        half2 vOscillations = SmoothTriangleWave( half2(absObjectWorldPos.x + sinuswave, absObjectWorldPos.z + sinuswave * 0.7h) );
+        // x used for main wind bending / y used for tumbling
+
+    //  To make it better match we simplify the calculation
+        float2 fOsc = (vOscillations.xy + vOscillations.yy) * 0.5;
+
+        mainWindAnim += fOsc.x * _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.z;
+        branchWindAnim += fOsc.y * _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency.z;
+    #else
+        wind = UNITY_ACCESS_INSTANCED_PROP(Props, _Wind) * UNITY_ACCESS_INSTANCED_PROP(Props, _SquashAmount);
+    #endif
+
+// /////////////////////////
 
     float origLength = length(pos);
 
     float fDetailAmp = 0.1f;
     float fBranchAmp = 0.3f;
+    
     // Phases (object, vertex, branch)
-    float fObjPhase = dot(UNITY_MATRIX_M._m03_m13_m23, 1); //dot(unity_ObjectToWorld._14_24_34, 1);
+    float fObjPhase = dot(UNITY_MATRIX_M._m03_m13_m23, 1);
     float fBranchPhase = fObjPhase + animParams.x;
     float fVtxPhase = dot(pos.xyz, animParams.y + fBranchPhase);
 
     // x is used for edges; y is used for branches
     float2 vWavesIn = _Time.yy + float2(fVtxPhase, fBranchPhase );
     // 1.975, 0.793, 0.375, 0.193 are good frequencies
-    float4 vWaves = (frac( vWavesIn.xxyy * float4(1.975, 0.793, 0.375, 0.193) ) * 2.0 - 1.0);
+    half4 vWaves = (frac( vWavesIn.xxyy * float4(1.975, 0.793, 0.375, 0.193) ) * 2.0 - 1.0); // changed to float (android issues)
     vWaves = SmoothTriangleWave( vWaves );
-    float2 vWavesSum = vWaves.xz + vWaves.yw;
+    half2 vWavesSum = vWaves.xz + vWaves.yw;
+    
     // Edge (xz) and branch bending (y)
     float3 bend = animParams.y * fDetailAmp *       abs(normal.xyz);
     bend.y = animParams.w * fBranchAmp;
-    pos.xyz += ((vWavesSum.xyx * bend) + (wind.xyz * vWavesSum.y * animParams.w)) * wind.w;
+    pos.xyz += ((vWavesSum.xyx * bend) + (wind.xyz * vWavesSum.y * animParams.w)) * wind.w          * branchWindAnim;
+    
     // Primary bending
-
-    pos.xyz += animParams.z * wind.xyz;
+    pos.xyz += animParams.z * wind.xyz                                                              * mainWindAnim;
 
     pos = normalize(pos) * origLength;
 

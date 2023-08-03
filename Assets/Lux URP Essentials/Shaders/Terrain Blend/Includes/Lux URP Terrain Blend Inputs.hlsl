@@ -40,6 +40,10 @@
         float4  _BaseMap_ST;
         half    _Smoothness;
         half4   _SpecColor;
+
+        half    _RenderInDeferred;
+        float   _BlendThresholdVertex;
+        float   _BlendThresholdPixel;
         //half    _OcclusionStrength;
         
     CBUFFER_END

@@ -8,7 +8,7 @@
 #endif
 
 
-#if !defined(SHADERGRAPH_PREVIEW) || defined(LIGHTWEIGHT_LIGHTING_INCLUDED)
+#if !defined(SHADERGRAPH_PREVIEW) || defined(UNIVERSAL_LIGHTING_INCLUDED)
 
 //  As we do not have access to the vertex lights we will make the shader always sample add lights per pixel
     #if defined(_ADDITIONAL_LIGHTS_VERTEX)
@@ -16,7 +16,7 @@
         #define _ADDITIONAL_LIGHTS
     #endif
 
-    #if defined(LIGHTWEIGHT_LIGHTING_INCLUDED) || defined(UNIVERSAL_LIGHTING_INCLUDED)
+    #if defined(UNIVERSAL_LIGHTING_INCLUDED)
 
         struct AdditionalData {
             half coatThickness;
@@ -45,13 +45,12 @@
         //  Base Lobe
             float NoH = saturate(dot(float3(normalWS), halfDir));
             float d = NoH * NoH * brdfData.roughness2MinusOne + 1.00001f;
-            half d2 = half(d * d);
-
-            half LoH2 = LoH * LoH;
-            LoH2 = max(0.1h, LoH2); // as we can reuse it
-            half specularTerm = brdfData.roughness2 / (d2 * max(half(0.1), LoH2) * brdfData.normalizationTerm);
+        //  URP 15 removes that change
+            //half d2 = half(d * d);
+            half LoH2 = max(0.1h, LoH * LoH);
+            half specularTerm = brdfData.roughness2 / ((d * d) * LoH2 * brdfData.normalizationTerm);
         
-            #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+            #if REAL_IS_HALF
                 specularTerm = specularTerm - HALF_MIN;
                 specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
             #endif
@@ -59,20 +58,24 @@
             half3 spec = specularTerm * brdfData.specular * NdotL;
 
         //  Coat Lobe
-        //  From HDRP: Scale base specular
-            half coatF = F_Schlick(addData.reflectivity /*addData.coatSpecular*/ /*CLEAR_COAT_F0*/, LoH) * addData.coatThickness;
-            spec *= Sq(1.0h - coatF);
-            //spec *= (1.0h - coatF); // as used by filament, na, not really
-            NoH = saturate(dot(float3(addData.normalWS), halfDir));
-            d = NoH * NoH * addData.roughness2MinusOne + 1.00001f;
-            d2 = half(d * d);
-            //LoH2 = LoH * LoH; no need to recalculate LoH2!
-            specularTerm = addData.roughness2 / (d2 * max(half(0.1), LoH2) * addData.normalizationTerm);
-            #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
-                specularTerm = specularTerm - HALF_MIN;
-                specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
-            #endif
-            spec += specularTerm * addData.coatSpecular * saturate(dot(addData.normalWS, lightDirectionWS));
+            [branch]
+            if (addData.coatThickness > 0.0h) {
+            //  From HDRP: Scale base specular
+                half coatF = F_Schlick(addData.reflectivity /*addData.coatSpecular*/ /*CLEAR_COAT_F0*/, LoH) * addData.coatThickness;
+                spec *= Sq(1.0h - coatF);
+                //spec *= (1.0h - coatF); // as used by filament, na, not really
+                NoH = saturate(dot(float3(addData.normalWS), halfDir));
+                d = NoH * NoH * addData.roughness2MinusOne + 1.00001f;
+                specularTerm = addData.roughness2 / ((d * d) * LoH2 * addData.normalizationTerm);
+                
+                #if REAL_IS_HALF
+                    specularTerm = specularTerm - HALF_MIN;
+                    specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+                #endif
+                
+                spec += specularTerm * addData.coatSpecular * saturate(dot(addData.normalWS, lightDirectionWS));
+            }
+                
             half3 color = spec + brdfData.diffuse * NdotL; // from HDRP (but does not do much?) * lerp(1.0h, 1.0h - coatF, addData.coatThickness);
             return color;
         #else
@@ -101,29 +104,35 @@
         }
 
 
-        half3 GlobalIllumination_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 bakedGI, half occlusion, float3 positionWS, half3 normalWS, half3 baseNormalWS, half3 viewDirectionWS, half NdotV)
+        half3 GlobalIllumination_LuxClearCoat(BRDFData brdfData, AdditionalData addData, half3 bakedGI, half occlusion, float3 positionWS, float2 normalizedScreenSpaceUV,
+            half3 normalWS, half3 baseNormalWS, half3 viewDirectionWS, half NdotV
+        )
         {
             half3 reflectVector = reflect(-viewDirectionWS, normalWS);
             half fresnelTerm = Pow4(1.0 - NdotV);
 
             half3 indirectDiffuse = bakedGI * occlusion; 
-            half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, addData.perceptualRoughness, addData.specOcclusion);
+            half3 indirectSpecular = (addData.coatThickness == 0.0h) ? 0.0h : GlossyEnvironmentReflection(
+                reflectVector, positionWS, addData.perceptualRoughness, addData.specOcclusion, normalizedScreenSpaceUV
+            );
 
             half3 res = EnvironmentBRDF_LuxClearCoat(brdfData, addData, indirectDiffuse, indirectSpecular, fresnelTerm);
 
-            #if defined(_SECONDARYLOBE)
-                #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
-                    [branch]
-                    if (addData.coatThickness > 0.0h) {
-                #endif
-                        reflectVector = reflect(-viewDirectionWS, baseNormalWS);
-                        indirectSpecular = GlossyEnvironmentReflection(reflectVector, positionWS, brdfData.perceptualRoughness, occlusion);
-                        float surfaceReduction = 1.0 / (brdfData.roughness2 + 1.0);
-                        res += NdotV * surfaceReduction * indirectSpecular * lerp(brdfData.specular, brdfData.grazingTerm, fresnelTerm);
-                #if defined (_MASKMAP) && defined(_STANDARDLIGHTING)
-                    }
-                #endif
-            #endif
+        //  Should be stripped by the compiler as it is a constant boolean
+            if (addData.enableSecondaryLobe)
+            {
+                reflectVector = reflect(-viewDirectionWS, baseNormalWS);
+                indirectSpecular = GlossyEnvironmentReflection(
+                    reflectVector, positionWS, brdfData.perceptualRoughness, occlusion, normalizedScreenSpaceUV
+                );
+                float surfaceReduction = 1.0 / (brdfData.roughness2 + 1.0);
+            //  Recalculate NdotV and fresnel using the basenormal
+                NdotV = saturate( dot(baseNormalWS, viewDirectionWS) );
+                fresnelTerm = Pow4(1.0 - NdotV);
+            //  We use NdotV to reduce reflections from secondary lobe
+            //  Secondary lobe also takes occlusion into account!
+                res += occlusion * NdotV * surfaceReduction * indirectSpecular * lerp(brdfData.specular, brdfData.grazingTerm, fresnelTerm);
+            }
             return res;
         }
 
@@ -131,7 +140,7 @@
         {
             // Approximation of iorTof0(f0ToIor(f0), 1.5)
             // This assumes that the clear coat layer has an IOR of 1.5
-        #if defined(SHADER_API_MOBILE)
+        #if REAL_IS_HALF
             return saturate(f0 * (f0 * 0.526868h + 0.529324h) - 0.0482256h);
         #else
             return saturate(f0 * (f0 * (0.941892h - 0.263008h * f0) + 0.346479h) - 0.0285998h);
@@ -169,6 +178,7 @@ void Lighting_half(
     half clearcoatThickness,
     half3 clearcoatSpecular,
     
+    half3 baseColor,
     half3 secondaryColor,
 
     bool enableSecondaryColor,
@@ -228,7 +238,11 @@ void Lighting_half(
     half NdotV = saturate( dot(vertexNormalWS, viewDirectionWS) );
     #if !defined(LIGHTWEIGHT_META_PASS_INCLUDED) && !defined(UNIVERSAL_META_PASS_INCLUDED)
         if(enableSecondaryColor) {
-            albedo = lerp(secondaryColor, albedo, NdotV);
+            albedo *= lerp(secondaryColor, baseColor, NdotV);
+        }
+        else 
+        {
+            albedo *= baseColor; 
         }
     #endif
 
@@ -291,7 +305,7 @@ void Lighting_half(
 
         half4 shadowMask = CalculateShadowMask(inputData);
         AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        uint meshRenderingLayers = GetMeshRenderingLayer();
         
     //  Adjust specular as we have a transition from coat to material and not air to material
         brdfData.specular = lerp(brdfData.specular, f0ClearCoatToSurface_Lux(brdfData.specular), clearcoatThickness);
@@ -313,7 +327,6 @@ void Lighting_half(
         addData.enableSecondaryLobe = enableSecondaryLobe;
   
         
-
         Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 
         MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
@@ -324,31 +337,46 @@ void Lighting_half(
         brdfData.diffuse = lerp(brdfData.diffuse, brdfData.diffuse * refractionScale, clearcoatThickness);
 
     //  GI
-        lightingData.giColor = GlobalIllumination_LuxClearCoat(brdfData, addData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS, addData.normalWS, inputData.normalWS, inputData.viewDirectionWS, NdotV);
+        lightingData.giColor = GlobalIllumination_LuxClearCoat(
+            brdfData, addData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS, inputData.normalizedScreenSpaceUV,
+            addData.normalWS, inputData.normalWS, inputData.viewDirectionWS, NdotV
+        );
 
     //  Main Light
         #if defined(_LIGHT_LAYERS)
             if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+        #endif
             {
-        #endif
                 lightingData.mainLightColor = LightingPhysicallyBased_LuxClearCoat(brdfData, addData, mainLight, inputData.normalWS, inputData.viewDirectionWS); 
-        #if defined(_LIGHT_LAYERS)
             }
-        #endif
 
     //  Handle additional lights
         #ifdef _ADDITIONAL_LIGHTS
             uint pixelLightCount = GetAdditionalLightsCount();
+
+            #if USE_FORWARD_PLUS
+                for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+                {
+                    FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                    Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+                #ifdef _LIGHT_LAYERS
+                    if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                #endif
+                    {
+                        lightingData.additionalLightsColor += LightingPhysicallyBased_LuxClearCoat(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS);
+                    }
+                }
+            #endif
+
             LIGHT_LOOP_BEGIN(pixelLightCount)    
                     Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
                 #if defined(_LIGHT_LAYERS)
                     if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                #endif
                     {
-                #endif
                         lightingData.additionalLightsColor += LightingPhysicallyBased_LuxClearCoat(brdfData, addData, light, inputData.normalWS, inputData.viewDirectionWS);
-                #if defined(_LIGHT_LAYERS)
                     }
-                #endif
             LIGHT_LOOP_END
         #endif
 
@@ -408,6 +436,7 @@ void Lighting_float(
     half clearcoatThickness,
     half3 clearcoatSpecular,
 
+    half3 baseColor,
     half3 secondaryColor,
 
     bool enableSecondaryColor,
@@ -429,6 +458,6 @@ void Lighting_float(
     Lighting_half(
         positionWS, positionSP, viewDirectionWS, normalWS, tangentWS, bitangentWS, enableNormalMapping, normalTS, 
         albedo, metallic, specular, smoothness, occlusion, alpha,
-        clearcoatSmoothness, clearcoatThickness, clearcoatSpecular, secondaryColor, enableSecondaryColor, enableSecondaryLobe,
+        clearcoatSmoothness, clearcoatThickness, clearcoatSpecular, baseColor, secondaryColor, enableSecondaryColor, enableSecondaryLobe,
         lightMapUV, dynamicLightMapUV, MetaAlbedo, FinalLighting, MetaSpecular, MetaSmoothness, MetaOcclusion, MetaNormal);
 }

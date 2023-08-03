@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 struct Attributes
 {
@@ -42,11 +46,11 @@ struct Varyings {
 
     float4 positionCS                   : SV_POSITION;
 
-    #if defined(SHADER_STAGE_FRAGMENT)
-        FRONT_FACE_TYPE cullFace        : FRONT_FACE_SEMANTIC;
-    #endif
+    // #if defined(SHADER_STAGE_FRAGMENT)
+    //     FRONT_FACE_TYPE cullFace        : FRONT_FACE_SEMANTIC;
+    // #endif
 
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -60,7 +64,7 @@ Varyings LitPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput;
@@ -115,18 +119,18 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
     //half3 viewDirWS = SafeNormalize(input.viewDirWS);
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
     #if defined(_NORMALMAP)
-        //normalTS.z *= facing;
-        #if defined(SHADER_STAGE_FRAGMENT)
-            normalTS.z *= input.cullFace ? 1 : -1;
-        #endif
+        normalTS.z *= facing;
+        // #if defined(SHADER_STAGE_FRAGMENT)
+        //     normalTS.z *= input.cullFace ? 1 : -1;
+        // #endif
         float sgn = input.tangentWS.w;      // should be either +1 or -1
         float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
         inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz));
     #else
-        inputData.normalWS = input.normalWS; // * facing;
-        #if defined(SHADER_STAGE_FRAGMENT)
-            inputData.normalWS *= input.cullFace ? 1 : -1;
-        #endif
+        inputData.normalWS = input.normalWS * facing;
+        // #if defined(SHADER_STAGE_FRAGMENT)
+        //     inputData.normalWS *= input.cullFace ? 1 : -1;
+        // #endif
     #endif
 
     inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
@@ -166,20 +170,33 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
     #endif
 }
 
-half4 LitPassFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FACE_SEMANTIC) : SV_Target
+//half4 LitPassFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FACE_SEMANTIC) : SV_Target
+//half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
+//{
+void LitPassFragment(
+    Varyings input, half facing : VFACE
+    , out half4 outColor : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;
     AdditionalSurfaceData additionalSurfaceData;
     InitializeSurfaceData(input.uv, surfaceData, additionalSurfaceData);
 
-    half facing = 1;
-    #if defined(SHADER_STAGE_FRAGMENT)
-        input.cullFace = IS_FRONT_VFACE(frontFace, true, false);
-    #endif
+    // half facing = 1;
+    // #if defined(SHADER_STAGE_FRAGMENT)
+    //     input.cullFace = IS_FRONT_VFACE(frontFace, true, false);
+    // #endif
 
 //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
     InputData inputData;
@@ -229,5 +246,10 @@ half4 LitPassFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FACE_SEM
     );    
 //  Add fog
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
-    return color;
+    outColor = color;
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    #endif
 }

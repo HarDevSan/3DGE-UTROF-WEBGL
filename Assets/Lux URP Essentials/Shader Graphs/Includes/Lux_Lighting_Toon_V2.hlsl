@@ -279,7 +279,7 @@ void Lighting_half(
             aoFactor.indirectAmbientOcclusion = occlusion; 
         }
 
-        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        uint meshRenderingLayers = GetMeshRenderingLayer();
 
         Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 
@@ -303,7 +303,9 @@ void Lighting_half(
     //  Ambient always takes base albedo here.
         half3 GI;
         if (receiveReflections) {
-            GI = GlobalIllumination(brdfData, inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS);
+            GI = GlobalIllumination(brdfData, brdfData, 0.0h,
+                inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
+                inputData.normalWS, inputData.viewDirectionWS, inputData.normalizedScreenSpaceUV);
         }
         else {
             GI = brdfData.diffuse * inputData.bakedGI * aoFactor.indirectAmbientOcclusion;
@@ -350,9 +352,8 @@ void Lighting_half(
 
     #if defined(_LIGHT_LAYERS)
         if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
-        { 
     #endif
-        
+        { 
             NdotL = dot(normalWS, mainLight.direction);
             NdotL = saturate((NdotL + 1.0h) - diffuseStep);
     	
@@ -373,12 +374,15 @@ void Lighting_half(
 
             atten = NdotL * mainLight.distanceAttenuation * saturate(shadowBiasDirectional + mainLight.shadowAttenuation);
             mainLight.color = lerp(Luminance(mainLight.color).xxx, mainLight.color, lightColorContribution.xxx);
+
+            if(receiveSSAO) {
+                mainLight.color *= aoFactor.directAmbientOcclusion; 
+            }
+
             lightColor = mainLight.color * lerp(atten, mainLight.distanceAttenuation, colorizeMainLight);
             luminance = Luminance(mainLight.color); 
             lightIntensity += luminance * atten;
 
-        
-            
             #if defined(SPEC_ON)
                 specularSmoothness = exp2(10 * smoothness + 1);
                 specularUpper = saturate(specularStep + specularFalloff * (1.0h + smoothness));
@@ -389,22 +393,66 @@ void Lighting_half(
                 #endif
                 specularLighting = spec * atten;
             #endif
-    #if defined(_LIGHT_LAYERS)
         }
-    #endif
 
     //  Handle additional lights
         #ifdef _ADDITIONAL_LIGHTS
             uint pixelLightCount = GetAdditionalLightsCount();
+
+            #if USE_FORWARD_PLUS
+                for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+                {
+                    FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                    Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+                #if defined(_LIGHT_LAYERS)
+                    if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                #endif
+                    {
+                        light.shadowAttenuation = smoothstep(0.0h, shadowFalloff, light.shadowAttenuation);
+
+                        NdotL = dot(normalWS, light.direction);
+                        NdotL = saturate((NdotL + 1.0h) - diffuseStep);
+                        #if !defined(GRADIENT_ON)
+                            quantizedNdotL = floor(NdotL * steps);
+                        //  IMPORTANT: no saturate on the 2nd param: NdotL - 0.01. 0.01 is eyballed.
+                            NdotL = (quantizedNdotL + aaStep(saturate(quantizedNdotL * oneOverSteps), NdotL - 0.01h, diffuseFalloff )) * oneOverSteps;
+                        #else
+                            #if defined(SMOOTHGRADIENT_ON)
+                                NdotL = SAMPLE_TEXTURE2D(GradientMap, sampler_Linear, float2 (NdotL, 0.5f)).r;
+                            #else
+                                NdotL0 = SAMPLE_TEXTURE2D(GradientMap, sampler_Point, float2 (NdotL, 0.5f)).r;
+                                NdotL1 = SAMPLE_TEXTURE2D(GradientMap, sampler_Point, float2 (NdotL + fwidth(NdotL) * oneOverTexelWidth, 0.5f)).r;
+                                NdotL = (NdotL0 + NdotL1) * 0.5h;
+                            #endif
+                        #endif
+
+                        half distanceAttenuation = (addLightFalloff < 1.0h) ? saturate(light.distanceAttenuation / addLightFalloff) : light.distanceAttenuation;
+                        atten = NdotL * distanceAttenuation * saturate(shadowBiasAdditional + light.shadowAttenuation);
+                        light.color = lerp(Luminance(light.color).xxx, light.color, lightColorContribution.xxx);
+                        lightColor += light.color * lerp(atten, distanceAttenuation, colorizeAddLights);
+                        luminance = Luminance(light.color);
+                        lightIntensity += luminance * atten;
+                        
+                        #if defined(SPEC_ON)
+                            #if defined(ANISO_ON)
+                                spec = LightingSpecularAniso_Toon (light, NdotL, normalWS, viewDirectionWS, tangentWS, bitangentWS, anisotropy, specular, specularSmoothness, smoothness, specularStep, specularUpper, energyConservation);
+                            #else
+                                spec = LightingSpecular_Toon(light, NdotL, normalWS, viewDirectionWS, specular, specularSmoothness, smoothness, specularStep, specularUpper, energyConservation);
+                            #endif
+                            specularLighting += spec * atten;
+                        #endif
+                    }
+                }
+            #endif
 
             LIGHT_LOOP_BEGIN(pixelLightCount)
                 Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
 
             #if defined(_LIGHT_LAYERS)
                 if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
-                {
             #endif
-
+                {
+            
                 light.shadowAttenuation = smoothstep(0.0h, shadowFalloff, light.shadowAttenuation);
 
                 NdotL = dot(normalWS, light.direction);
@@ -438,10 +486,8 @@ void Lighting_half(
                     #endif
                     specularLighting += spec * atten;
                 #endif
-            
-            #if defined(_LIGHT_LAYERS)
+
                 }
-            #endif
             LIGHT_LOOP_END
 
         #endif
@@ -452,7 +498,7 @@ void Lighting_half(
     //  Decals Part 2
         #if defined(_CUSTOMDBUFFER)
         //  We do not have a shaded version for the decals. So we just lit them?
-        // litAlbedo.xyz = litAlbedo.xyz * decalSurfaceData.baseColor.w + decalSurfaceData.baseColor.xyz * lightIntensity * lightColor;
+        //  litAlbedo.xyz = litAlbedo.xyz * decalSurfaceData.baseColor.w + decalSurfaceData.baseColor.xyz * lightIntensity * lightColor;
             half3 decalColor = lerp(decalSurfaceData.baseColor.xyz * shadedDecalColor, decalSurfaceData.baseColor.xyz, saturate(lightIntensity.xxx));
             litAlbedo.xyz = litAlbedo.xyz * decalSurfaceData.baseColor.w + decalColor;
         #endif
@@ -470,6 +516,7 @@ void Lighting_half(
                 + rimLighting * lerp(1.0h, lightIntensity, rimAttenuation) 
             #endif
         ;
+
 
     //  Set Albedo for meta pass
         #if defined(LIGHTWEIGHT_META_PASS_INCLUDED) || defined(UNIVERSAL_META_PASS_INCLUDED)

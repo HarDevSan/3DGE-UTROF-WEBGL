@@ -1,5 +1,5 @@
-#ifndef LUXLWRP_SIMPLE_LIT_PASS_INCLUDED
-#define LUXLWRP_SIMPLE_LIT_PASS_INCLUDED
+#ifndef LUXURP_SIMPLE_LIT_PASS_INCLUDED
+#define LUXURP_SIMPLE_LIT_PASS_INCLUDED
 
 #if !defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
     #define ADDITIONAL_LIGHT_CALCULATE_SHADOWS
@@ -7,8 +7,6 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Particles.hlsl"
-
-
 
 
 struct AttributesParticleLux
@@ -41,28 +39,19 @@ struct VaryingsParticleLux
 {
     half4 color                     : COLOR;
     float2 texcoord                 : TEXCOORD0;
-    float4 positionWS               : TEXCOORD1;
+    float4 positionWS               : TEXCOORD1;    // w contains fog
 
     float3 normalWS                 : TEXCOORD2;
     #ifdef _NORMALMAP
         float4 tangentWS            : TEXCOORD3;    // xyz: tangent, w: viewDir.y
     #endif
-    float3 viewDirWS                : TEXCOORD4;
-
+    //float3 viewDirWS                : TEXCOORD4;
     #if defined(_FLIPBOOKBLENDING_ON)
         float3 texcoord2AndBlend    : TEXCOORD5;
     #endif
     #if defined(_SOFTPARTICLES_ON) || defined(_FADING_ON) || defined(_DISTORTION_ON)
         float4 projectedPosition    : TEXCOORD6;
     #endif
-
-//  Passing shadowCoord from vertex to fragment produced too many artifacts
-    //#if (defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)) || defined(_PERVERTEX_SHADOWS)
-    //  float4 shadowCoord          : TEXCOORD7;
-    //#endif
-//  So we split the work between vertex and fragment and only calculate the cascade in the vertex shader
-//  Ok on metal but still not perfect on dx11
-//  uint cascade                    : TEXCOORD7;
 
     float3 vertexSH                 : TEXCOORD7; // SH Lighting
     half4 lighting                  : TEXCOORD8; // Per vertex sampled shadows
@@ -71,7 +60,7 @@ struct VaryingsParticleLux
         half3 vertexLighting        : TEXCOORD9;
     #endif
 
-    float4 clipPos                  : SV_POSITION;
+    float4 positionCS               : SV_POSITION;
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
@@ -79,9 +68,9 @@ struct VaryingsParticleLux
 
 void InitializeInputData(VaryingsParticleLux input, half3 normalTS, out InputData output) {
     output = (InputData)0;
+    
     output.positionWS = input.positionWS.xyz;
-
-    half3 viewDirWS = SafeNormalize(input.viewDirWS);
+    half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS.xyz);
 
     #ifdef _NORMALMAP
         float sgn = input.tangentWS.w;      // should be either +1 or -1
@@ -108,6 +97,11 @@ void InitializeInputData(VaryingsParticleLux input, half3 normalTS, out InputDat
         output.vertexLighting = half3(0.0h, 0.0h, 0.0h);
     #endif
     output.bakedGI = SampleSHPixel(input.vertexSH, output.normalWS);
+
+//  Forward+ needs normalizedScreenSpaceUV
+    #if USE_FORWARD_PLUS
+        output.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
+    #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,7 +110,6 @@ void InitializeInputData(VaryingsParticleLux input, half3 normalTS, out InputDat
 
 
 // Because of: ADDITIONAL_LIGHT_CALCULATE_SHADOWS  we have to include our own here (copy paste from shadows)
-
 real LuxSampleShadowmap(TEXTURE2D_SHADOW_PARAM(ShadowMap, sampler_ShadowMap), float4 shadowCoord, ShadowSamplingData samplingData, half4 shadowParams, bool isPerspectiveProjection = true)
 {
     // Compiler will optimize this branch away as long as isPerspectiveProjection is known at compile time
@@ -133,51 +126,53 @@ real LuxSampleShadowmap(TEXTURE2D_SHADOW_PARAM(ShadowMap, sampler_ShadowMap), fl
     return BEYOND_SHADOW_FAR(shadowCoord) ? 1.0 : attenuation;
 }
 
-half LuxAdditionalLightRealtimeShadow(int lightIndex, float3 positionWS,   ShadowSamplingData shadowSamplingData)
-{
-    #if !defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
-        return 1.0h;
-    #endif
-
-    //ShadowSamplingData shadowSamplingData = GetAdditionalLightShadowSamplingData();
-    #if USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA
-        lightIndex = _AdditionalShadowsIndices[lightIndex];
-        // We have to branch here as otherwise we would sample buffer with lightIndex == -1.
-        // However this should be ok for platforms that store light in SSBO.
-        UNITY_BRANCH
-        if (lightIndex < 0)
-            return 1.0;
-
-        float4 lightPositionWS = _AdditionalLightsBuffer[lightIndex].position;
-    #else
-        float4 lightPositionWS = _AdditionalLightsPosition[lightIndex];
-    #endif
-    half4 shadowParams = GetAdditionalLightShadowParams(lightIndex);
-
-    float3 lightVector = lightPositionWS.xyz - positionWS * lightPositionWS.w;
-    float distanceSqr = max(dot(lightVector, lightVector), HALF_MIN);
-    half3 lightDirection = half3(lightVector * rsqrt(distanceSqr));
-
-    int shadowSliceIndex = shadowParams.w;
-    if (shadowSliceIndex < 0)
-        return 1.0;
-
-    half isPointLight = shadowParams.z;
-    if (isPointLight)
+#if defined(_PERVERTEX_SHADOWS)
+    half LuxAdditionalLightRealtimeShadow(int lightIndex, float3 positionWS, ShadowSamplingData shadowSamplingData)
     {
-        // This is a point light, we have to find out which shadow slice to sample from
-        float cubemapFaceId = CubeMapFaceID(-lightDirection);
-        shadowSliceIndex += cubemapFaceId;
+        #if !defined(ADDITIONAL_LIGHT_CALCULATE_SHADOWS)
+            return 1.0h;
+        #endif
+        
+        #if USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA
+            lightIndex = _AdditionalShadowsIndices[lightIndex];
+            // We have to branch here as otherwise we would sample buffer with lightIndex == -1.
+            // However this should be ok for platforms that store light in SSBO.
+            UNITY_BRANCH
+            if (lightIndex < 0)
+                return 1.0;
+            float4 lightPositionWS = _AdditionalLightsBuffer[lightIndex].position;
+        #else
+            float4 lightPositionWS = _AdditionalLightsPosition[lightIndex];
+        #endif
+
+        half4 shadowParams = GetAdditionalLightShadowParams(lightIndex);
+
+            float3 lightVector = lightPositionWS.xyz - positionWS * lightPositionWS.w;
+            float distanceSqr = max(dot(lightVector, lightVector), HALF_MIN);
+            half3 lightDirection = half3(lightVector * rsqrt(distanceSqr));
+
+            int shadowSliceIndex = shadowParams.w;
+    //    We already tested this
+    //    if (shadowSliceIndex < 0)
+    //        return 1.0;
+
+        half isPointLight = shadowParams.z;
+        UNITY_BRANCH if (isPointLight)
+        {
+            // This is a point light, we have to find out which shadow slice to sample from
+            float cubemapFaceId = CubeMapFaceID(-lightDirection);
+            shadowSliceIndex += cubemapFaceId;
+        }
+
+        #if USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA
+            float4 shadowCoord = mul(_AdditionalLightsWorldToShadow_SSBO[shadowSliceIndex], float4(positionWS, 1.0));
+        #else
+            float4 shadowCoord = mul(_AdditionalLightsWorldToShadow[shadowSliceIndex], float4(positionWS, 1.0));
+        #endif
+    //  New sampler since URP 14.0.7
+        return LuxSampleShadowmap(TEXTURE2D_ARGS(_AdditionalLightsShadowmapTexture, sampler_LinearClampCompare), shadowCoord, shadowSamplingData, shadowParams, true);
     }
-
-    #if USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA
-        float4 shadowCoord = mul(_AdditionalLightsWorldToShadow_SSBO[shadowSliceIndex], float4(positionWS, 1.0));
-    #else
-        float4 shadowCoord = mul(_AdditionalLightsWorldToShadow[shadowSliceIndex], float4(positionWS, 1.0));
-    #endif
-
-    return LuxSampleShadowmap(TEXTURE2D_ARGS(_AdditionalLightsShadowmapTexture, sampler_AdditionalLightsShadowmapTexture), shadowCoord, shadowSamplingData, shadowParams, true);
-}
+#endif
 
 VaryingsParticleLux ParticlesLitVertex(AttributesParticleLux input)
 {
@@ -187,7 +182,7 @@ VaryingsParticleLux ParticlesLitVertex(AttributesParticleLux input)
     UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-    VertexPositionInputs vertexInput = GetVertexPositionInputs(input.vertex.xyz);
+    
 //  In order to get rid of the tangent we have to add and #if here.
     VertexNormalInputs normalInput = GetVertexNormalInputs(input.normal,
         #if defined(_NORMALMAP)
@@ -196,10 +191,8 @@ VaryingsParticleLux ParticlesLitVertex(AttributesParticleLux input)
             float4 (0,0,0,0)
         #endif
     );
-    half3 viewDirWS = GetWorldSpaceViewDir(vertexInput.positionWS);
-
     output.normalWS = normalInput.normalWS;
-    output.viewDirWS = viewDirWS;
+    VertexPositionInputs vertexInput = GetVertexPositionInputs(input.vertex.xyz);
 
     #ifdef _NORMALMAP
         real sign = input.tangentOS.w * GetOddNegativeScale();
@@ -212,7 +205,7 @@ VaryingsParticleLux ParticlesLitVertex(AttributesParticleLux input)
 //  NOTE: output.positionWS.w contains fog!
     output.positionWS.w = ComputeFogFactor(vertexInput.positionCS.z);
     
-    output.clipPos = vertexInput.positionCS;
+    output.positionCS = vertexInput.positionCS;
     output.color = input.color;
     
     output.texcoord = input.texcoords.xy;
@@ -231,9 +224,9 @@ VaryingsParticleLux ParticlesLitVertex(AttributesParticleLux input)
 
     output.lighting = half4(1,1,1,1);
 
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
 
-    #if defined(_PERVERTEX_SHADOWS)
+    #if defined(_PERVERTEX_SHADOWS) || defined(_PERVERTEX_SHADOWS_DIRONLY)
 
         #if defined(_PERVERTEX_SAMPLEOFFSET)
             #ifdef _FLIPBOOKBLENDING_ON
@@ -245,14 +238,14 @@ VaryingsParticleLux ParticlesLitVertex(AttributesParticleLux input)
 
         #ifdef _LIGHT_LAYERS
             uint mainlightlayerMask = _MainLightLayerMask;
-        #else
-            uint mainlightlayerMask = DEFAULT_LIGHT_LAYERS;
         #endif
 
+    #ifdef _LIGHT_LAYERS
         if (IsMatchingLightLayer(mainlightlayerMask, meshRenderingLayers))
+    #endif
         {
     
-        //  Main Light shadows - we do not sample the screen space shadowmap but the cascaded map
+        //  Main Light shadows
             #ifdef _MAIN_LIGHT_SHADOWS_CASCADE
                 half cascade = ComputeCascadeIndex(output.positionWS.xyz);
             #else
@@ -263,58 +256,89 @@ VaryingsParticleLux ParticlesLitVertex(AttributesParticleLux input)
 
             ShadowSamplingData shadowSamplingData = GetMainLightShadowSamplingData();
             half shadowStrength = GetMainLightShadowStrength();
-            output.lighting.a = SampleShadowmap(shadowCoord, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowSamplingData, shadowStrength, false);
+            //output.lighting.a = SampleShadowmap(shadowCoord, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowSamplingData, shadowStrength, false);
+        //  New sampler since URP 14.0.7
+            output.lighting.a = SampleShadowmap(shadowCoord, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_LinearClampCompare), shadowSamplingData, shadowStrength, false);
 
         //  Multi sample and blend directional shadows. Offset is derived from velocity.
             #if defined(_PERVERTEX_SAMPLEOFFSET)
                 float4 sc = TransformWorldToShadowCoord(output.positionWS.xyz + vel);
-                output.lighting.a += SampleShadowmap(sc, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowSamplingData, shadowStrength, false);
+                output.lighting.a += SampleShadowmap(sc, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_LinearClampCompare), shadowSamplingData, shadowStrength, false);
                 sc = TransformWorldToShadowCoord(output.positionWS.xyz - vel);
-                output.lighting.a += SampleShadowmap(sc, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowSamplingData, shadowStrength, false);
-                output.lighting.a /= 3;
+                output.lighting.a += SampleShadowmap(sc, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_LinearClampCompare), shadowSamplingData, shadowStrength, false);
+                output.lighting.a /= 3.0h;
             #endif
         }
 
-        #if defined (_ADDITIONALLIGHT_SHADOWS)
+    #endif 
+    
+    #if defined(_PERVERTEX_SHADOWS)
+        #if ( defined(_ADDITIONAL_LIGHTS) || defined(_FORWARD_PLUS) )
+
             uint pixelLightCount = GetAdditionalLightsCount();
-        //  Limit pixelLightCount to 3 as we only have 4 entries ( last one used by the directional light)
-            pixelLightCount = min(3, pixelLightCount);
-
+        
             float shadow[3] = {(1), (1), (1)};
+            uint i = 0u;
 
-            ShadowSamplingData shadowSamplingDataAdd = GetAdditionalLightShadowSamplingData();
-            
-            for (uint i = 0u; i < pixelLightCount; ++i) {
-                int PerObjectLightIndex = GetPerObjectLightIndex(i);
-            //  Get layerMask
+        //  Prepare additional data for Forward+
+            #if USE_FORWARD_PLUS
+                InputData inputData = (InputData)0;
+                // use saturate as vertices may leave the screen, pixels do not :)
+                inputData.normalizedScreenSpaceUV = saturate( (output.positionCS / output.positionCS.w).xy * 0.5 + 0.5 );
+                #if UNITY_UV_STARTS_AT_TOP
+                    inputData.normalizedScreenSpaceUV.y = 1.0 - inputData.normalizedScreenSpaceUV.y;
+                #endif
+                inputData.positionWS = output.positionWS.xyz;
+            #else
+                // We skip the hard limit as we only take shadow casting lights into account - loop will exit if shadow data is filled.
+                // pixelLightCount = min(3u, pixelLightCount);
+            #endif
+
+            LIGHT_LOOP_BEGIN(pixelLightCount)
+
+            #if USE_FORWARD_PLUS
+                int PerObjectLightIndex = lightIndex;
+            #else
+                int PerObjectLightIndex = GetPerObjectLightIndex(lightIndex);
+            #endif
+
+            #ifdef _LIGHT_LAYERS
                 #if USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA
-                    #ifdef _LIGHT_LAYERS
-                        uint lightLayerMask = _AdditionalLightsBuffer[i].layerMask;
-                    #else
-                        uint lightLayerMask = DEFAULT_LIGHT_LAYERS;
-                    #endif
-                #else 
-                    #ifdef _LIGHT_LAYERS
-                        uint lightLayerMask = asuint(_AdditionalLightsLayerMasks[i]);
-                    #else
-                        uint lightLayerMask = DEFAULT_LIGHT_LAYERS;
-                    #endif
+                    uint lightLayerMask = _AdditionalLightsBuffer[PerObjectLightIndex].layerMask;
+                #else
+                    uint lightLayerMask = asuint(_AdditionalLightsLayerMasks[PerObjectLightIndex]);
                 #endif
 
                 if (IsMatchingLightLayer(lightLayerMask, meshRenderingLayers))
+            #endif
                 {
+                //  Skip if a light does not cast shadows
+                    half4 shadowParams = GetAdditionalLightShadowParams(PerObjectLightIndex);
+                    int shadowSliceIndex = shadowParams.w;
+                    if (shadowSliceIndex < 0)
+                    {
+                        continue;      
+                    }
+
+                    ShadowSamplingData shadowSamplingDataAdd = GetAdditionalLightShadowSamplingData(PerObjectLightIndex);
 
                 //  DX11 does not like this
                     //output.lighting[i] = AdditionalLightRealtimeShadow(PerObjectLightIndex, output.positionWS.xyz);
-                //  URP 10: we have to call custom fuction
+                //  URP 10: we have to call custom function
+                    
                     shadow[i] = LuxAdditionalLightRealtimeShadow(PerObjectLightIndex, output.positionWS.xyz,                    shadowSamplingDataAdd);
                     #if defined(_PERVERTEX_SAMPLEOFFSET)
                         shadow[i] += LuxAdditionalLightRealtimeShadow(PerObjectLightIndex, output.positionWS.xyz + vel,         shadowSamplingDataAdd);
                         shadow[i] += LuxAdditionalLightRealtimeShadow(PerObjectLightIndex, output.positionWS.xyz - vel,         shadowSamplingDataAdd);
-                        shadow[i] /= 3;
+                        shadow[i] /= 3.0h;
                     #endif
+                    i++;
+                    if(i > 3)
+                    {
+                        break;
+                    }
                 }
-            }
+            LIGHT_LOOP_END
             output.lighting.xyz = half3(shadow[0], shadow[1], shadow[2]);
         #endif
     #endif
@@ -333,7 +357,7 @@ half3 LuxLightingLambertTransmission(half3 lightColor, half3 lightDir, half3 nor
     #endif
 }
 
-half4 LuxBlinnPhong(InputData inputData, half3 diffuse, half4 specularGloss, half smoothness, half3 emission, half alpha, float4 inputLighting, half transmission, uint cascade)
+half4 LuxBlinnPhong(InputData inputData, half3 diffuse, half4 specularGloss, half smoothness, half3 emission, half alpha, float4 inputLighting, half transmission)
 {
     
     #if defined(SHADOWS_SHADOWMASK) && defined(LIGHTMAP_ON)
@@ -351,7 +375,7 @@ half4 LuxBlinnPhong(InputData inputData, half3 diffuse, half4 specularGloss, hal
     aoFactor.indirectAmbientOcclusion = 1;
     aoFactor.directAmbientOcclusion = 1;
 
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
 
     Light mainLight = GetMainLight(inputData.shadowCoord);
     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, half4(0, 0, 0, 0));
@@ -364,7 +388,7 @@ half4 LuxBlinnPhong(InputData inputData, half3 diffuse, half4 specularGloss, hal
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
     {
 
-        #if defined(_PERVERTEX_SHADOWS)
+        #if defined(_PERVERTEX_SHADOWS) || defined(_PERVERTEX_SHADOWS_DIRONLY)
         //  Here shadowAttenuation never gets used so it should be stripped by the compiler...
             half3 attenuatedLightColor = mainLight.color * (mainLight.distanceAttenuation);
             attenuatedLightColor *= inputLighting.w;
@@ -384,31 +408,47 @@ half4 LuxBlinnPhong(InputData inputData, half3 diffuse, half4 specularGloss, hal
         */
             float4 shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
             half shadowStrength = GetMainLightShadowStrength();
-            attenuatedLightColor *= SampleShadowmap(shadowCoord, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowSamplingData, shadowStrength, false);
+            //attenuatedLightColor *= SampleShadowmap(shadowCoord, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowSamplingData, shadowStrength, false);
+        //  New sampler since URP 14.0.7
+            attenuatedLightColor *= SampleShadowmap(shadowCoord, TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_LinearClampCompare), shadowSamplingData, shadowStrength, false);
         #endif
 
         diffuseColor += LuxLightingLambertTransmission(attenuatedLightColor, mainLight.direction, inputData.normalWS, inputData.viewDirectionWS, transmission);
         specularColor += LightingSpecular(attenuatedLightColor, mainLight.direction, inputData.normalWS, inputData.viewDirectionWS, specularGloss, smoothness);
     }
 
-    #ifdef _ADDITIONAL_LIGHTS
+
+//  /////////////////////////////////////////
+
+    #if defined(_ADDITIONAL_LIGHTS)
         uint pixelLightCount = GetAdditionalLightsCount();
+
+    //  #if USE_FORWARD_PLUS
+    //  #endif
+
         #if defined(_PERVERTEX_SHADOWS) && defined(_ADDITIONALLIGHT_SHADOWS)
         //  Metal does not like to access the components using indices?! So we chose another way.
             half shadow[4] = {(inputLighting.x), (inputLighting.y), (inputLighting.z), (inputLighting.w)};
         #endif
-        for (uint i = 0u; i < pixelLightCount; ++i) {
-        //  URP 10: shadowMask needed!
-            //Light light = GetAdditionalLight(i, inputData.positionWS, shadowMask);
-            Light light = GetAdditionalLight(i, inputData, shadowMask, aoFactor);
+
+        LIGHT_LOOP_BEGIN(pixelLightCount)
+
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+        #ifdef _LIGHT_LAYERS
             if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        #endif
             {
                 #if defined(_PERVERTEX_SHADOWS)
-                //  Here shadowAttenuation never gets used so it should be stripped by the compiler...
                     half3 attenuatedLightColor = light.color * light.distanceAttenuation;
                     #if defined(_ADDITIONALLIGHT_SHADOWS)
                     //  make sure we use the same LightIndex and do not sample more than we have.
-                        attenuatedLightColor *= (i < 3u) ? shadow[i] : 1.0h;
+                        half4 shadowParams = GetAdditionalLightShadowParams(lightIndex);
+                        int shadowSliceIndex = shadowParams.w;
+                        if (shadowSliceIndex > -1.0)
+                        {
+                            attenuatedLightColor *= (lightIndex < 3u) ? shadow[lightIndex] : 1.0;
+                        }
                     #endif
                 #else
                     half3 attenuatedLightColor = light.color * (light.distanceAttenuation
@@ -420,7 +460,7 @@ half4 LuxBlinnPhong(InputData inputData, half3 diffuse, half4 specularGloss, hal
                 diffuseColor += LuxLightingLambertTransmission(attenuatedLightColor, light.direction, inputData.normalWS, inputData.viewDirectionWS, transmission);
                 specularColor += LightingSpecular(attenuatedLightColor, light.direction, inputData.normalWS, inputData.viewDirectionWS, specularGloss, smoothness);
             }
-        }
+        LIGHT_LOOP_END
     #endif
 
     #ifdef _ADDITIONAL_LIGHTS_VERTEX
@@ -436,7 +476,7 @@ half4 LuxBlinnPhong(InputData inputData, half3 diffuse, half4 specularGloss, hal
     #endif
 #ifdef _ADDITIONAL_LIGHTS
     #if defined(_PERVERTEX_SHADOWS) && defined(_ADDITIONALLIGHT_SHADOWS)
-    //finalColor = half3(shadow[0], shadow[1], shadow[2]);
+        //finalColor = half3(shadow[0], shadow[1], shadow[2]);
     #endif
 #endif 
 
@@ -472,7 +512,10 @@ half4 ParticlesLitFragment(VaryingsParticleLux input) : SV_Target
     
     half4 albedo = Lux_SampleAlbedo(uv, blendUv, _BaseColor, input.color, projectedPosition, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
 //  Early out
-    clip(albedo.a - 0.001h);
+    //clip(albedo.a - 0.001h);
+    #if defined(_ALPHATEST_ON)
+        clip(albedo.a - _Cutoff);
+    #endif
     
     half3 normalTS = SampleNormalTS(uv, blendUv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap));
 
@@ -499,7 +542,7 @@ half4 ParticlesLitFragment(VaryingsParticleLux input) : SV_Target
     InputData inputData;
     InitializeInputData(input, normalTS, inputData);
 
-    half4 color = LuxBlinnPhong(inputData, diffuse, specularGloss, shininess, emission, alpha, input.lighting, _Transmission, 0 /*input.cascade*/);
+    half4 color = LuxBlinnPhong(inputData, diffuse, specularGloss, shininess, emission, alpha, input.lighting, _Transmission);
 
 
     #if defined(_ADDITIVE)
@@ -524,11 +567,42 @@ half4 ParticlesLitFragment(VaryingsParticleLux input) : SV_Target
 
 #if defined(_USESTESSELLATION)
 
-    real3 GetDistanceBasedTessFactor(real3 p0, real3 p1, real3 p2, real3 cameraPosWS, real tessMinDist, real tessMaxDist)
+    real DistanceFromPlane (real3 pos, real4 plane)
+    {
+        return dot (real4(pos, 1.0f), plane);
+    }
+
+    bool WorldViewFrustumCull (real3 wpos0, real3 wpos1, real3 wpos2, real cullEps, real4 planes[6] )
+    {
+        real4 planeTest;
+        planeTest.x = (( DistanceFromPlane(wpos0, planes[0]) > -cullEps) ? 1.0f : 0.0f ) +
+                      (( DistanceFromPlane(wpos1, planes[0]) > -cullEps) ? 1.0f : 0.0f ) +
+                      (( DistanceFromPlane(wpos2, planes[0]) > -cullEps) ? 1.0f : 0.0f );
+        planeTest.y = (( DistanceFromPlane(wpos0, planes[1]) > -cullEps) ? 1.0f : 0.0f ) +
+                      (( DistanceFromPlane(wpos1, planes[1]) > -cullEps) ? 1.0f : 0.0f ) +
+                      (( DistanceFromPlane(wpos2, planes[1]) > -cullEps) ? 1.0f : 0.0f );
+        planeTest.z = (( DistanceFromPlane(wpos0, planes[2]) > -cullEps) ? 1.0f : 0.0f ) +
+                      (( DistanceFromPlane(wpos1, planes[2]) > -cullEps) ? 1.0f : 0.0f ) +
+                      (( DistanceFromPlane(wpos2, planes[2]) > -cullEps) ? 1.0f : 0.0f );
+        planeTest.w = (( DistanceFromPlane(wpos0, planes[3]) > -cullEps) ? 1.0f : 0.0f ) +
+                      (( DistanceFromPlane(wpos1, planes[3]) > -cullEps) ? 1.0f : 0.0f ) +
+                      (( DistanceFromPlane(wpos2, planes[3]) > -cullEps) ? 1.0f : 0.0f );
+        return !all (planeTest);
+    }
+
+    real3 GetDistanceBasedTessFactor(real3 p0, real3 p1, real3 p2, real3 cameraPosWS, real tessMinDist, real tessMaxDist, float4 planes[6])
     {
         real3 edgePosition0 = 0.5 * (p1 + p2);
         real3 edgePosition1 = 0.5 * (p0 + p2);
         real3 edgePosition2 = 0.5 * (p0 + p1);
+
+        // URP does not seem to have _FrustumPlanes being populated properly...
+        // real maxDisplacement = 0.1f; // we do not really use any displacement
+
+        // bool frustumCulled = WorldViewFrustumCull(edgePosition0, edgePosition1, edgePosition2, maxDisplacement, planes);
+        // if(frustumCulled) {
+        //     return 0;
+        // }
 
         // In case camera-relative rendering is enabled, 'cameraPosWS' is statically known to be 0,
         // so the compiler will be able to optimize distance() to length().
@@ -601,7 +675,8 @@ half4 ParticlesLitFragment(VaryingsParticleLux input) : SV_Target
 
     float4 Tessellation(TessVertex v, TessVertex v1, TessVertex v2) {
         real4 tess;
-        tess.xyz = _Tess * clamp(GetDistanceBasedTessFactor (v.vertex.xyz, v1.vertex.xyz, v2.vertex.xyz, _WorldSpaceCameraPos, _TessRange.x, _TessRange.y ), 0.01, 1 );
+        tess.xyz = _Tess * clamp(GetDistanceBasedTessFactor (v.vertex.xyz, v1.vertex.xyz, v2.vertex.xyz, _WorldSpaceCameraPos, _TessRange.x, _TessRange.y, _FrustumPlanes ), 0.01, 1 );
+        //tess.xyz = _Tess * GetDistanceBasedTessFactor (v.vertex.xyz, v1.vertex.xyz, v2.vertex.xyz, _WorldSpaceCameraPos, _TessRange.x, _TessRange.y, _FrustumPlanes );
         tess.w = (tess.x + tess.y + tess.z) / 3.0;
         return tess;
     }
@@ -652,4 +727,4 @@ half4 ParticlesLitFragment(VaryingsParticleLux input) : SV_Target
 
 // ---------------------------
 
-#endif // LUXLWRP_SIMPLE_LIT_PASS_INCLUDED
+#endif // LUXURP_SIMPLE_LIT_PASS_INCLUDED

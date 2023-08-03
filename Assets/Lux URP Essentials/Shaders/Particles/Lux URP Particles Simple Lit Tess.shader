@@ -44,7 +44,10 @@
         [Space(8)]
         _BaseColor                              ("Base Color", Color) = (1,1,1,1)
         _BaseMap                                ("Base Map", 2D) = "white" {}
-        _Cutoff                                 ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+
+        [Toggle(_ALPHATEST_ON)]
+        _EnableAlphaTesting                     ("Alpha Clipping", Float) = 1
+        _Cutoff                                 ("     Alpha Cutoff", Range(0.0, 1.0)) = 0.001
 
         [Space(5)]
         [ToggleOff] _SpecularHighlights         ("Specular Highlights", Float) = 1.0
@@ -142,11 +145,10 @@
 
 
         // ------------------------------------------------------------------
-        //  Forward pass.
+        //  Forward pass
+        
         Pass
         {
-            // Lightmode matches the ShaderPassName set in LightweightRenderPipeline.cs. SRPDefaultUnlit and passes with
-            // no LightMode tag are also rendered by Lightweight Render Pipeline
             Name "ForwardLit"
             Tags {"LightMode" = "UniversalForward"}
             
@@ -156,33 +158,29 @@
             Cull[_Cull]
             
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            // All shaders must be compiled with HLSLcc and currently only gles is not using HLSLcc by default
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 4.6
 
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _NORMALMAP
             #pragma shader_feature_local_fragment _EMISSION
-
             //#pragma shader_feature _SPECULARHIGHLIGHTS_OFF
             #pragma shader_feature _SPECULARHIGHLIGHTS_OFF _SPECGLOSSMAP _SPECULAR_COLOR
 
             // _RECEIVE_SHADOWS_OFF drives AdditionalLightRealtimeShadow() in shadows.hlsl. Without it being set no sampling will happen
             // shadows.hlsl differs in LWRP and URP
+            
             #pragma shader_feature _RECEIVE_SHADOWS_OFF
             #pragma shader_feature_local _PERVERTEX_SHADOWS
             #pragma shader_feature_local _PERVERTEX_SAMPLEOFFSET
             #pragma shader_feature_local _ADDITIONALLIGHT_SHADOWS
 
             #pragma shader_feature_local_fragment _TRANSMISSION
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
 
             // -------------------------------------
             // Particle Keywords
             #pragma shader_feature _ _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON _ADDITIVE
-            //#pragma shader_feature _ALPHATEST_ON
             #pragma shader_feature _ _COLOROVERLAY_ON _COLORCOLOR_ON _COLORADDSUBDIFF_ON
             #pragma shader_feature _FLIPBOOKBLENDING_ON
             #pragma shader_feature _SOFTPARTICLES_ON
@@ -193,19 +191,30 @@
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            #if defined(_SHADOWS_SOFT) && defined(_PERVERTEX_SHADOWS)
-                #undef _SHADOWS_SOFT
-            #endif
-            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            
+        //  NOTE: we may sample shadow in the vertex shader so we use different multi_compiles!
+            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile _ _SHADOWS_SOFT
+            
+            #pragma multi_compile _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
+
+        //  When using Forward+ we skip per vertex shadows :(
+            #if !defined(_FORWARD_PLUS)
+                #if defined(_SHADOWS_SOFT) && defined(_PERVERTEX_SHADOWS)
+                    #undef _SHADOWS_SOFT
+                #endif
+            #else
+                #if defined(_PERVERTEX_SHADOWS)
+                    #undef _PERVERTEX_SHADOWS
+                    #define _PERVERTEX_SHADOWS_DIRONLY
+                #endif
+            #endif
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
 
             // -------------------------------------
             // Unity defined keywords

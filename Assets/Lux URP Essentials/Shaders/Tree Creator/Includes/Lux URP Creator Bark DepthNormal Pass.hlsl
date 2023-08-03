@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
     float3 positionOS               : POSITION;
@@ -61,9 +65,21 @@ Varyings DepthNormalsVertex(Attributes input)
     return output;
 }
 
-half4 DepthNormalsFragment(Varyings input) : SV_TARGET
+//half4 DepthNormalsFragment(Varyings input) : SV_TARGET
+//{
+void DepthNormalsFragment(
+    Varyings input
+    , out half4 outNormalWS : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
     
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
+
 //  Dither
     #if defined(BILLBOARD_FACE_CAMERA_POS) && defined(_ENABLEDITHERING)
         half coverage = 1.0h;
@@ -90,9 +106,14 @@ half4 DepthNormalsFragment(Varyings input) : SV_TARGET
         float2 octNormalWS = PackNormalOctQuadEncode(normalWS);           // values between [-1, +1], must use fp32 on some platforms.
         float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   // values between [ 0,  1]
         half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      // values between [ 0,  1]
-        return half4(packedNormalWS, 0.0);
+        outNormalWS = half4(packedNormalWS, 0.0);
     #else
         float3 normalWS = NormalizeNormalPerPixel(input.normalWS);
-        return half4(normalWS, 0.0);
+        outNormalWS = half4(normalWS, 0.0);
+    #endif
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
     #endif
 }

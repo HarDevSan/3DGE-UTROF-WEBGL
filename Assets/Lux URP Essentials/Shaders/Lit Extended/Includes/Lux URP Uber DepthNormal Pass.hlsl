@@ -26,6 +26,10 @@
     #define REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR
 #endif
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
     float4 positionOS       : POSITION;
@@ -86,14 +90,27 @@ Varyings DepthNormalsVertex(Attributes input)
 }
 
 
-half4 DepthNormalsFragment(Varyings input, half facing : VFACE) : SV_TARGET
+//half4 DepthNormalsFragment(Varyings input, half facing : VFACE) : SV_TARGET
+//{
+
+void DepthNormalsFragment(
+    Varyings input, half facing : VFACE
+    , out half4 outNormalWS : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
+
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
 //  LOD crossfading
-    #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-        //LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
-        clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+    // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
+    //     //LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
+    //     clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+    // #endif
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
     #endif
 
     float2 uv = input.uv;
@@ -138,7 +155,7 @@ half4 DepthNormalsFragment(Varyings input, half facing : VFACE) : SV_TARGET
         float2 octNormalWS = PackNormalOctQuadEncode(normalWS);           // values between [-1, +1], must use fp32 on some platforms
         float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   // values between [ 0,  1]
         half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      // values between [ 0,  1]
-        return half4(packedNormalWS, 0.0);
+        outNormalWS = half4(packedNormalWS, 0.0);
     #else
         
         #if defined(_NORMALMAP) || defined(_DETAIL)
@@ -157,7 +174,12 @@ half4 DepthNormalsFragment(Varyings input, half facing : VFACE) : SV_TARGET
             float3 normalWS = input.normalWS * facing;
         #endif
 
-        return half4(NormalizeNormalPerPixel(normalWS), 0.0);
+        outNormalWS = half4(NormalizeNormalPerPixel(normalWS), 0.0);
+    #endif
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
     #endif
 }
 

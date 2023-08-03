@@ -39,16 +39,14 @@
 
         Pass
         {
+            Name "DepthOnly"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma vertex DepthOnlyVertex
@@ -58,38 +56,49 @@
             // Material Keywords
             #pragma shader_feature_local _ALPHATEST_ON
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             //  Material Inputs
             CBUFFER_START(UnityPerMaterial)
                 half    _Cutoff;
                 half    _BumpScale;
+                float4  _BaseMap_ST;
+                float4  _BumpMap_ST;
             CBUFFER_END
 
             #if defined(_ALPHATEST_ON)
-                TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap); float4 _BaseMap_ST;
+                TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
             #endif
 
-            struct VertexInput {
+            struct Attributes {
                 float3 positionOS                   : POSITION;
                 float2 texcoord                     : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct VertexOutput {
+            struct Varyings {
                 float4 positionCS     : SV_POSITION;
                 float2 uv             : TEXCOORD0;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
 
-            VertexOutput DepthOnlyVertex(VertexInput input)
+            Varyings DepthOnlyVertex(Attributes input)
             {
-                VertexOutput output = (VertexOutput)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
                 #if defined(_ALPHATEST_ON)
@@ -99,21 +108,26 @@
                 return output;
             }
 
-            half4 DepthOnlyFragment(VertexOutput input) : SV_TARGET
+            half4 DepthOnlyFragment(Varyings input) : SV_TARGET
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+
                 #if defined(_ALPHATEST_ON)
                     half mask = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv.xy).a;
                     clip (mask - _Cutoff);
                 #endif
-                return 0;
+                
+                return input.positionCS.z;
             }
 
             ENDHLSL
         }
 
     //  Depth Normal ---------------------------------------------
-        // This pass is used when drawing to a _CameraNormalsTexture texture
         Pass
         {
             Name "DepthNormals"
@@ -123,7 +137,6 @@
             Cull[_Cull]
 
             HLSLPROGRAM
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma vertex DepthNormalVertex
@@ -137,26 +150,38 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON // needs shader target 4.5
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            // Universal Pipeline keywords
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
+
             #define DEPTHNORMALPASS
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             CBUFFER_START(UnityPerMaterial)
                 half    _Cutoff;
                 half    _BumpScale;
+                float4  _BaseMap_ST;
+                float4  _BumpMap_ST;
             CBUFFER_END
 
             #if defined(_ALPHATEST_ON)
-                TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);  float4 _BaseMap_ST;
+                TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
             #endif
 
             #if defined(_NORMALMAP)
-                TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);  float4 _BumpMap_ST;
+                TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
             #endif
 
-            struct VertexInput {
+            struct Attributes {
                 float3 positionOS                   : POSITION;
                 float2 texcoord                     : TEXCOORD0;
                 float3 normalOS                     : NORMAL;
@@ -166,22 +191,23 @@
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct VertexOutput {
+            struct Varyings {
                 float4 positionCS     : SV_POSITION;
                 float4 uv             : TEXCOORD0;
                 half3 normalWS        : TEXCOORD1;
                 #if defined(_NORMALMAP)
                     half4 tangentWS   : TEXCOORD2;
                 #endif
+                UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            VertexOutput DepthNormalVertex(VertexInput input)
+            Varyings DepthNormalVertex(Attributes input)
             {
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
-                VertexOutput output = (VertexOutput)0;
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
+                
                 #if defined(_ALPHATEST_ON)
                     output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
                 #endif
@@ -205,8 +231,15 @@
                 return output;
             }
 
-            half4 DepthNormalFragment(VertexOutput input) : SV_TARGET
+            void DepthNormalFragment(
+                Varyings input
+                , out half4 outNormalWS : SV_Target0
+            #ifdef _WRITE_RENDERING_LAYERS
+                , out float4 outRenderingLayers : SV_Target1
+            #endif
+            )
             {
+
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
                 #if defined(_ALPHATEST_ON)
@@ -231,12 +264,16 @@
                     float2 octNormalWS = PackNormalOctQuadEncode(normalWS);           // values between [-1, +1], must use fp32 on some platforms.
                     float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   // values between [ 0,  1]
                     half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      // values between [ 0,  1]
-                    return half4(packedNormalWS, 0.0);
+                    outNormalWS = half4(normalWS, 0.0);
                 #else
                     half3 normalWS = NormalizeNormalPerPixel(input.normalWS);
-                    return half4(normalWS, 0.0);
+                    outNormalWS = half4(normalWS, 0.0);
                 #endif
 
+                #ifdef _WRITE_RENDERING_LAYERS
+                    uint renderingLayers = GetMeshRenderingLayer();
+                    outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+                #endif
             }
             ENDHLSL
         }

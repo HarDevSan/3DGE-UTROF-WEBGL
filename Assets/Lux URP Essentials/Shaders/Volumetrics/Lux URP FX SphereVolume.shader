@@ -61,9 +61,6 @@ Shader "Lux URP/FX/Sphere Volume"
 			ColorMask RGB
 
 			HLSLPROGRAM
-			// Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
 			#pragma shader_feature_local _ENABLEGRADIENT
@@ -80,6 +77,8 @@ Shader "Lux URP/FX/Sphere Volume"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -258,7 +257,7 @@ Shader "Lux URP/FX/Sphere Volume"
                 #if defined(SHADER_API_GLES)
                     float sceneZ = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV, 0);
                 #else
-                    float sceneZ = LUX_LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * screenUV).x;
+                    float sceneZ = LUX_LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * screenUV).x;
                 #endif
                 sceneZ = GetProperEyeDepth(sceneZ);
 

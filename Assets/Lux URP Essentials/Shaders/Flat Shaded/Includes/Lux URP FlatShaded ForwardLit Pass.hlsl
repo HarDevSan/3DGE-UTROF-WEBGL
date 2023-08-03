@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 
 struct Attributes
@@ -154,10 +158,20 @@ void InitializeInputData(Varyings input, half3 normalTS, float3 normalWS, half o
     #endif
 }
 
-half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
+void LitPassFragment(
+    Varyings input, half facing : VFACE
+    , out half4 outColor : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;
@@ -167,7 +181,7 @@ half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
     half3 tnormal = half3( normalize( cross(ddy(input.positionWS), ddx(input.positionWS)) ) );
 //  TODO: Vulkan on Android here shows inverted normals?
     #if defined(SHADER_API_VULKAN)
-        tnormal *= -1;
+        //tnormal *= -1;
     #endif
 
 //  Prepare surface data (like bring normal into world space and get missing inputs like gi)
@@ -196,5 +210,10 @@ half4 LitPassFragment(Varyings input, half facing : VFACE) : SV_Target
 //  Add fog
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
 
-    return color;
+    outColor = color;
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    #endif
 }

@@ -1,5 +1,5 @@
-#ifndef INPUT_LUXURP_INCLUDED
-#define INPUT_LUXURP_INCLUDED
+#ifndef INPUT_LUXURP_BASE_INCLUDED
+#define INPUT_LUXURP_BASE_INCLUDED
 
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 //  defines a bunch of helper functions (like lerpwhiteto)
@@ -16,7 +16,8 @@
 //  defines e.g. "DECLARE_LIGHTMAP_OR_SH"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
  
-    #include "../../Includes/Lux URP Translucent Lighting.hlsl"
+//  Moved down so we have access to the cbuffer 
+    //#include "../../Includes/Lux URP Translucent Lighting.hlsl"
 
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
@@ -32,11 +33,17 @@
         half    _GlossMapScale;
         half    _BumpScale;
         float2  _DistanceFade;
+
+        half4   _BaseColor;
+        
         half    _TranslucencyPower;
         half    _TranslucencyStrength;
         half    _ShadowStrength;
         half    _MaskByShadowStrength;
         half    _Distortion;
+
+        half    _OverrideTransmission;
+        half3   _TransmissionColor;
 
         float   _PerInstanceVariation;
 
@@ -57,6 +64,8 @@
 
     CBUFFER_END
 
+    #include "../../Includes/Lux URP Translucent Lighting.hlsl"
+
 //  Additional textures
     TEXTURE2D(_BumpSpecMap); SAMPLER(sampler_BumpSpecMap); float4 _BumpSpecMap_TexelSize;
     TEXTURE2D(_LuxURPWindRT); SAMPLER(sampler_LuxURPWindRT);
@@ -67,13 +76,21 @@
         float4 _Lux_DisplacementPosition;
     #endif
 
-
 //  Global Inputs
     float4 _LuxURPWindDirSize;
     float4 _LuxURPWindStrengthMultipliers;
     float4 _LuxURPSinTime;
     float2 _LuxURPGust;
     float  _LuxURPBendFrequency;
+
+//  DOTS - we only define a minimal set here. The user might extend it to whatever is needed.
+    #ifdef UNITY_DOTS_INSTANCING_ENABLED
+        UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
+            UNITY_DOTS_INSTANCED_PROP(float4, _BaseColor)
+        UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
+        
+        #define _BaseColor              UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float4 , _BaseColor)
+    #endif
 
 
 //  Vertex animation

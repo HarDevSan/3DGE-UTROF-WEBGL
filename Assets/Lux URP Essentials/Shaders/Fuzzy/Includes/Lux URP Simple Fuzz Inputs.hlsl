@@ -1,5 +1,5 @@
-#ifndef INPUT_LUXLWRP_BASE_INCLUDED
-#define INPUT_LUXLWRP_BASE_INCLUDED
+#ifndef INPUT_LUXURP_BASE_INCLUDED
+#define INPUT_LUXURP_BASE_INCLUDED
 
 
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -59,6 +59,8 @@
         half    _RimMinPower;
         half    _RimFrequency;
         half    _RimPerPositionFrequency;
+
+        half    _Surface;
     CBUFFER_END
 
 //  Additional textures
@@ -67,5 +69,16 @@
     #endif
 
 //  Global Inputs
+
+//  DOTS - we only define a minimal set here. The user might extend it to whatever is needed.
+    #ifdef UNITY_DOTS_INSTANCING_ENABLED
+        UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
+            UNITY_DOTS_INSTANCED_PROP(float4, _BaseColor)
+            UNITY_DOTS_INSTANCED_PROP(float , _Surface)
+        UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
+        
+        #define _BaseColor              UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float4 , _BaseColor)
+        #define _Surface                UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float  , _Surface)
+    #endif
 
 #endif

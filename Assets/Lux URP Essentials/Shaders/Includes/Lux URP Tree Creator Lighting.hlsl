@@ -46,14 +46,14 @@ half4 LuxURPTreeBarkFragment
 //  Init
     half4 shadowMask = CalculateShadowMask(inputData);
     AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
 
     Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 
     LightingData lightingData = CreateLightingData(inputData, surfaceData);
-    lightingData.giColor = GlobalIllumination(brdfData, brdfData, 0,
+    lightingData.giColor = GlobalIllumination(brdfData, brdfData, 0.0h,
                                               inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
-                                              inputData.normalWS, inputData.viewDirectionWS);
+                                              inputData.normalWS, inputData.viewDirectionWS, inputData.normalizedScreenSpaceUV);
 
 //  Main Light
     #if defined(_LIGHT_LAYERS)
@@ -68,21 +68,37 @@ half4 LuxURPTreeBarkFragment
 //  Additional Lights
     #ifdef _ADDITIONAL_LIGHTS
         uint pixelLightCount = GetAdditionalLightsCount();
+
+        #if USE_FORWARD_PLUS
+            for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+            {
+                FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+            #ifdef _LIGHT_LAYERS
+                if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            #endif
+                {
+                #if defined(_SCREEN_SPACE_OCCLUSION)
+                    light.color *= aoFactor.directAmbientOcclusion;
+                #endif
+                    lightingData.additionalLightsColor += LightingTreeBark(light, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
+                }
+            }
+        #endif
         
         LIGHT_LOOP_BEGIN(pixelLightCount)
             Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
 
         #if defined(_LIGHT_LAYERS)
             if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
-            {
         #endif
+            {
             #if defined(_SCREEN_SPACE_OCCLUSION)
                 light.color *= aoFactor.directAmbientOcclusion;
             #endif
-            lightingData.additionalLightsColor += LightingTreeBark(light, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
-        #if defined(_LIGHT_LAYERS)
-                }
-        #endif
+                lightingData.additionalLightsColor += LightingTreeBark(light, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
+            }
         LIGHT_LOOP_END
     #endif
 
@@ -152,7 +168,7 @@ half4 LuxURPTreeLeafFragmentPBR (
 //  Init
     half4 shadowMask = CalculateShadowMask(inputData);
     AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
 
     Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
 //  Tree creator leaves specifics
@@ -163,34 +179,48 @@ half4 LuxURPTreeLeafFragmentPBR (
 
     lightingData.giColor = GlobalIllumination(brdfData, brdfData, 0,
                                               inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
-                                              inputData.normalWS, inputData.viewDirectionWS);
+                                              inputData.normalWS, inputData.viewDirectionWS, inputData.normalizedScreenSpaceUV);
 //  Main Light
     #if defined(_LIGHT_LAYERS)
         if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+    #endif
         {
-    #endif
             lightingData.mainLightColor += LightingTreeLeaf(mainLight, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, translucency, translucencyColor, 1, inputData.normalWS, inputData.viewDirectionWS);
-    #if defined(_LIGHT_LAYERS)
         }
-    #endif
 
 //  Additional Lights
     #ifdef _ADDITIONAL_LIGHTS
         uint pixelLightCount = GetAdditionalLightsCount();
+
+        #if USE_FORWARD_PLUS
+            for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+            {
+                FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+                Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+            #ifdef _LIGHT_LAYERS
+                if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            #endif
+                {
+                #if defined(_SCREEN_SPACE_OCCLUSION)
+                    light.color *= aoFactor.directAmbientOcclusion;
+                #endif
+                    lightingData.additionalLightsColor += LightingTreeLeaf(light, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, translucency, translucencyColor, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
+                }
+            }
+            #endif
         
         LIGHT_LOOP_BEGIN(pixelLightCount) 
             Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
         #if defined(_LIGHT_LAYERS)
             if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
-            {
         #endif
+            {
             #if defined(_SCREEN_SPACE_OCCLUSION)
                 light.color *= aoFactor.directAmbientOcclusion;
             #endif
-            lightingData.additionalLightsColor += LightingTreeLeaf(light, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, translucency, translucencyColor, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
-        #if defined(_LIGHT_LAYERS)
-                }
-        #endif
+                lightingData.additionalLightsColor += LightingTreeLeaf(light, surfaceData.albedo, surfaceData.specular, surfaceData.smoothness, translucency, translucencyColor, squashAmount, inputData.normalWS, inputData.viewDirectionWS);
+            }
         LIGHT_LOOP_END
     #endif
 

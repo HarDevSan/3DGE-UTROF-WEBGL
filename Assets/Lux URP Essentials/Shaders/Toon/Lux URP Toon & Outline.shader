@@ -18,6 +18,18 @@
         [Enum(Off,0,On,1)]_Coverage ("     Alpha To Coverage", Float) = 0
         [Enum(All,15,Depth,0)]
         _ColorMask ("Color Mask", Float) = 15
+
+        [Space(5)]
+        [Toggle(_SSAO_ENABLED)]
+        _ReceiveSSAO                ("Receive SSAO", Float) = 1.0
+        [Toggle(_RECEIVEDECALS)]
+        _ReceiveDecals              ("Receive Decals", Float) = 1.0
+        [Toggle(_NORMALINDEPTHNORMALPASS)]
+        _ApplyNormalDepthNormal     ("Enable Normal in Depth Normal Pass", Float) = 1.0
+
+        [Header(Decals)]
+        [Space(8)]
+        _ShadedDecalColor           ("Shaded Decal Color (multipier)", Color) = (0.5, 5.5, 0.5, 1)
         
         [Header(Toon Lighting)]
         [Space(8)]
@@ -28,7 +40,7 @@
         [KeywordEnum(Off, SmoothSampling, PointSampling)] _Ramp ("Ramp Mode", Float) = 0
         [NoScaleOffset]
         _GradientMap                ("     Ramp", 2D) = "white" {}
-        _OcclusionStrength          ("Occlusion", Range(0.0, 1.0)) = 1
+        _OcclusionStrength          ("Occlusion (invers)", Range(0.0, 1.0)) = 1
 
         [Header(Advanced Toon Lighting)]
         [Space(8)]
@@ -152,6 +164,11 @@
         [IntRange] _QueueOffset     ("Queue Offset", Range(-50, 50)) = 0
 
 
+        [HideInInspector]
+        _Surface                    ("__surface", Float) = 0.0
+        [HideInInspector]
+        _LuxSurface                 ("__LuxSurface", Float) = 0.0
+
     //  Needed by the inspector
         [HideInInspector] _Culling  ("Culling", Float) = 0.0
         [HideInInspector] _AlphaFromMaskMap  ("AlphaFromMaskMap", Float) = 1.0
@@ -210,11 +227,13 @@
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Toon Inputs.hlsl"
@@ -288,8 +307,6 @@
             // Universal Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
@@ -298,14 +315,18 @@
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-//          #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -314,6 +335,7 @@
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Toon Inputs.hlsl"
@@ -345,10 +367,14 @@
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma shader_feature_local _ _TEXMODE_ONE _TEXMODE_TWO
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
             // -------------------------------------
             // Universal Pipeline keywords
@@ -394,13 +420,14 @@
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
-            //#pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
         //  As we do not store the alpha mask with the base map we have to use custom functions 
             #pragma vertex LitGBufferPassVertex
@@ -409,6 +436,9 @@
             #include "Includes/Lux URP Toon Inputs.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             //  Material Inputs
             //  We include LitInput.hlsl - so no cbuffer definition here
@@ -467,6 +497,11 @@
             FragmentOutput LitGBufferPassFragment(Varyings input, half facing : VFACE)
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+
                 #if defined(_ALPHATEST_ON)
                     half mask = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
                     clip (mask * _BaseColor.a - _Cutoff);
@@ -498,7 +533,7 @@
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
             HLSLPROGRAM
@@ -513,9 +548,14 @@
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma shader_feature_local _ _TEXMODE_ONE _TEXMODE_TWO
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
             
             #include "Includes/Lux URP Toon Inputs.hlsl"
             #include "Includes/Lux URP Toon DepthOnly Pass.hlsl"
@@ -546,9 +586,16 @@
             #pragma shader_feature_local _ _TEXMODE_ONE _TEXMODE_TWO
             #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            // Universal Pipeline keywords
+            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
 
             #include "Includes/Lux URP Toon Inputs.hlsl"
             #include "Includes/Lux URP Toon DepthNormal Pass.hlsl"
@@ -630,12 +677,15 @@
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Toon Inputs.hlsl"
@@ -717,13 +767,15 @@
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
-            #pragma multi_compile _ _CLUSTERED_RENDERING
+            #pragma multi_compile _ _FORWARD_PLUS
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
-            #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -731,6 +783,8 @@
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
         //  Include base inputs and all other needed "base" includes
             #include "Includes/Lux URP Toon Inputs.hlsl"
@@ -765,10 +819,16 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             // -------------------------------------
             // Universal Pipeline keywords
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -788,7 +848,7 @@
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
             HLSLPROGRAM
@@ -802,6 +862,10 @@
             // Material Keywords
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma shader_feature_local _ _TEXMODE_ONE _TEXMODE_TWO
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
@@ -836,9 +900,15 @@
             #pragma shader_feature_local _ _TEXMODE_ONE _TEXMODE_TWO
             #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
 
             #include "Includes/Lux URP Toon Inputs.hlsl"
             #include "Includes/Lux URP Toon DepthNormal Pass.hlsl"

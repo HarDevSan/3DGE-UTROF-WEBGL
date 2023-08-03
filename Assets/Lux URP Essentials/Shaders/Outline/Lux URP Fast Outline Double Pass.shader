@@ -23,7 +23,7 @@
 
         [Header(Outline)]
         [Space(8)]
-        _Color ("Color", Color) = (1,1,1,1)
+        _BaseColor ("Color", Color) = (1,1,1,1)
         _Border ("Width", Float) = 3
 
         [Space(5)]
@@ -36,7 +36,7 @@
             "RenderPipeline" = "UniversalPipeline"
             "RenderType"="Opaque"
             "IgnoreProjector" = "True"
-            "Queue"= "Transparent+59" // +59 smalltest to get drawn on top of transparents
+            "Queue"= "Transparent+60" // +59 smalltest to get drawn on top of transparents
         }
 
 
@@ -46,7 +46,7 @@
         {
             Tags
             {
-                //"Queue"= "Transparent-50"
+                //"Queue"= "Transparent+59"
             }
             
             Name "Unlit"
@@ -64,20 +64,20 @@
             ColorMask 0
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
+            // Universal Pipeline keywords
 
             // -------------------------------------
             // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #pragma vertex vert
             #pragma fragment frag
@@ -87,42 +87,51 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/UnlitInput.hlsl"
+            //#include "Packages/com.unity.render-pipelines.universal/Shaders/UnlitInput.hlsl"
+
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             CBUFFER_START(UnityPerMaterial)
-                half4 _Color;
+                half4 _BaseColor;
                 half _Border;
             CBUFFER_END
 
-            struct VertexInput
+            struct Attributes
             {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
+                float4 positionOS   : POSITION;
+                float3 normalOS     : NORMAL;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
 
-            struct VertexOutput
+            struct Varyings
             {
-                float4 position : POSITION;
-
+                float4 positionCS : SV_POSITION;
                 #if defined(_APPLYFOG)
                     half fogCoord : TEXCOORD0;
                 #endif
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            VertexOutput vert (VertexInput v)
+            Varyings vert (Attributes input)
             {
-                VertexOutput o = (VertexOutput)0;
+                Varyings o = (Varyings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                o.position = TransformObjectToHClip(v.vertex.xyz);
+                o.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 return o;
             }
 
-            half4 frag (VertexOutput input ) : SV_Target
+            half4 frag (Varyings input ) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+
                 return 0;
             }
             ENDHLSL
@@ -136,6 +145,7 @@
             Name "ForwardLit"
             Tags{ 
                 "LightMode" = "UniversalForwardOnly"
+                //"Queue"= "Transparent+60"
             }
 
             Stencil {
@@ -152,23 +162,23 @@
             ZWrite On
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma shader_feature_local _APPLYFOG
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
+            // Universal Pipeline keywords
 
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #pragma vertex vert
             #pragma fragment frag
@@ -178,61 +188,81 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/UnlitInput.hlsl"
+            //#include "Packages/com.unity.render-pipelines.universal/Shaders/UnlitInput.hlsl"
+
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             CBUFFER_START(UnityPerMaterial)
-                half4 _Color;
+                half4 _BaseColor;
                 half _Border;
             CBUFFER_END
 
-            struct VertexInput
+        //  DOTS - we only define a minimal set here. The user might extend it to whatever is needed.
+            #ifdef UNITY_DOTS_INSTANCING_ENABLED
+                UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
+                    UNITY_DOTS_INSTANCED_PROP(float4, _BaseColor)
+                UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
+                #define _BaseColor              UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float4 , _BaseColor)
+            #endif
+
+            struct Attributes
             {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
+                float4 positionOS   : POSITION;
+                float3 normalOS     : NORMAL;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
 
-            struct VertexOutput
+            struct Varyings
             {
-                float4 position : POSITION;
-
+                float4 positionCS   : SV_POSITION;
                 #if defined(_APPLYFOG)
-                    half fogCoord : TEXCOORD0;
+                    half fogCoord   : TEXCOORD0;
                 #endif
+                UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            VertexOutput vert (VertexInput v)
+            Varyings vert (Attributes input)
             {
-                VertexOutput o = (VertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                Varyings output = (Varyings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-                o.position = TransformObjectToHClip(v.vertex.xyz);
+                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 #if defined(_APPLYFOG)
-                    o.fogCoord = ComputeFogFactor(o.position.z);
+                    output.fogCoord = ComputeFogFactor(output.positionCS.z);
                 #endif
             //  Extrude
                 if (_Border > 0.0h) {
-                    //float3 normal = mul(UNITY_MATRIX_MVP, float4(v.normal, 0)).xyz; // to clip space
-                    float3 normal = mul(GetWorldToHClipMatrix(), mul(GetObjectToWorldMatrix(), float4(v.normal, 0.0))).xyz;
+                    //float3 normal = mul(UNITY_MATRIX_MVP, float4(input.normal, 0)).xyz; // to clip space
+                    float3 normal = mul(GetWorldToHClipMatrix(), mul(GetObjectToWorldMatrix(), float4(input.normalOS, 0.0))).xyz;
                     float2 offset = normalize(normal.xy);
                     float2 ndc = _ScreenParams.xy * 0.5;
-                    o.position.xy += ((offset * _Border) / ndc * o.position.w);
+                    output.positionCS.xy += ((offset * _Border) / ndc * output.positionCS.w);
                 }
-                return o;
+                return output;
             }
 
-            half4 frag (VertexOutput input ) : SV_Target
+            half4 frag (Varyings input ) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-                #if defined(_APPLYFOG)
-                    _Color.rgb = MixFog(_Color.rgb, input.fogCoord);
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
                 #endif
 
-                return half4(_Color);
+                half4 color = _BaseColor;
+
+                #if defined(_APPLYFOG)
+                    color.rgb = MixFog(color.rgb, input.fogCoord);
+                #endif
+
+                return half4(color);
             }
             ENDHLSL
         }

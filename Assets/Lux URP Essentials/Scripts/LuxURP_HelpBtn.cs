@@ -40,8 +40,9 @@ namespace LuxURPEssentials
             myMiniHelpBtn.focused.textColor = helpCol;
             myMiniHelpBtn.onFocused.textColor = helpCol;
             position.x = position.x + position.width - 36;
-            position.y += 8;
+            position.y += 2;
             position.width = 36;
+            position.height += 10;
             if (GUI.Button(position, "Help", myMiniHelpBtn)) {
                 Application.OpenURL(baseURL + help.URL);
             }

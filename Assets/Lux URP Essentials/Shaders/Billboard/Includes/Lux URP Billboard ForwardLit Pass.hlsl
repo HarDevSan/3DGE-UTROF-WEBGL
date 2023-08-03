@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
 
 struct Attributes
@@ -35,6 +39,7 @@ struct Varyings
 
     float4 positionCS                   : SV_POSITION;
 
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -49,6 +54,7 @@ Varyings LitPassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
 //  Instance world position
@@ -201,9 +207,21 @@ Varyings LitPassVertex(Attributes input)
     }
 #endif
 
-half4 LitPassFragment(Varyings input) : SV_Target
+
+void LitPassFragment(
+    Varyings input
+    , out half4 outColor : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;
@@ -216,11 +234,11 @@ half4 LitPassFragment(Varyings input) : SV_Target
         InitializeInputData(input, surfaceData.normalTS, inputData);
     //  We have to sample SH per pixel
         inputData.bakedGI = SampleSH(inputData.normalWS);
-        half4 color = UniversalFragmentPBR(inputData, surfaceData);
+        outColor = UniversalFragmentPBR(inputData, surfaceData);
 
 //  Unlit version
     #else 
-        half4 color = half4(surfaceData.albedo, surfaceData.alpha);
+        outColor = half4(surfaceData.albedo, surfaceData.alpha);
     #endif
 
 //  Add fog
@@ -232,12 +250,14 @@ half4 LitPassFragment(Varyings input) : SV_Target
     #endif
 
     #if defined(_APPLYFOGADDITIVELY)
-        color.rgb = MixFogColor(color.rgb, half3(0,0,0), foginput);
+        outColor.rgb = MixFogColor(outColor.rgb, half3(0,0,0), foginput);
     #endif
     #if defined(_APPLYFOG)
-
-        color.rgb = MixFog(color.rgb, foginput);
+        outColor.rgb = MixFog(outColor.rgb, foginput);
     #endif
 
-    return color;
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    #endif
 }

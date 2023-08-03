@@ -28,6 +28,10 @@
     #define REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR
 #endif
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 // keep this file in sync with LitForwardPass.hlsl
 
 struct Attributes
@@ -75,7 +79,7 @@ struct Varyings
 #endif
 
     float4 positionCS               : SV_POSITION;
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -136,7 +140,7 @@ Varyings LitGBufferPassVertex(Attributes input)
     Varyings output = (Varyings)0;
 
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
@@ -230,13 +234,16 @@ half3 LuxExtended_GlobalIllumination(BRDFData brdfData, half3 bakedGI, half occl
 // Used in Standard (Physically Based) shader
 FragmentOutput LitGBufferPassFragment(Varyings input, half facing : VFACE)
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
 //  LOD crossfading
-    #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-        //LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
-        clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+    // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
+    //     //LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
+    //     clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+    // #endif
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
     #endif
 
 //  Camera Fading

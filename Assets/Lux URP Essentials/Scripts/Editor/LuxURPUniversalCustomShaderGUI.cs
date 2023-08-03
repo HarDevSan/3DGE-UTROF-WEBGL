@@ -180,23 +180,34 @@ public class LuxURPUniversalCustomShaderGUI : ShaderGUI
                     switch (blendMode)
                     {
                         case BlendMode.Alpha:
-                            material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.SrcAlpha);
-                            material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                            material.SetInt("_SrcBlendAlpha", (int)UnityEngine.Rendering.BlendMode.One);
+                            material.SetInt("_DstBlendAlpha", (int)UnityEngine.Rendering.BlendMode.Zero);
                             material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                            material.DisableKeyword("_ALPHAMODULATE_ON");
                             break;
                         case BlendMode.Premultiply:
-                            material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.One);
-                            material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                            material.SetInt("_SrcBlendAlpha", (int)UnityEngine.Rendering.BlendMode.One);
+                            material.SetInt("_DstBlendAlpha", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                             material.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+                            material.DisableKeyword("_ALPHAMODULATE_ON");
                             break;
                         case BlendMode.Additive:
-                            material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.SrcAlpha);
-                            material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.One);
-                            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                            material.SetInt("_SrcBlendAlpha", (int)UnityEngine.Rendering.BlendMode.One);
+                            material.SetInt("_DstBlendAlpha", (int)UnityEngine.Rendering.BlendMode.One);
+                            material.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+                            material.DisableKeyword("_ALPHAMODULATE_ON");
                             break;
                         case BlendMode.Multiply:
-                            material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.DstColor);
-                            material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.Zero);
+                            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.DstColor);
+                            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+                            material.SetInt("_SrcBlendAlpha", (int)UnityEngine.Rendering.BlendMode.Zero);
+                            material.SetInt("_DstBlendAlpha", (int)UnityEngine.Rendering.BlendMode.One);
                             material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
                             material.EnableKeyword("_ALPHAMODULATE_ON");
                             break;

@@ -193,6 +193,9 @@
         input = (InputData)0;
 
         input.positionWS = IN.positionWS;
+    //  Needed in deferred
+        input.positionCS = IN.clipPos;
+
         half3 SH = half3(0, 0, 0);
 
     //  Most of this is passed in
@@ -220,9 +223,7 @@
                 input.normalWS = IN.normal;
                 SH = IN.vertexSH;
             #endif
-            #if SHADER_HINT_NICE_QUALITY
-                viewDirWS = SafeNormalize(viewDirWS);
-            #endif
+            viewDirWS = SafeNormalize(viewDirWS);
         */
         
     //  So this is all that has to be done
@@ -543,7 +544,13 @@
 #ifdef TERRAIN_GBUFFER
     FragmentOutput SplatmapFragment(Varyings IN)
 #else
-    half4 SplatmapFragment(Varyings IN) : SV_TARGET
+    void SplatmapFragment(
+        Varyings IN
+        , out half4 outColor : SV_Target0
+    #ifdef _WRITE_RENDERING_LAYERS
+        , out float4 outRenderingLayers : SV_Target1
+    #endif
+    )
 #endif
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
@@ -727,7 +734,12 @@
     #else
         half4 color = UniversalFragmentPBR(inputData, albedo, metallic, /* specular */ half3(0.0h, 0.0h, 0.0h), smoothness, occlusion, /* emission */ half3(0, 0, 0), alpha);
         SplatmapFinalColor(color, inputData.fogCoord);
-        return half4(color.rgb, 1.0h);
+        outColor = half4(color.rgb, 1.0h);
+
+        #ifdef _WRITE_RENDERING_LAYERS
+            uint renderingLayers = GetMeshRenderingLayer();
+            outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+        #endif
     #endif
     }
 
@@ -826,7 +838,13 @@
             //ClipHoles(input.tc.xy);
             half hole = SAMPLE_TEXTURE2D(_TerrainHolesTexture, sampler_TerrainHolesTexture, input.uvMainAndLM.xy).r;
             clip(hole == 0.0h ? -1 : 1);
-            return 0;
+            
+            #ifdef SCENESELECTIONPASS
+            // We use depth prepass for scene selection in the editor, this code allow to output the outline correctly
+                return half4(_ObjectId, _PassValue, 1.0, 1.0);
+            #endif
+
+            return input.clipPos.z;
         }
 
     #else
@@ -843,7 +861,13 @@
 
         half4 DepthOnlyFragment(Varyings input) : SV_TARGET {
             UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-            return 0;
+
+            #ifdef SCENESELECTIONPASS
+            // We use depth prepass for scene selection in the editor, this code allow to output the outline correctly
+                return half4(_ObjectId, _PassValue, 1.0, 1.0);
+            #endif
+
+            return input.clipPos.z;
         }
     #endif
 
@@ -913,8 +937,17 @@
         return o;
     }
 
-    half4 DepthNormalOnlyFragment(VaryingsDepthNormal IN) : SV_TARGET
+    //half4 DepthNormalOnlyFragment(VaryingsDepthNormal IN) : SV_TARGET
+    //{
+    void DepthNormalOnlyFragment(
+        VaryingsDepthNormal IN
+        , out half4 outNormalWS : SV_Target0
+    #ifdef _WRITE_RENDERING_LAYERS
+        , out float4 outRenderingLayers : SV_Target1
+    #endif
+        )
     {
+
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
         #ifdef _ALPHATEST_ON
@@ -1040,10 +1073,15 @@
             float2 octNormalWS = PackNormalOctQuadEncode(fnormalWS);           // values between [-1, +1], must use fp32 on some platforms.
             float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   // values between [ 0,  1]
             half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      // values between [ 0,  1]
-            return half4(packedNormalWS, 0.0);
+            outNormalWS = half4(packedNormalWS, 0.0);
         #else
             fnormalWS = NormalizeNormalPerPixel(fnormalWS);
-            return half4(fnormalWS, 0.0);
+            outNormalWS = half4(fnormalWS, 0.0);
+        #endif
+
+        #ifdef _WRITE_RENDERING_LAYERS
+            uint renderingLayers = GetMeshRenderingLayer();
+            outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
         #endif
     }
 

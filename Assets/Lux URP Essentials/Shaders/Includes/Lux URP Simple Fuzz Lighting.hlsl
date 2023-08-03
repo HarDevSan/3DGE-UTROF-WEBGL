@@ -38,10 +38,11 @@ half3 DirectBDRF_LuxFuzz(BRDFData brdfData, half3 normalWS, half3 lightDirection
 
     //  Standard specular lighting
         float d = NoH * NoH * brdfData.roughness2MinusOne + 1.00001f;
-        half d2 = half(d * d);
+        //half d2 = half(d * d);
         half LoH2 = LoH * LoH;
-        half specularTerm = brdfData.roughness2 / (d2 * max(half(0.1), LoH2) * brdfData.normalizationTerm);
-        #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+        //half specularTerm = brdfData.roughness2 / (d2 * max(half(0.1), LoH2) * brdfData.normalizationTerm);
+        half specularTerm = brdfData.roughness2 / ((d * d) * max(0.1h, LoH2) * brdfData.normalizationTerm);
+        #if REAL_IS_HALF
             specularTerm = specularTerm - HALF_MIN;
             specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
         #endif
@@ -107,7 +108,7 @@ half4 LuxURPSimpleFuzzFragmentPBR(
 
     half4 shadowMask = CalculateShadowMask(inputData);
     AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
-    uint meshRenderingLayers = GetMeshRenderingLightLayer();
+    uint meshRenderingLayers = GetMeshRenderingLayer();
 
 //  URP 12:
     Light mainLight = GetMainLight(inputData, shadowMask, aoFactor);
@@ -148,7 +149,8 @@ half4 LuxURPSimpleFuzzFragmentPBR(
         aoFactor.indirectAmbientOcclusion,
         inputData.positionWS,
         inputData.normalWS,
-        inputData.viewDirectionWS
+        inputData.viewDirectionWS,
+        inputData.normalizedScreenSpaceUV
     );
     
     #if defined(_SIMPLEFUZZ)
@@ -158,8 +160,8 @@ half4 LuxURPSimpleFuzzFragmentPBR(
 
 #if defined(_LIGHT_LAYERS)
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+#endif
     {
-#endif    
     lightingData.mainLightColor = LightingPhysicallyBased_LuxFuzz(brdfData,
         #if defined(_SIMPLEFUZZ) 
             addData,
@@ -173,19 +175,19 @@ half4 LuxURPSimpleFuzzFragmentPBR(
         transDot = exp2(saturate(transDot) * transPower - transPower);
         lightingData.mainLightColor += brdfData.diffuse * transDot * (1.0h - NdotL) * mainLightColor * lerp(1.0h, mainLight.shadowAttenuation, translucency.z) * translucency.x * 4;
     #endif
-#if defined(_LIGHT_LAYERS)
     }
-#endif
 
     #ifdef _ADDITIONAL_LIGHTS
         uint pixelLightCount = GetAdditionalLightsCount();
 
-        #if USE_CLUSTERED_LIGHTING
-            for (uint lightIndex = 0; lightIndex < min(_AdditionalLightsDirectionalCount, MAX_VISIBLE_LIGHTS); lightIndex++)
+        #if USE_FORWARD_PLUS
+            for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
             {
+                FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
                 Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
-
+            #ifdef _LIGHT_LAYERS
                 if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+            #endif
                 {
                     NdotL = saturate(dot(inputData.normalWS, light.direction ));
                     lightingData.additionalLightsColor += 10 * LightingPhysicallyBased_LuxFuzz(brdfData,
@@ -206,12 +208,11 @@ half4 LuxURPSimpleFuzzFragmentPBR(
         #endif
 
         LIGHT_LOOP_BEGIN(pixelLightCount)    
-            //  URP 12
-                Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
             #if defined(_LIGHT_LAYERS)
                 if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
-                {
             #endif
+                {
                 NdotL = saturate(dot(inputData.normalWS, light.direction ));
                 lightingData.additionalLightsColor += LightingPhysicallyBased_LuxFuzz(brdfData,
                     #if defined(_SIMPLEFUZZ) 
@@ -226,11 +227,8 @@ half4 LuxURPSimpleFuzzFragmentPBR(
                     transDot = exp2(saturate(transDot) * transPower - transPower);
                     lightingData.additionalLightsColor += brdfData.diffuse * transDot * (1.0h - NdotL) * light.color * lerp(1.0h, light.shadowAttenuation, translucency.z) * light.distanceAttenuation  * translucency.x * 4;
                 #endif
-            #if defined(_LIGHT_LAYERS)
                 }
-            #endif
         LIGHT_LOOP_END
-
     #endif
 
     #ifdef _ADDITIONAL_LIGHTS_VERTEX

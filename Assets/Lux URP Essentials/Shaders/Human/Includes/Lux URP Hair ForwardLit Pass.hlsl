@@ -1,6 +1,9 @@
 #ifndef HAIR_CORE_INCLUDED
 #define HAIR_CORE_INCLUDED
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
 
 //  Structs
 struct Attributes
@@ -45,7 +48,7 @@ struct Varyings
     
     half4 color                         : COLOR;
 
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -57,7 +60,7 @@ struct Varyings
     {
         Varyings output = (Varyings)0;
         UNITY_SETUP_INSTANCE_ID(input);
-        //UNITY_TRANSFER_INSTANCE_ID(input, output);
+        UNITY_TRANSFER_INSTANCE_ID(input, output);
         UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
         VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
@@ -213,14 +216,31 @@ struct Varyings
         #endif
     }
 
-    half4 LitPassFragment(Varyings input
-        #if defined(_ENABLEVFACE)
-            , half facing : VFACE
-        #endif
-        ) : SV_Target
+    // half4 LitPassFragment(Varyings input
+    //     #if defined(_ENABLEVFACE)
+    //         , half facing : VFACE
+    //     #endif
+    //     ) : SV_Target
+    // {
+
+    void LitPassFragment(
+        Varyings input
+    #if defined(_ENABLEVFACE)
+        , half facing : VFACE
+    #endif
+        , out half4 outColor : SV_Target0
+    #ifdef _WRITE_RENDERING_LAYERS
+        , out float4 outRenderingLayers : SV_Target1
+    #endif
+    )
     {
-        //UNITY_SETUP_INSTANCE_ID(input);
+
+        UNITY_SETUP_INSTANCE_ID(input);
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+        #ifdef LOD_FADE_CROSSFADE
+            LODFadeCrossFade(input.positionCS);
+        #endif
 
     //  Get the surface description
         SurfaceData surfaceData;
@@ -260,17 +280,22 @@ struct Varyings
             surfaceData.albedo, // noise
             _SpecularShift * additionalSurfaceData.shift,
             _SpecularTint.rgb,
-            _SpecularExponent * surfaceData.smoothness,
+            _SpecularExponent,
             _SecondarySpecularShift * additionalSurfaceData.shift,
             _SecondarySpecularTint.rgb,
-            _SecondarySpecularExponent * surfaceData.smoothness,
+            _SecondarySpecularExponent,
             _RimTransmissionIntensity,
             _AmbientReflection
         );
         color.a =  surfaceData.alpha;   
     //  Add fog
         color.rgb = MixFog(color.rgb, inputData.fogCoord);
-        return color;
+        outColor = color;
+
+        #ifdef _WRITE_RENDERING_LAYERS
+            uint renderingLayers = GetMeshRenderingLayer();
+            outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+        #endif
     }
 
 #endif

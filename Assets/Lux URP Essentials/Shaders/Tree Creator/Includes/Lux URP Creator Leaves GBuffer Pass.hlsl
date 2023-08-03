@@ -121,6 +121,7 @@ void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputD
 {
     inputData = (InputData)0;
     inputData.positionWS = input.positionWS;
+    inputData.positionCS = input.positionCS;
 
     half3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
 
@@ -201,16 +202,16 @@ FragmentOutput LitGBufferPassFragment(Varyings input, half facing : VFACE)
 #endif
 
     #if defined(_GBUFFERLIGHTING_TRANSMISSION)
-        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        uint meshRenderingLayers = GetMeshRenderingLayer();
         half4 shadowMask = CalculateShadowMask(inputData);
         AmbientOcclusionFactor aoFactor = CreateAmbientOcclusionFactor(inputData, surfaceData);
         Light mainLight1 = GetMainLight(inputData, shadowMask, aoFactor);
 
         #if defined(_LIGHT_LAYERS)
             if (IsMatchingLightLayer(mainLight1.layerMask, meshRenderingLayers))
-            {
         #endif
-                
+            {
+        
                 #if defined(_SAMPLE_LIGHT_COOKIES)
                     real3 cookieColor = SampleMainLightCookie(inputData.positionWS);
                     mainLight1.color *= float4(cookieColor, 1);
@@ -235,9 +236,7 @@ FragmentOutput LitGBufferPassFragment(Varyings input, half facing : VFACE)
                 //     float4 shadowCoord = TransformWorldToShadowCoord(posWS.xyz);
                 // #endif
                 // unityLight.shadowAttenuation = MainLightShadow(shadowCoord, posWS.xyz, shadowMask, _MainLightOcclusionProbes);
-        #if defined(_LIGHT_LAYERS)
             }
-        #endif
     #endif
 
     BRDFData brdfData;

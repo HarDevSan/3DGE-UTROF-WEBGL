@@ -32,16 +32,14 @@
 
         Pass
         {
+            Name "DepthOnly"
             Tags{"LightMode" = "DepthOnly"}
 
             ZWrite On
-            ColorMask 0
+            ColorMask R
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma vertex DepthOnlyVertex
@@ -51,36 +49,47 @@
             // Material Keywords
             #pragma shader_feature_local _ALPHATEST_ON
 
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #if defined(LOD_FADE_CROSSFADE)
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
 
             //  Material Inputs
             CBUFFER_START(UnityPerMaterial)
                 half    _Cutoff;
+                half    _BumpScale;
+                float4  _BaseMap_ST;
+                float4  _BumpMap_ST;
             CBUFFER_END
 
             #if defined(_ALPHATEST_ON)
-                TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap); float4 _BaseMap_ST;
+                TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
             #endif
 
-            struct VertexInput {
+            struct Attributes {
                 float3 positionOS                   : POSITION;
                 float2 texcoord                     : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct VertexOutput {
+            struct Varyings {
                 float4 positionCS     : SV_POSITION;
                 float2 uv             : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
             };
 
 
-            VertexOutput DepthOnlyVertex(VertexInput input)
+            Varyings DepthOnlyVertex(Attributes input)
             {
-                VertexOutput output = (VertexOutput)0;
+                Varyings output = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
                 #if defined(_ALPHATEST_ON)
@@ -90,21 +99,27 @@
                 return output;
             }
 
-            half4 DepthOnlyFragment(VertexOutput input) : SV_TARGET
+            half4 DepthOnlyFragment(Varyings input) : SV_TARGET
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                
+                #ifdef LOD_FADE_CROSSFADE
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+
                 #if defined(_ALPHATEST_ON)
                     half mask = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv.xy).a;
                     clip (mask - _Cutoff);
                 #endif
-                return 0;
+                
+                return input.positionCS.z;
             }
 
             ENDHLSL
         }
+    
     //  End Passes -----------------------------------------------------
     
     }
     FallBack "Hidden/Universal Render Pipeline/FallbackError"
-    //CustomEditor "LuxURPUniversalCustomShaderGUI"
 }

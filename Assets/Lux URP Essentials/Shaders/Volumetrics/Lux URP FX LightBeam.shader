@@ -70,9 +70,6 @@ Shader "Lux URP/FX/Lightbeam"
             ZWrite Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
             #pragma target 2.0
 
             #pragma shader_feature_local _MASKMAP
@@ -88,6 +85,8 @@ Shader "Lux URP/FX/Lightbeam"
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            #pragma target 3.5 DOTS_INSTANCING_ON
             
             #pragma vertex vert
             #pragma fragment frag
@@ -194,7 +193,7 @@ Shader "Lux URP/FX/Lightbeam"
             
             //  Calculate Tangent Space viewDir
             //  ObjSpaceViewDir
-                float3 objSpaceCameraPos = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos.xyz, 1)).xyz;
+                float3 objSpaceCameraPos = mul(UNITY_MATRIX_I_M, float4(_WorldSpaceCameraPos.xyz, 1)).xyz;
                 float3 ObjSpaceViewDir = objSpaceCameraPos - input.vertex.xyz;
             //  TANGENT_SPACE_ROTATION
                 float3 binormal = cross( normalize(input.normal), normalize(input.tangent.xyz) ) * input.tangent.w;
@@ -272,7 +271,7 @@ Shader "Lux URP/FX/Lightbeam"
                 #if defined(SHADER_API_GLES)
                     float sceneZ = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV, 0);
                 #else
-                    float sceneZ = LUX_LOAD_TEXTURE2D_X(_CameraDepthTexture, _CameraDepthTexture_TexelSize.zw * screenUV).x;
+                    float sceneZ = LUX_LOAD_TEXTURE2D_X(_CameraDepthTexture, _ScaledScreenParams.xy * screenUV).x;
                 #endif
                 sceneZ = GetProperEyeDepth(sceneZ);
 
@@ -282,7 +281,7 @@ Shader "Lux URP/FX/Lightbeam"
                 fade *= saturate( (thisZ - _CameraFadeDistances.x) * _CameraFadeDistances.y);
             //  Combine
                 col.a *= mask01 * mask02 * fade * input.distFade;
-                col.rgb = MixFog(_Color.rgb, input.fogCoord);
+                col.rgb = MixFog(col.rgb, input.fogCoord);
                 return half4(col);
             }
             ENDHLSL

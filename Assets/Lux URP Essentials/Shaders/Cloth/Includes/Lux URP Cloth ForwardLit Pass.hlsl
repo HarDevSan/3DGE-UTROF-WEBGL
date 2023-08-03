@@ -1,5 +1,9 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 //  Structs
-struct VertexInput
+struct Attributes
 {
     float3 positionOS                   : POSITION;
     float3 normalOS                     : NORMAL;
@@ -14,44 +18,36 @@ struct VertexInput
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
-struct VertexOutput
+struct Varyings
 {
     #if defined(_MASKMAP)
         float4 uv                       : TEXCOORD0;
     #else
         float2 uv                       : TEXCOORD0;
     #endif
-
     #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
         float3 positionWS               : TEXCOORD1;
     #endif
-
     half3 normalWS                      : TEXCOORD2;
-
     //#if defined(REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR)
     #if defined(_NORMALMAP) || !defined(_COTTONWOOL)
         half4 tangentWS                 : TEXCOORD3;
     #endif
-
     #ifdef _ADDITIONAL_LIGHTS_VERTEX
         half4 fogFactorAndVertexLight   : TEXCOORD5; // x: fogFactor, yzw: vertex light
     #else
         half  fogFactor                 : TEXCOORD5;
     #endif
-
     #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
         float4 shadowCoord              : TEXCOORD6;
     #endif
-
     //#if defined(REQUIRES_TANGENT_SPACE_VIEW_DIR_INTERPOLATOR)
     //half3 viewDirTS                   : TEXCOORD7;
     //#endif
-
     DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 8);
     #ifdef DYNAMICLIGHTMAP_ON
         float2  dynamicLightmapUV       : TEXCOORD9;
     #endif
-
     float4 positionCS                   : SV_POSITION;
     
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -62,9 +58,9 @@ struct VertexOutput
 //--------------------------------------
 //  Vertex shader
 
-VertexOutput LitPassVertex(VertexInput input)
+Varyings LitPassVertex(Attributes input)
 {
-    VertexOutput output = (VertexOutput)0;
+    Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -162,7 +158,7 @@ inline void InitializeSurfaceData(
     outSurfaceData.emission = 0;
 }
 
-void InitializeInputData(VertexOutput input, half3 normalTS, half facing, out InputData inputData)
+void InitializeInputData(Varyings input, half3 normalTS, half facing, out InputData inputData)
 {
     inputData = (InputData)0;
     
@@ -218,10 +214,21 @@ void InitializeInputData(VertexOutput input, half3 normalTS, half facing, out In
 
 }
 
-half4 LitPassFragment(VertexOutput input, half facing : VFACE) : SV_Target
+void LitPassFragment(
+    Varyings input, half facing : VFACE
+    , out half4 outColor : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
+
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
 
 //  Get the surface description
     SurfaceData surfaceData;
@@ -274,5 +281,10 @@ half4 LitPassFragment(VertexOutput input, half facing : VFACE) : SV_Target
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
 //  Not needed
     //color.a = OutputAlpha(color.a, _Surface);
-    return color;
+    outColor = color;
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    #endif
 }

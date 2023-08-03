@@ -91,6 +91,7 @@ namespace LuxURPEssentials
 		[Space(4)]
 		public float Grass = 1.0f;
 		public float Foliage = 1.0f;
+		public float Trees = 1.0f;
 
 		private RenderTexture WindRenderTexture;
 		private Material m_material;
@@ -112,6 +113,8 @@ namespace LuxURPEssentials
 		private static readonly int LuxURPSinTimePID = Shader.PropertyToID("_LuxURPSinTime");
 		private static readonly int LuxURPGustPID = Shader.PropertyToID("_LuxURPGust");
 		private static readonly int LuxURPGustMixLayerPID = Shader.PropertyToID("_LuxURPGustMixLayer");
+
+		private static readonly int _LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency = Shader.PropertyToID("_LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency");
 
 		private static readonly int LuxURPBendFrequencyPID = Shader.PropertyToID("_LuxURPBendFrequency");
 
@@ -137,6 +140,10 @@ namespace LuxURPEssentials
 		private float temp_WindFrequency = 0.25f;
 		private float freqSpeed = 0.0125f;
 
+		private float currentWindPulseFrequency = -1.0f;
+		private double domainTime_Pulse = 0.0f;
+		private double OneOverPi = (double)(1.0f / Mathf.PI);
+
 		void OnEnable () {
 			if(WindCompositeShader == null) {
 				WindCompositeShader = Shader.Find("Hidden/Lux URP WindComposite");
@@ -154,13 +161,16 @@ namespace LuxURPEssentials
 			#if UNITY_EDITOR
 				EditorApplication.update += OnEditorUpdate;
 			#endif
-		}
 
+		//	Init
+			currentWindPulseFrequency = windZone.windPulseFrequency;
+		}
 
 		void OnDisable () {
 			if (WindRenderTexture != null) {
 				WindRenderTexture.Release();
 				UnityEngine.Object.DestroyImmediate(WindRenderTexture);
+				WindRenderTexture = null;
 			}
 			if (m_material != null) {
 				UnityEngine.Object.DestroyImmediate(m_material);
@@ -259,6 +269,20 @@ namespace LuxURPEssentials
 
 		//	Set global shader variables for grass and foliage shaders
 			Shader.SetGlobalVector(LuxURPWindDirSizePID, WindDirectionSize);
+
+		//	Set global shader variables for tree creator trees (LOD)
+			var turbulence = windZone.windTurbulence;
+			var windpulseMagnitude = windZone.windPulseMagnitude;
+			var windPulseFrequency = windZone.windPulseFrequency;
+			//var treecreatorWindStrength = windpulseMagnitude * mainWind * (1.0f + Mathf.Sin(Time.time * windPulseFrequency) + 1.0f + Mathf.Sin(Time.time * windPulseFrequency * 3.0f) ) * 0.5f;
+			var treecreatorWindStrength = mainWind * Trees;
+			
+		//	Gradually tweak t_animatedWindPulseFrequency
+			currentWindPulseFrequency = Mathf.MoveTowards(currentWindPulseFrequency, windPulseFrequency, freqSpeed);
+			domainTime_Pulse += delta * (1.0f + currentWindPulseFrequency);
+			var t_animatedWindPulseFrequency = (float)(domainTime_Pulse * OneOverPi);
+
+			Shader.SetGlobalVector(_LuxURPWindStrengthTurbulencePulsemagnitudePulseFrequency, new Vector4(treecreatorWindStrength, turbulence, windpulseMagnitude, t_animatedWindPulseFrequency) );
 
 			Vector2 tempWindstrengths;
 			tempWindstrengths.x = Grass * mainWind;

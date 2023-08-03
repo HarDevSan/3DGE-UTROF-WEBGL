@@ -1,3 +1,7 @@
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
     float3 positionOS               : POSITION;
@@ -22,9 +26,9 @@ struct Varyings
         half4 tangentWS             : TEXCOORD5;
     #endif
 
-    #if defined(SHADER_STAGE_FRAGMENT)
-        FRONT_FACE_TYPE cullFace    : FRONT_FACE_SEMANTIC;
-    #endif
+    // #if defined(SHADER_STAGE_FRAGMENT)
+    //     FRONT_FACE_TYPE cullFace    : FRONT_FACE_SEMANTIC;
+    // #endif
 
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
@@ -60,19 +64,32 @@ Varyings DepthNormalsVertex(Attributes input)
     return output;
 }
 
-half4 DepthNormalsFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FACE_SEMANTIC) : SV_TARGET
+//half4 DepthNormalsFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FACE_SEMANTIC) : SV_TARGET
+//half4 DepthNormalsFragment(Varyings input, half facing : VFACE) : SV_TARGET
+//{
+void DepthNormalsFragment(
+    Varyings input, half facing : VFACE
+    , out half4 outNormalWS : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
+    #endif
     
     #if defined(_ALPHATEST_ON)
         half mask = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
         clip (mask - _Cutoff);
     #endif
 
-    #if defined(SHADER_STAGE_FRAGMENT)
-        input.cullFace = IS_FRONT_VFACE(frontFace, true, false);
-    #endif
+    // #if defined(SHADER_STAGE_FRAGMENT)
+    //     input.cullFace = IS_FRONT_VFACE(frontFace, true, false);
+    // #endif
 
 //  Obsolete?
     #if defined(_GBUFFER_NORMALS_OCT)
@@ -84,7 +101,7 @@ half4 DepthNormalsFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FAC
         float2 octNormalWS = PackNormalOctQuadEncode(normalWS);           // values between [-1, +1], must use fp32 on some platforms
         float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);   // values between [ 0,  1]
         half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);      // values between [ 0,  1]
-        return half4(packedNormalWS, 0.0);
+        outNormalWS = half4(packedNormalWS, 0.0);
     #else
         #if defined(_SSAO_FLATSHADED)
             //  Create custom per vertex normal // SafeNormalize does not work here on Android?!
@@ -96,14 +113,14 @@ half4 DepthNormalsFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FAC
         #else
             half3 normalWS = NormalizeNormalPerPixel(input.normalWS);
             #if defined(SHADER_STAGE_FRAGMENT) && !defined(_NORMALINDEPTHNORMALPASS)
-                normalWS *= input.cullFace ? 1 : -1;
+                normalWS *= facing; //input.cullFace ? 1 : -1;
             #endif
         #endif
 
         #if defined(_NORMALMAP) && defined(_NORMALINDEPTHNORMALPASS)
             half3 normalTS = SampleNormal(input.uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale);
             #if defined(SHADER_STAGE_FRAGMENT) && !defined(_SSAO_FLATSHADED)
-                normalTS.z *= input.cullFace ? 1 : -1;
+                normalTS.z *= facing; //input.cullFace ? 1 : -1;
             #endif
         //  Adjust tangentWS as we have tweaked normalWS
             input.tangentWS.xyz = Orthonormalize(input.tangentWS.xyz, normalWS.xyz);
@@ -113,6 +130,11 @@ half4 DepthNormalsFragment(Varyings input, FRONT_FACE_TYPE frontFace : FRONT_FAC
         #endif
 
         normalWS = NormalizeNormalPerPixel(normalWS);
-        return half4(normalWS, 0.0);
+        outNormalWS = half4(normalWS, 0.0);
+    #endif
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
     #endif
 }

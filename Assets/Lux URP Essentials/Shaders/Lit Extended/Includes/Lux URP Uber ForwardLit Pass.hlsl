@@ -22,6 +22,10 @@
 #endif
 
 
+#if defined(LOD_FADE_CROSSFADE)
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+#endif
+
 struct Attributes
 {
     float4 positionOS   : POSITION;
@@ -66,7 +70,7 @@ struct Varyings
 #endif
 
     float4 positionCS               : SV_POSITION;
-    //UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
@@ -134,7 +138,7 @@ Varyings LitPassVertexUber(Attributes input)
     Varyings output = (Varyings)0;
 
     UNITY_SETUP_INSTANCE_ID(input);
-    //UNITY_TRANSFER_INSTANCE_ID(input, output);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
@@ -194,15 +198,24 @@ Varyings LitPassVertexUber(Attributes input)
 
 #include "Includes/Lux URP Lit Extended Lighting.hlsl"
 
-half4 LitPassFragmentUber(Varyings input, half facing : VFACE) : SV_Target
+void LitPassFragmentUber(
+    Varyings input, half facing : VFACE
+    , out half4 outColor : SV_Target0
+#ifdef _WRITE_RENDERING_LAYERS
+    , out float4 outRenderingLayers : SV_Target1
+#endif
+)
 {
-    //UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
 //  LOD crossfading
-    #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-        //LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
-        clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+    // #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
+    //     clip (unity_LODFade.x - Dither32(input.positionCS.xy, 1));
+    // #endif
+
+    #ifdef LOD_FADE_CROSSFADE
+        LODFadeCrossFade(input.positionCS);
     #endif
 
 //  Camera Fading
@@ -287,6 +300,11 @@ half4 LitPassFragmentUber(Varyings input, half facing : VFACE) : SV_Target
         surfaceData.emission += pow(rim, power) * _RimColor.rgb * _RimColor.a;
     #endif
 
+//  Multicative blending
+    #if defined(_ALPHAMODULATE_ON)
+        surfaceData.albedo = lerp(half3(1,1,1), surfaceData.albedo, surfaceData.alpha.xxx);
+    #endif
+
     #ifdef _DBUFFER
         ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
     #endif
@@ -308,8 +326,46 @@ half4 LitPassFragmentUber(Varyings input, half facing : VFACE) : SV_Target
         _HorizonOcclusion
     );
 
-    color.rgb = MixFog(color.rgb, inputData.fogCoord);
-    return color;
-}
+//  URP still does not handle fog properly?!   
+    #if defined(_SURFACE_TYPE_TRANSPARENT) 
+        
+        //  From MixFogColor()
+            #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
+                if (IsFogEnabled())
+                {
+                    float fogIntensity = ComputeFogIntensity(inputData.fogCoord);
+                    #if defined(_ALPHAPREMULTIPLY_ON)
+                    //  additive - here we simply fade out color according to fogIntensity :(
+                        if(_Blend == 2) {
+                            color = lerp(half4(0,0,0,0), color, fogIntensity);
+                        }
+                    //  premul - we premuliply the fog color to make it match the blend mode.
+                        else {
+                            color.rgb = lerp(unity_FogColor.rgb * color.a, color.rgb, fogIntensity);   
+                        }
+                    #else
+                    //  alpha
+                        if(_Blend == 0)
+                        {
+                            color.rgb = MixFog(color.rgb, inputData.fogCoord);   
+                        }
+                    //  multiply - here we simply fade out color according to fogIntensity :(
+                        else {
+                            color = lerp(half4(1,1,1,0), color, fogIntensity);  
+                        }
+                    #endif
+                }
+            #endif
+    #else 
+        color.rgb = MixFog(color.rgb, inputData.fogCoord);
+    #endif    
+
+    outColor = color;
+
+    #ifdef _WRITE_RENDERING_LAYERS
+        uint renderingLayers = GetMeshRenderingLayer();
+        outRenderingLayers = float4(EncodeMeshRenderingLayer(renderingLayers), 0, 0, 0);
+    #endif
+} 
 
 #endif
