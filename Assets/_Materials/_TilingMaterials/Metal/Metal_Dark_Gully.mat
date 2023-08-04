@@ -21,10 +21,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Metal_Dark_Gully
-  m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
+  m_Shader: {fileID: 4800000, guid: 0ca6dca7396eb48e5849247ffd444914, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _NORMALMAP
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
@@ -240,6 +241,7 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Blend: 0
+    - _BlendModePreserveSpecular: 1
     - _BlendOp: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
@@ -262,7 +264,7 @@ Material:
     - _ReceiveShadows: 1
     - _SampleGI: 0
     - _Shininess: 0
-    - _Smoothness: 0.411
+    - _Smoothness: 1
     - _SmoothnessFromMetallic: 0
     - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
@@ -297,5 +299,5 @@ Material:
     - _BaseColor: {r: 0.28907084, g: 0.29539984, b: 0.3018868, a: 1}
     - _Color: {r: 0.2890708, g: 0.2953998, b: 0.30188674, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SpecColor: {r: 0.19999984, g: 0.19999984, b: 0.19999984, a: 0.5}
+    - _SpecColor: {r: 0.19999981, g: 0.19999981, b: 0.19999981, a: 0.411}
   m_BuildTextureStacks: []
