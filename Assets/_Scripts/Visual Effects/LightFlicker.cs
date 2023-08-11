@@ -26,7 +26,7 @@ public class LightFlicker : MonoBehaviour
     [Range(0.01f, .5f)]
     public float maxFlickerInterval;
 
-    [Range(0f, .5f)]
+    [Range(-.5f, .5f)]
     public float minEmissionIntensity;
     [Range(0.5f, 2.8f)]
     public float maxEmissionIntensity;
