@@ -20,11 +20,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -63,6 +64,7 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
   cookieLightType: 0
   platformSettings:
   - serializedVersion: 3
@@ -75,6 +77,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -87,6 +90,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -99,18 +103,20 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: WebGL
-    maxTextureSize: 2048
+    maxTextureSize: 256
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 65
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 0
+    overridden: 1
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
@@ -2143,105 +2149,104 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      FogSheet_02_28: 1119159387
-      FogSheet_02_72: 525617466
-      FogSheet_02_11: 1509263337
-      FogSheet_02_13: 235339604
-      FogSheet_02_34: 702033287
-      FogSheet_02_90: -1032340781
-      FogSheet_02_21: -2106078887
-      FogSheet_02_74: -1498372827
-      FogSheet_02_47: -1123510197
-      FogSheet_02_51: 1291386388
-      FogSheet_02_53: 683906041
-      FogSheet_02_45: -594725101
-      FogSheet_02_10: -1107319169
-      FogSheet_02_41: 1080089947
-      FogSheet_02_80: 1499775144
-      FogSheet_02_31: -492710726
-      FogSheet_02_37: 500741426
-      FogSheet_02_18: -1243132127
-      FogSheet_02_12: -1532376684
-      FogSheet_02_50: -1395693041
-      FogSheet_02_59: -794218612
-      FogSheet_02_9: -665420111
-      FogSheet_02_86: 79599269
-      FogSheet_02_69: -1199224643
-      FogSheet_02_77: 1926405583
-      FogSheet_02_60: 532489437
-      FogSheet_02_84: -1340130365
-      FogSheet_02_62: 133142116
-      FogSheet_02_24: 1280366410
-      FogSheet_02_67: 899388019
-      FogSheet_02_6: -2079149047
+      FogSheet_02_0: -1004713408
       FogSheet_02_1: -1670128334
+      FogSheet_02_10: -1107319169
+      FogSheet_02_11: 1509263337
+      FogSheet_02_12: -1532376684
+      FogSheet_02_13: 235339604
+      FogSheet_02_14: 1676967138
+      FogSheet_02_15: -1815805927
+      FogSheet_02_16: 1970762259
+      FogSheet_02_17: -1761277042
+      FogSheet_02_18: -1243132127
+      FogSheet_02_19: 137836989
+      FogSheet_02_2: 149821814
+      FogSheet_02_20: 1318047024
+      FogSheet_02_21: -2106078887
+      FogSheet_02_22: 623935622
+      FogSheet_02_23: -2095898979
+      FogSheet_02_24: 1280366410
+      FogSheet_02_25: 990984705
+      FogSheet_02_26: -1372852823
+      FogSheet_02_27: -1257715682
+      FogSheet_02_28: 1119159387
+      FogSheet_02_29: -167358154
+      FogSheet_02_3: 1309130989
+      FogSheet_02_30: -439564283
+      FogSheet_02_31: -492710726
+      FogSheet_02_32: 363750909
+      FogSheet_02_33: 90057854
+      FogSheet_02_34: 702033287
       FogSheet_02_35: -2039610359
+      FogSheet_02_36: 604501005
+      FogSheet_02_37: 500741426
+      FogSheet_02_38: -118019383
+      FogSheet_02_39: -949635678
+      FogSheet_02_4: -1239253542
+      FogSheet_02_40: -88291098
+      FogSheet_02_41: 1080089947
+      FogSheet_02_42: 1709288888
+      FogSheet_02_43: 196148313
+      FogSheet_02_44: 711307891
+      FogSheet_02_45: -594725101
+      FogSheet_02_46: -1474919972
+      FogSheet_02_47: -1123510197
+      FogSheet_02_48: 805245659
+      FogSheet_02_49: 54092166
+      FogSheet_02_5: -1697472879
+      FogSheet_02_50: -1395693041
+      FogSheet_02_51: 1291386388
+      FogSheet_02_52: 736054893
+      FogSheet_02_53: 683906041
       FogSheet_02_54: -38825829
       FogSheet_02_55: -462294000
-      FogSheet_02_7: 1173994352
-      FogSheet_02_0: -1004713408
-      FogSheet_02_17: -1761277042
-      FogSheet_02_39: -949635678
-      FogSheet_02_88: 1243562807
-      FogSheet_02_42: 1709288888
-      FogSheet_02_92: -1965266461
-      FogSheet_02_48: 805245659
-      FogSheet_02_75: 1814645572
-      FogSheet_02_5: -1697472879
-      FogSheet_02_91: -2007886314
-      FogSheet_02_22: 623935622
-      FogSheet_02_38: -118019383
-      FogSheet_02_14: 1676967138
-      FogSheet_02_70: 1218491655
-      FogSheet_02_52: 736054893
-      FogSheet_02_3: 1309130989
-      FogSheet_02_20: 1318047024
-      FogSheet_02_68: -983448706
-      FogSheet_02_95: -114990682
-      FogSheet_02_16: 1970762259
-      FogSheet_02_8: 1236611794
-      FogSheet_02_83: 848844579
-      FogSheet_02_2: 149821814
-      FogSheet_02_87: -853409887
-      FogSheet_02_66: 2145767717
-      FogSheet_02_78: 739748740
-      FogSheet_02_33: 90057854
-      FogSheet_02_30: -439564283
-      FogSheet_02_40: -88291098
-      FogSheet_02_15: -1815805927
-      FogSheet_02_94: 1294711016
-      FogSheet_02_23: -2095898979
-      FogSheet_02_93: -1509815754
-      FogSheet_02_44: 711307891
-      FogSheet_02_65: 47326723
-      FogSheet_02_19: 137836989
-      FogSheet_02_25: 990984705
-      FogSheet_02_57: 190852677
-      FogSheet_02_64: 1202855712
-      FogSheet_02_26: -1372852823
       FogSheet_02_56: 284996042
-      FogSheet_02_36: 604501005
-      FogSheet_02_82: 708506196
-      FogSheet_02_27: -1257715682
-      FogSheet_02_71: 855555800
-      FogSheet_02_49: 54092166
-      FogSheet_02_43: 196148313
-      FogSheet_02_76: 668546464
-      FogSheet_02_89: 1647793868
-      FogSheet_02_81: 1936452091
-      FogSheet_02_73: 1918721287
+      FogSheet_02_57: 190852677
       FogSheet_02_58: -1204997696
-      FogSheet_02_79: 1313224142
-      FogSheet_02_29: -167358154
-      FogSheet_02_4: -1239253542
-      FogSheet_02_85: -1333658023
+      FogSheet_02_59: -794218612
+      FogSheet_02_6: -2079149047
+      FogSheet_02_60: 532489437
       FogSheet_02_61: 1816761328
+      FogSheet_02_62: 133142116
       FogSheet_02_63: -207823371
-      FogSheet_02_32: 363750909
-      FogSheet_02_46: -1474919972
-  spritePackingTag: 
+      FogSheet_02_64: 1202855712
+      FogSheet_02_65: 47326723
+      FogSheet_02_66: 2145767717
+      FogSheet_02_67: 899388019
+      FogSheet_02_68: -983448706
+      FogSheet_02_69: -1199224643
+      FogSheet_02_7: 1173994352
+      FogSheet_02_70: 1218491655
+      FogSheet_02_71: 855555800
+      FogSheet_02_72: 525617466
+      FogSheet_02_73: 1918721287
+      FogSheet_02_74: -1498372827
+      FogSheet_02_75: 1814645572
+      FogSheet_02_76: 668546464
+      FogSheet_02_77: 1926405583
+      FogSheet_02_78: 739748740
+      FogSheet_02_79: 1313224142
+      FogSheet_02_8: 1236611794
+      FogSheet_02_80: 1499775144
+      FogSheet_02_81: 1936452091
+      FogSheet_02_82: 708506196
+      FogSheet_02_83: 848844579
+      FogSheet_02_84: -1340130365
+      FogSheet_02_85: -1333658023
+      FogSheet_02_86: 79599269
+      FogSheet_02_87: -853409887
+      FogSheet_02_88: 1243562807
+      FogSheet_02_89: 1647793868
+      FogSheet_02_9: -665420111
+      FogSheet_02_90: -1032340781
+      FogSheet_02_91: -2007886314
+      FogSheet_02_92: -1965266461
+      FogSheet_02_93: -1509815754
+      FogSheet_02_94: 1294711016
+      FogSheet_02_95: -114990682
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
