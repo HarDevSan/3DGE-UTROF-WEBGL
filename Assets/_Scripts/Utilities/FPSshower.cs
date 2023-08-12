@@ -27,6 +27,7 @@ public class FPSshower : MonoBehaviour
 
     private void Start()
     {
+        secondsGUI.color = greaterEqual60_Color;
         StartCoroutine(countEverySecond());
     }
 
