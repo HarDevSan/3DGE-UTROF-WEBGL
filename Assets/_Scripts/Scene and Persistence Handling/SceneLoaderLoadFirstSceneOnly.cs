@@ -18,6 +18,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
     public string startMenuSceneName;
     public static bool isPersistentSceneLoaded;
     public static bool isFirstSceneLoaded;
+    public int delayInSecondsUntilLoaded;
 
 
     public delegate void FirstSceneFinishedLoading();
@@ -29,7 +30,8 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
 
     private void Start()
     {
-        StartMenuManager.OnPlayButtonClicked += LoadFirstScene;
+        //We can't subscribe here as it's async. Need to wait for Persistent loaded to load first scene
+        //StartMenuManager.OnPlayButtonClicked += LoadFirstScene;
         StartMenuManager.OnPlayButtonClicked += LoadPersistentScene;
 
         OnFirstSceneFinishedLoading += UnloadStartMenuScene;
@@ -39,7 +41,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
     {
         //for convienence, if the persistent scene is already loaded in editor, during run time, this does not matter
         if (SceneManager.GetSceneByName(persistentSceneName).isLoaded == false)
-            StartCoroutine(LoadPersistentRoutine());
+            StartCoroutine(LoadPersistentAndThenFirstSceneRoutine());
     }
 
     void LoadFirstScene()
@@ -57,7 +59,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
             StartCoroutine(UnloadStartMenuRoutine());
     }
 
-    IEnumerator LoadPersistentRoutine()
+    IEnumerator LoadPersistentAndThenFirstSceneRoutine()
     {
         AsyncOperation operation = SceneManager.LoadSceneAsync(persistentSceneName, LoadSceneMode.Additive);
 
@@ -72,6 +74,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
         if (OnPersistentSceneFinishedLoading != null)
             OnPersistentSceneFinishedLoading.Invoke();
         isPersistentSceneLoaded = true;
+        LoadFirstScene();
         yield break;
     }
 
@@ -88,7 +91,10 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
             }
         }
         if (OnFirstSceneFinishedLoading != null)
+        {
+
             OnFirstSceneFinishedLoading.Invoke();
+        }
         isFirstSceneLoaded = true;
         yield break;
     }
@@ -96,6 +102,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
 
     IEnumerator UnloadStartMenuRoutine()
     {
+
         AsyncOperation op = SceneManager.UnloadSceneAsync(startMenuSceneName);
 
         if (op != null)
