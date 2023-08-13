@@ -18,8 +18,6 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
     public string startMenuSceneName;
     public static bool isPersistentSceneLoaded;
     public static bool isFirstSceneLoaded;
-    public int delayInSecondsUntilLoaded;
-
 
     public delegate void FirstSceneFinishedLoading();
     public static event FirstSceneFinishedLoading OnFirstSceneFinishedLoading;
