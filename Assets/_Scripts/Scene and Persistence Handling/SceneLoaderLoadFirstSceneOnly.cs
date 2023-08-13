@@ -1,11 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceProviders;
-using System;
 
 public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
 {
@@ -28,25 +23,27 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
 
     private void Start()
     {
-        //We can't subscribe here as it's async. Need to wait for Persistent loaded to load first scene
-        //StartMenuManager.OnPlayButtonClicked += LoadFirstScene;
-        StartMenuManager.OnPlayButtonClicked += LoadPersistentScene;
+        /*We can't subscribe here as it's async. Need to wait for first scene to load and then we need to load peristent scen
+        *otherwise player falls as no collider yet present
+        */
+        StartMenuManager.OnPlayButtonClicked += LoadFirstScene;
+        //StartMenuManager.OnPlayButtonClicked += LoadPersistentScene;
 
-        OnFirstSceneFinishedLoading += UnloadStartMenuScene;
+        OnPersistentSceneFinishedLoading += UnloadStartMenuScene;
     }
 
     void LoadPersistentScene()
     {
         //for convienence, if the persistent scene is already loaded in editor, during run time, this does not matter
         if (SceneManager.GetSceneByName(persistentSceneName).isLoaded == false)
-            StartCoroutine(LoadPersistentAndThenFirstSceneRoutine());
+            StartCoroutine(LoadPersistentSceneRoutine());
     }
 
     void LoadFirstScene()
     {
         //for convienence, if the first scene is already loaded in editor, during run time, this does not matter
         if (SceneManager.GetSceneByName(firstSceneName).isLoaded == false)
-            StartCoroutine(LoadFirstSceneRoutine());
+            StartCoroutine(LoadFirstSceneandThenPersistentSceneRoutine());
     }
 
 
@@ -57,7 +54,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
             StartCoroutine(UnloadStartMenuRoutine());
     }
 
-    IEnumerator LoadPersistentAndThenFirstSceneRoutine()
+    IEnumerator LoadPersistentSceneRoutine()
     {
         AsyncOperation operation = SceneManager.LoadSceneAsync(persistentSceneName, LoadSceneMode.Additive);
 
@@ -72,11 +69,10 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
         if (OnPersistentSceneFinishedLoading != null)
             OnPersistentSceneFinishedLoading.Invoke();
         isPersistentSceneLoaded = true;
-        LoadFirstScene();
         yield break;
     }
 
-    IEnumerator LoadFirstSceneRoutine()
+    IEnumerator LoadFirstSceneandThenPersistentSceneRoutine()
     {
         AsyncOperation operation = SceneManager.LoadSceneAsync(firstSceneName, LoadSceneMode.Additive);
 
@@ -94,6 +90,7 @@ public class SceneLoaderLoadFirstSceneOnly : MonoBehaviour
             OnFirstSceneFinishedLoading.Invoke();
         }
         isFirstSceneLoaded = true;
+        LoadPersistentScene();
         yield break;
     }
 
