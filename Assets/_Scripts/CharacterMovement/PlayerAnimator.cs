@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerAnimator : MonoBehaviour
 {
     public Animator animator;
-
+    //Param to make movement speed more natural by assigning slight randomization in tempo
     public Vector2 RandomSpeedMaxMin;
 
     private void Start()
