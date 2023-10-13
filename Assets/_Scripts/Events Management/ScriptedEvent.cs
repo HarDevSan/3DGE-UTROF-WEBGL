@@ -52,17 +52,14 @@ public class ScriptedEvent : MonoBehaviour
         else
         {
             //flip flop isHasSeenOnce bool
-            if(isHasSeeOnce == true)
-            isHasSeeOnce = false;
+            if (isHasSeeOnce == true)
+                isHasSeeOnce = false;
         }
     }
 
     void StartScriptedEvent()
     {
         scriptedEvent.Invoke();
-        //Prevents a second trigger of the scripted event was already fired
-       if(shallDeactivateItselfAfterEvent)
-        DeactivateThisObject();
     }
 
     void DeactivateBoxCollider()
@@ -85,7 +82,7 @@ public class ScriptedEvent : MonoBehaviour
         {
             scriptedEvent.Invoke();
         }
-       // DeactivateThisObject();
+        // DeactivateThisObject();
 
     }
 
@@ -96,7 +93,7 @@ public class ScriptedEvent : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         scriptedEvent.Invoke();
-       // DeactivateThisObject();
+        // DeactivateThisObject();
     }
 
     private void OnTriggerStay(Collider other)
@@ -118,7 +115,8 @@ public class ScriptedEvent : MonoBehaviour
             isPlayerInsideTrigger = true;
         }
         //Make sure that once the player already was in the volume, THIS object and hence this collider will be disabled
-        //DeactivateThisObject();
+        if(shallDeactivateItselfAfterEvent)
+        DeactivateThisObject();
 
     }
 
