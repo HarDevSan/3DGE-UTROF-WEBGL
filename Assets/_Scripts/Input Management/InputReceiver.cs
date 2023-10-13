@@ -62,7 +62,7 @@ public class InputReceiver : MonoBehaviour
         }
         //Debug.Log("isMovementInput : " + isMovementInput);
         Check_If_PausePressed();
-        CheckIf_Lighter_Pressed();
+        //CheckIf_Lighter_Pressed();
         CheckIf_Zoom_IsPressed();
         //CheckIf_ResetPlayer_Pressed();
         CheckIf_Use_Pressed();
@@ -139,27 +139,27 @@ public class InputReceiver : MonoBehaviour
             return false;
     }
 
-    public static bool CheckIf_Lighter_Pressed()
-    {
-        if (lighterWasPressed == false)
-        {
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                lighterWasPressed = true;
-                On_F_Inpu.Invoke();
-                return true;
-            }
-        }
+    //public static bool CheckIf_Lighter_Pressed()
+    //{
+    //    if (lighterWasPressed == false)
+    //    {
+    //        if (Input.GetKeyDown(KeyCode.F))
+    //        {
+    //            lighterWasPressed = true;
+    //            On_F_Inpu.Invoke();
+    //            return true;
+    //        }
+    //    }
 
-        else if (Input.GetKeyDown(KeyCode.F))
-        {
-            lighterWasPressed = false;
-            On_F_Second_Input.Invoke();
-            return false;
-        }
+    //    else if (Input.GetKeyDown(KeyCode.F))
+    //    {
+    //        lighterWasPressed = false;
+    //        On_F_Second_Input.Invoke();
+    //        return false;
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     public static bool Check_If_PausePressed()
     {
