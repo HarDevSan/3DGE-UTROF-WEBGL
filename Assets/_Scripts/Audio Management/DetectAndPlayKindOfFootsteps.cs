@@ -8,6 +8,11 @@ public class DetectAndPlayKindOfFootsteps : MonoBehaviour
     FootStepsGetter footStepsGetter;
     AudioSource footStepSource;
 
+    [Range(0, 1)]
+    public float MinPitch;
+    [Range(0, 1)]
+    public float MaxPitch;
+
     //SO stats
     public PlayerStats playerstats;
 
@@ -41,7 +46,7 @@ public class DetectAndPlayKindOfFootsteps : MonoBehaviour
     }
     void PlayFootSteps()
     {
-        footStepSource.pitch = Random.Range(0.9f, 1.1f);
+        footStepSource.pitch = Random.Range(MinPitch, MaxPitch) ;
         footStepSource.Play();
     }
 
