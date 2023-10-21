@@ -28,8 +28,8 @@ MonoBehaviour:
   m_Active: 1
   passMaterial: {fileID: 2100000, guid: 032f06dd22b88f547804a431177240f1, type: 2}
   injectionPoint: 550
-  requirements: 4
-  passIndex: 0
+  requirements: -3
+  passIndex: 1
 --- !u!114 &-6529553564636536266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,7 +100,7 @@ MonoBehaviour:
     failOperation: 0
     zFailOperation: 0
   m_ShadowTransparentReceive: 1
-  m_RenderingMode: 0
+  m_RenderingMode: 1
   m_DepthPrimingMode: 0
   m_CopyDepthMode: 0
   m_AccurateGbufferNormals: 0
@@ -158,11 +158,11 @@ MonoBehaviour:
     AOMethod: 0
     Downsample: 0
     AfterOpaque: 0
-    Source: 0
+    Source: 1
     NormalSamples: 1
     Intensity: 1
     DirectLightingStrength: 1
-    Radius: 0.035
+    Radius: 0.03
     Samples: 1
     BlurQuality: 0
     Falloff: 100
