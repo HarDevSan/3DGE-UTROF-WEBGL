@@ -13,13 +13,13 @@ public class InventorySearcher : MonoBehaviour
         return isItemInList;
     }
 
-    IEnumerator CheckIfItemsIsInListRoutine(string name)
+    IEnumerator CheckIfItemsIsInListRoutine(string itemNname)
     {
         int counter = 0;
 
         while (counter < inventory.itemList.Count)
         {
-            if (inventory.itemList[counter] == name)
+            if (inventory.itemList[counter] == itemNname)
                 isItemInList = false;
             yield return null;
         }
