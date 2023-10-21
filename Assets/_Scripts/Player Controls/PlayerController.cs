@@ -57,11 +57,16 @@ public class PlayerController : MonoBehaviour
         SetPlayerToUnplayableState();
     }
 
-    void Update()
+    private void FixedUpdate()
     {
         //Gravity needs to always be applied, even if we have no jumping but maybe some falling
         // if (isApplyGravity)
         ApplyGravity();
+    }
+
+    void Update()
+    {
+        
 
         //Only call Movement related functions if the player does movmeent input
         if (InputManager.CheckIfAnyMovementInput())
