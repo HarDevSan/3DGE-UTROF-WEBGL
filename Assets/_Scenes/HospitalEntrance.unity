@@ -492,49 +492,6 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 10017253}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &10429312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA18
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 8
-  sortingID: 20
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &22495102
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1702,6 +1659,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 43842338}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &51407827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA21
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 6
+  sortingID: 23
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &57386736 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d744420d17a2ca745b6e7b21d9f6791d,
@@ -2340,8 +2340,8 @@ MonoBehaviour:
   uniqueLights:
   - {fileID: 1758026406}
   - {fileID: 273560466}
-  - {fileID: 1276058857}
   - {fileID: 1639502848}
+  - {fileID: 1276058857}
   - {fileID: 206037102}
   - {fileID: 279863119}
   - {fileID: 333233746}
@@ -2415,18 +2415,18 @@ MonoBehaviour:
     angle: 30
     UID: 2
   - tform:
-      e00: -0.47679034
-      e01: -0.87580895
-      e02: 0.07503144
-      e03: -95.244484
-      e10: 0.006628493
-      e11: -0.08893827
-      e12: -0.9960151
-      e13: -4.726974
-      e20: 0.8789922
-      e21: -0.47439304
-      e22: 0.048210144
-      e23: -23.694956
+      e00: 0.1958922
+      e01: -0.9547233
+      e02: 0.22389732
+      e03: -96.19021
+      e10: 0.07326342
+      e11: -0.2134342
+      e12: -0.9742065
+      e13: -4.4681535
+      e20: 0.97788507
+      e21: 0.20724295
+      e22: 0.028136216
+      e23: 23.550549
       e30: 0
       e31: 0
       e32: 0
@@ -2446,18 +2446,18 @@ MonoBehaviour:
     angle: 100.3
     UID: 3
   - tform:
-      e00: 0.1958922
-      e01: -0.9547233
-      e02: 0.22389732
-      e03: -96.19021
-      e10: 0.07326342
-      e11: -0.2134342
-      e12: -0.9742065
-      e13: -4.4681535
-      e20: 0.97788507
-      e21: 0.20724295
-      e22: 0.028136216
-      e23: 23.550549
+      e00: -0.47679034
+      e01: -0.87580895
+      e02: 0.07503144
+      e03: -95.244484
+      e10: 0.006628493
+      e11: -0.08893827
+      e12: -0.9960151
+      e13: -4.726974
+      e20: 0.8789922
+      e21: -0.47439304
+      e22: 0.048210144
+      e23: -23.694956
       e30: 0
       e31: 0
       e32: 0
@@ -2758,245 +2758,245 @@ MonoBehaviour:
     angle: 107.9646
     UID: 13
   implicitGroups:
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 1758248446}
-  - {fileID: 2109057528}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 2109057528}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 655777623}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1329530956}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 10429312}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 2109057528}
-  - {fileID: 1258268035}
-  - {fileID: 1685987130}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 947525491}
-  - {fileID: 865045515}
-  - {fileID: 1258268035}
-  - {fileID: 2109057528}
-  - {fileID: 229455104}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1520492305}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 577057642}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 2109236362}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1501678462}
-  - {fileID: 2109057528}
-  - {fileID: 1258268035}
-  - {fileID: 865045515}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 10429312}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1251362146}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1779872397}
-  - {fileID: 855970624}
-  - {fileID: 915554797}
-  - {fileID: 1258268035}
-  - {fileID: 1520492305}
-  - {fileID: 1258268035}
-  - {fileID: 915554797}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 915554797}
-  - {fileID: 1520492305}
-  - {fileID: 855970624}
-  - {fileID: 915554797}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1251362146}
-  - {fileID: 1779872397}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 10429312}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 2109057528}
-  - {fileID: 1088060381}
-  - {fileID: 1520492305}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 456618727}
-  - {fileID: 2109057528}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 915554797}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 10429312}
-  - {fileID: 1258268035}
-  - {fileID: 2109057528}
-  - {fileID: 1592808735}
-  - {fileID: 855970624}
-  - {fileID: 798696631}
-  - {fileID: 1258268035}
-  - {fileID: 1389440240}
-  - {fileID: 1258268035}
-  - {fileID: 1450339848}
-  - {fileID: 791397941}
-  - {fileID: 865045515}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 2109057528}
-  - {fileID: 915554797}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1088060381}
-  - {fileID: 1258268035}
-  - {fileID: 10429312}
-  - {fileID: 10429312}
-  - {fileID: 2109236362}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1329530956}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 781870520}
-  - {fileID: 2109057528}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1251362146}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1763551065}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 671753557}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1329530956}
-  - {fileID: 1258268035}
-  - {fileID: 318920264}
-  - {fileID: 915554797}
-  - {fileID: 915554797}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 2109057528}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1450339848}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 1258268035}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
-  - {fileID: 1450339848}
-  - {fileID: 855970624}
-  - {fileID: 855970624}
-  - {fileID: 1258268035}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 378587711}
+  - {fileID: 339953658}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 339953658}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 140596739}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1553085598}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 559075987}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 339953658}
+  - {fileID: 1505279639}
+  - {fileID: 1023104686}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1519503041}
+  - {fileID: 1765969896}
+  - {fileID: 1505279639}
+  - {fileID: 339953658}
+  - {fileID: 1573392261}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1823561658}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 453319861}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 433438049}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1017228580}
+  - {fileID: 339953658}
+  - {fileID: 1505279639}
+  - {fileID: 1765969896}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 559075987}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 907553636}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 920027294}
+  - {fileID: 1850294151}
+  - {fileID: 715255303}
+  - {fileID: 1505279639}
+  - {fileID: 1823561658}
+  - {fileID: 1505279639}
+  - {fileID: 715255303}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 715255303}
+  - {fileID: 1537880880}
+  - {fileID: 1850294151}
+  - {fileID: 715255303}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 907553636}
+  - {fileID: 920027294}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 559075987}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 339953658}
+  - {fileID: 51407827}
+  - {fileID: 1823561658}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1940781277}
+  - {fileID: 339953658}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 715255303}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 559075987}
+  - {fileID: 1505279639}
+  - {fileID: 339953658}
+  - {fileID: 454905086}
+  - {fileID: 1850294151}
+  - {fileID: 1735910075}
+  - {fileID: 1505279639}
+  - {fileID: 277612587}
+  - {fileID: 1505279639}
+  - {fileID: 1080362943}
+  - {fileID: 1794296991}
+  - {fileID: 1765969896}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 339953658}
+  - {fileID: 715255303}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 51407827}
+  - {fileID: 1505279639}
+  - {fileID: 559075987}
+  - {fileID: 559075987}
+  - {fileID: 433438049}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1553085598}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 770395365}
+  - {fileID: 339953658}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 907553636}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 885825206}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 614585221}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1553085598}
+  - {fileID: 1505279639}
+  - {fileID: 1988508444}
+  - {fileID: 715255303}
+  - {fileID: 559075987}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 339953658}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1080362943}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1505279639}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
+  - {fileID: 1080362943}
+  - {fileID: 1850294151}
+  - {fileID: 1850294151}
+  - {fileID: 1505279639}
   implicitGroupedObjects:
   - {fileID: 10017254}
   - {fileID: 27074310}
@@ -3238,8 +3238,10 @@ MonoBehaviour:
   - {fileID: 2125740404}
   - {fileID: 2059727658101398979}
   bounds:
-  - m_Center: {x: -75.48755, y: -1.1838875, z: 44.00259}
-    m_Extent: {x: 39.869827, y: 31.73774, z: 83.595116}
+  - m_Center: {x: -109.33809, y: -11.523725, z: 4.140625}
+    m_Extent: {x: 7.587467, y: 14.700198, z: 75.834}
+  - m_Center: {x: -54.6655, y: 2.6426582, z: -12.839523}
+    m_Extent: {x: 44.543476, y: 22.695328, z: 49.21293}
   - m_Center: {x: -79.23561, y: -10.521664, z: -4.837387}
     m_Extent: {x: 33.19934, y: 7.654579, z: 52.89778}
   - m_Center: {x: -58.326645, y: 8.017658, z: 23.553984}
@@ -3264,8 +3266,8 @@ MonoBehaviour:
     m_Extent: {x: 33.332382, y: 6.99865, z: 37.04712}
   - m_Center: {x: -109.3713, y: -4.1235957, z: 11.475611}
     m_Extent: {x: 5.910298, y: 7.418942, z: 6.709914}
-  - m_Center: {x: -109.33809, y: -11.523725, z: 4.140625}
-    m_Extent: {x: 7.587467, y: 14.700198, z: 75.834}
+  - m_Center: {x: -59.671, y: -4.3505, z: -1.0419998}
+    m_Extent: {x: 13.254489, y: 4.8993616, z: 24.423794}
   - m_Center: {x: -93.47889, y: -14.007954, z: -35.452637}
     m_Extent: {x: 7.4736786, y: 4.7770534, z: 29.46611}
   - m_Center: {x: -75.57896, y: 3.781231, z: -41.246017}
@@ -3292,13 +3294,13 @@ MonoBehaviour:
     m_Extent: {x: 7.4708557, y: 16.629478, z: 22.600702}
   - m_Center: {x: 8.72982, y: 3.1242557, z: 8.053965}
     m_Extent: {x: 1185.7028, y: 1185.7026, z: 1185.703}
-  - m_Center: {x: -54.6655, y: 2.6426582, z: -12.839523}
-    m_Extent: {x: 44.543476, y: 22.695328, z: 49.21293}
+  - m_Center: {x: -75.48755, y: -1.1838875, z: 44.00259}
+    m_Extent: {x: 39.869827, y: 31.73774, z: 83.595116}
   - m_Center: {x: 8.729858, y: 3.1242676, z: 8.053955}
     m_Extent: {x: 1039.2594, y: 1078.6581, z: 1072.4412}
   - m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 5000, y: 5000, z: 5000}
-  hasEmissive: 0101010101010101010101010101010101010101010101010101010101
+  hasEmissive: 010101010101010101010101010101010101010101010101010101010101
   uvBuffOffsets: 
   uvBuffLengths: 
   uvSrcBuff: []
@@ -3310,10 +3312,10 @@ MonoBehaviour:
   lmGroupMinLOD: 
   lmGroupLODMatrix: 
   serverGetFileList: []
-  lightmapHasColor: 010101010101010101010101010101010101010101010101010101010101
-  lightmapHasMask: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  lightmapHasDir: 010101010101010101010101010101010101010101010101010101010100
-  lightmapHasRNM: 000000000000000000000000000000000000000000000000000000000001
+  lightmapHasColor: 01010101010101010101010101010101010101010101010101010101010101
+  lightmapHasMask: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  lightmapHasDir: 01010101010101010101010101010101010101010101010101010101010100
+  lightmapHasRNM: 00000000000000000000000000000000000000000000000000000000000001
   modifiedAssetPathList:
   - Assets/_StaticMeshes/Props/Cars/Ambulance/Ambulance_low.fbx
   - Assets/_FBXImport/HospitalBuildingRe.fbx
@@ -3448,7 +3450,8 @@ MonoBehaviour:
     padding: 6e000000
     unwrapper: 00000000
   maps:
-  - {fileID: 2800000, guid: 121d6920d9034a14198196ba6b8887ef, type: 3}
+  - {fileID: 2800000, guid: 4d6a69f1fb894ba4f90332b162d84834, type: 3}
+  - {fileID: 2800000, guid: ab35cea8eb2a2fd42a7dcc88228ed858, type: 3}
   - {fileID: 2800000, guid: b91f347bff01fe7458bc07470d50835f, type: 3}
   - {fileID: 2800000, guid: e8c85ad72bcb7ca488018f998bae8d42, type: 3}
   - {fileID: 2800000, guid: 8ce44895879bd0943bbf2bdfe1bb30db, type: 3}
@@ -3461,8 +3464,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 78343e12fbd05ef43856a52125a3d1d9, type: 3}
   - {fileID: 2800000, guid: 28218ddd0e164624cbdfe08e969c800d, type: 3}
   - {fileID: 2800000, guid: cfb47b7a4c8786149874ddcf3261cc15, type: 3}
-  - {fileID: 2800000, guid: 4d6a69f1fb894ba4f90332b162d84834, type: 3}
   - {fileID: 2800000, guid: 2af75e661a3ad5243aaa437a495d3b91, type: 3}
+  - {fileID: 2800000, guid: f964f3cca7d4b8944abeeb8adcd55091, type: 3}
   - {fileID: 2800000, guid: ed02a8661ee595f4186415751f8ed721, type: 3}
   - {fileID: 2800000, guid: 0a94660c7d4fd4c449de9ad37defa23c, type: 3}
   - {fileID: 2800000, guid: d9b10a239a5938444b9eb5b6a977b735, type: 3}
@@ -3475,10 +3478,11 @@ MonoBehaviour:
   - {fileID: 2800000, guid: eb16d79770cc3644fa14fea018f6c894, type: 3}
   - {fileID: 2800000, guid: 785a448c4383e7f40bef6a92a2c02abc, type: 3}
   - {fileID: 2800000, guid: d011829a173fa0243a19cf3d26d156bf, type: 3}
-  - {fileID: 2800000, guid: ab35cea8eb2a2fd42a7dcc88228ed858, type: 3}
+  - {fileID: 2800000, guid: 121d6920d9034a14198196ba6b8887ef, type: 3}
   masks: []
   dirMaps:
-  - {fileID: 2800000, guid: 6e3c0e4b2e80d2744828332581af6e02, type: 3}
+  - {fileID: 2800000, guid: b1b2c93f7c849be4cb025b77c7f74814, type: 3}
+  - {fileID: 2800000, guid: 78a4e845fcb2f6149b3afe4222eaad62, type: 3}
   - {fileID: 2800000, guid: 5ba7d38c64587624392ca175e1d81c2c, type: 3}
   - {fileID: 2800000, guid: 169776167262c6e49a967ba956354679, type: 3}
   - {fileID: 2800000, guid: f36751ac51b2fcf468929c80d847be0c, type: 3}
@@ -3491,8 +3495,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: d404a3821ce1ab441abb6829dba0104e, type: 3}
   - {fileID: 2800000, guid: b445c85d5a2783c4195394096325ac2e, type: 3}
   - {fileID: 2800000, guid: dabfc4cb2f48cb24387153c9feff0161, type: 3}
-  - {fileID: 2800000, guid: b1b2c93f7c849be4cb025b77c7f74814, type: 3}
   - {fileID: 2800000, guid: de99af912e908be4ab7f97c45d7fbd00, type: 3}
+  - {fileID: 2800000, guid: acfb4ed35ecaf574fb1e39e784f5c748, type: 3}
   - {fileID: 2800000, guid: 16bbe231734449847bf4ad687addf3d0, type: 3}
   - {fileID: 2800000, guid: 53c57d4532575eb449d05da987ea3a5b, type: 3}
   - {fileID: 2800000, guid: 3a0aea8e1adf00a46bddd227eeeac03b, type: 3}
@@ -3505,7 +3509,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 82fca75fe128c4a4e99c8b13c06698c6, type: 3}
   - {fileID: 2800000, guid: 4f5d93ced8f979b4b831fb9491c5f21d, type: 3}
   - {fileID: 2800000, guid: 5162cac4afa8c8845aca100d9800ffd7, type: 3}
-  - {fileID: 2800000, guid: 78a4e845fcb2f6149b3afe4222eaad62, type: 3}
+  - {fileID: 2800000, guid: 6e3c0e4b2e80d2744828332581af6e02, type: 3}
   rnmMaps0: []
   rnmMaps1: []
   rnmMaps2: []
@@ -3718,7 +3722,7 @@ MonoBehaviour:
   - {fileID: 1803072394}
   - {fileID: 2125740405}
   - {fileID: 2059727658101398983}
-  bakedIDs: 0b00000000000000000000000f0000000b00000000000000000000001a0000000f0000000f0000000000000000000000020000000000000000000000080000000f0000000f0000000000000000000000000000000f0000000f000000000000000f000000000000000f0000000f0000000f0000000b00000000000000110000000f000000000000001400000003000000000000000b000000130000000f000000000000001b000000000000000f0000000e0000000f0000000f0000000f00000000000000000000000d000000000000000f00000000000000120000000b0000000000000003000000000000000f000000080000000f000000000000000000000000000000000000000000000000000000060000000f00000000000000040000000f00000009000000000000001b00000000000000090000000000000000000000090000001b0000000f00000009000000000000000f0000000f0000000f00000000000000000000000f000000000000000f000000000000000000000006000000040000000f000000000000000f00000008000000000000000f0000000f0000000f0000000f0000000b000000050000001b0000000f000000000000000f0000000f000000010000000b0000000f000000000000000f0000000f000000000000000f000000000000000000000009000000000000000f0000000f00000008000000000000000b000000100000000f0000001600000000000000170000000000000007000000180000000300000000000000000000000b000000090000000f0000000f0000000f0000000f0000000f0000000f0000000f000000050000000000000008000000080000000d0000000f0000000f000000020000000f000000000000000f0000000a0000000b00000000000000000000000f0000000000000000000000060000000f0000000f00000000000000190000000f0000000f0000000f0000000f0000000f000000000000000c0000000f0000000f00000000000000020000000000000015000000090000000900000000000000000000000f0000000000000000000000000000000b0000000f00000000000000070000000000000000000000000000000f00000000000000070000000f0000000f00000000000000
+  bakedIDs: 0c0000001c0000001c000000100000000c0000001c0000001c0000001b00000010000000100000001c0000001c000000030000001c0000001c0000000900000010000000100000001c0000001c0000001c00000010000000100000001c000000100000001c0000001000000010000000100000000c0000001c00000012000000100000001c00000015000000040000001c0000000c00000014000000100000001c000000010000001c000000100000000f0000001000000010000000100000001c0000001c000000000000001c000000100000001c000000130000000c0000001c000000040000001c0000001000000009000000100000001c0000001c0000001c0000001c0000001c0000001c00000007000000100000001c00000005000000100000000a0000001c000000010000001c0000000a0000001c0000001c0000000a0000000e000000100000000a0000001c0000001000000010000000100000001c0000001c000000100000001c000000100000001c0000001c0000000700000005000000100000001c00000010000000090000001c000000100000001000000010000000100000000c0000000600000001000000100000001c0000001000000010000000020000000c000000100000001c00000010000000100000001c000000100000001c0000001c0000000a0000001c0000001000000010000000090000001c0000000c0000001100000010000000170000001c000000180000001c0000000800000019000000040000001c0000001c0000000c0000000a00000010000000100000001000000010000000100000001000000010000000060000001c000000090000000900000000000000100000001000000003000000100000001c000000100000000b0000000c0000001c0000001c000000100000001c0000001c0000000700000010000000100000001c0000001a00000010000000100000001000000010000000100000001c0000000d00000010000000100000001c000000030000001c000000160000000a000000090000001c0000001c000000100000001c0000001c0000001c0000000c000000100000001c000000080000001c0000001c0000001c000000100000001c0000000800000010000000100000001c000000
   bakedScaleOffset:
   - {x: 0.14167689, y: 0.14166236, z: 0.85424566, w: 0.5933912}
   - {x: 0.015811838, y: 0.014780274, z: 0.56077754, w: 0.9801651}
@@ -3761,7 +3765,7 @@ MonoBehaviour:
   - {x: 0.9955924, y: 0.9955924, z: 0.0009885033, w: 0.0009885033}
   - {x: 0.020404454, y: 0.019373247, z: 0.950601, w: 0.9640695}
   - {x: 0.06727504, y: 0.067445666, z: -0.0020222708, w: 0.87780285}
-  - {x: 0.53985727, y: 0.53999823, z: -0.0020308755, w: -0.0020329412}
+  - {x: 0.55602515, y: 0.55617034, z: -0.0020916972, w: -0.0020938248}
   - {x: 0.0710484, y: 0.07143237, z: 0.8777278, w: 0.7335013}
   - {x: -0.011444845, y: -0.011982902, z: 0.97546107, w: 0.87864983}
   - {x: 1.3142353, y: 0.03131091, z: 0.00072564406, w: 0.48500195}
@@ -3793,15 +3797,15 @@ MonoBehaviour:
   - {x: 0.061458305, y: 0.061458305, z: 0.8852961, w: 0.5977514}
   - {x: 0.6352505, y: 0.6352372, z: -0.0006390868, w: -0.0006389509}
   - {x: 0.056042373, y: 0.05282913, z: 0.3640403, w: 0.9541367}
-  - {x: 0.53234977, y: 0.5155244, z: 0.19627798, w: 0.75477314}
+  - {x: 0.6734025, y: 0.64811397, z: 0.20729741, w: 0.765589}
   - {x: 0.20863032, y: 0.205416, z: 0.84462273, w: 0.48841837}
-  - {x: 0.43094447, y: 0.43093947, z: -0.0017004565, w: 0.5380953}
+  - {x: 0.4438506, y: 0.44384548, z: -0.0017513826, w: 0.5542104}
   - {x: 0.04516065, y: 0.045164037, z: 0.2666334, w: 0.9390651}
   - {x: 0.18212698, y: 0.182126, z: 0.7885808, w: 0.40720436}
   - {x: 0.020411551, y: 0.019379983, z: 0.95954853, w: 0.20548558}
   - {x: 0.015811948, y: 0.014780381, z: 0.45699006, w: 0.9801651}
   - {x: 0.78533745, y: 0.78529966, z: -0.0017511173, w: -0.001750748}
-  - {x: 0.47121271, y: 0.47122276, z: 0.5288288, w: -0.004706915}
+  - {x: 1.0051227, y: 1.0049386, z: -0.0041764146, w: -0.00417336}
   - {x: -0.0056636715, y: -0.000137698, z: 0.26360092, w: 0.9899787}
   - {x: 0.20769921, y: 0.20769852, z: 0.78376335, w: -0.001789369}
   - {x: 0.031653177, y: 0.031652007, z: 0.9575172, w: 0.6698524}
@@ -3828,7 +3832,7 @@ MonoBehaviour:
   - {x: -0.0040959506, y: 0.0014300232, z: 0.12945762, w: 0.99248564}
   - {x: 0.14167692, y: 0.14166237, z: 0.85424566, w: 0.4455969}
   - {x: 0.3090427, y: 0.3089479, z: 0.68928087, w: -0.001989909}
-  - {x: 0.43526176, y: 0.4352611, z: 0.5232604, w: 0.45657384}
+  - {x: 0.4482972, y: 0.44829652, z: 0.53893125, w: -0.010582802}
   - {x: 0.04514499, y: 0.04514838, z: 0.9454294, w: 0.8194924}
   - {x: 0.045160674, y: 0.04516406, z: 0.20032153, w: 0.9417456}
   - {x: 0.88905406, y: 0.88905305, z: -0.00824904, w: -0.008249023}
@@ -3847,7 +3851,7 @@ MonoBehaviour:
   - {x: 0.045160666, y: 0.045164052, z: 0.2666334, w: 0.8842952}
   - {x: 0.004860981, y: 0.005394762, z: 0.66380394, w: 0.96698815}
   - {x: -0.0041291295, y: 0.0013968445, z: 0.13846032, w: 0.99248624}
-  - {x: 0.23605812, y: 0.23392332, z: 0.7038228, w: 0.44898397}
+  - {x: 0.23605812, y: 0.23392332, z: 0.6827421, w: 0.70404404}
   - {x: 0.043892335, y: 0.043892335, z: 0.37721127, w: 0.9402192}
   - {x: 0.12175327, y: 0.1217209, z: 0.54175335, w: 0.8515092}
   - {x: 0.9987236, y: 0.9988852, z: -0.0009710036, w: -0.00097210845}
@@ -3907,7 +3911,7 @@ MonoBehaviour:
   - {x: 0.061458312, y: 0.061458312, z: 0.8852961, w: 0.52601045}
   - {x: 0.9941363, y: 0.9944144, z: 0.001976494, w: 0.0019754078}
   - {x: 0.19625024, y: 0.1962572, z: 0.78361326, w: 0.2060134}
-  - {x: 0.16352488, y: 0.1635104, z: 0.7105463, w: 0.78469586}
+  - {x: 0.16191404, y: 0.1618997, z: 0.73805135, w: 0.48286474}
   - {x: 0.04516064, y: 0.04516403, z: 0.32138819, w: 0.93906504}
   - {x: 0.094829865, y: 0.095296904, z: 0.87558943, w: 0.22672825}
   - {x: 0.115420215, y: 0.11538834, z: 0.87949437, w: -0.00011276342}
@@ -4171,8 +4175,8 @@ MonoBehaviour:
   - {fileID: 2058338812}
   bakedLights:
   - {fileID: 273560468}
-  - {fileID: 2059727658101398978}
   - {fileID: 914722854}
+  - {fileID: 2059727658101398978}
   - {fileID: 206037106}
   - {fileID: 279863123}
   - {fileID: 333233750}
@@ -4188,7 +4192,7 @@ MonoBehaviour:
   bakedScaleOffsetTerrain: []
   assetList: []
   uvOverlapAssetList: 
-  idremap: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b000000
+  idremap: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b0000001c000000
   usesRealtimeGI: 0
   emptyDirectionTex: {fileID: 2800000, guid: 04afea73344b7d049b5b7ac5ae315dd5, type: 3}
   anyVolumes: 0
@@ -5982,6 +5986,49 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 138775824}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &140596739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LM0
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 27
+  sortingID: 2
+  isImplicit: 1
+  area: 35757588
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &141405200
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8491,49 +8538,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1326577271}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &229455104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA7
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 19
-  sortingID: 9
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &229673311
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9949,6 +9953,49 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 276748702}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &277612587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA3
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 24
+  sortingID: 5
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &279863119
 GameObject:
   m_ObjectHideFlags: 0
@@ -11302,49 +11349,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 318260084}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &318920264
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA5
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 21
-  sortingID: 7
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &324434510
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12287,6 +12291,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 813037008}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &339953658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA15
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 12
+  sortingID: 17
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &340174903
 GameObject:
   m_ObjectHideFlags: 0
@@ -13751,7 +13798,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &371627130
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14225,6 +14272,49 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 378558445}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &378587711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_VLM
+  m_EditorClassIdentifier: 
+  resolution: 16
+  bitmask: 1
+  id: 29
+  sortingID: 1
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 49672
+  vertexCounter: 49672
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: 
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 2
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 1
 --- !u!1 &379884638
 GameObject:
   m_ObjectHideFlags: 0
@@ -20783,6 +20873,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1863134113}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &433438049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA13
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 0
+  sortingID: 15
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &434407246
 GameObject:
   m_ObjectHideFlags: 0
@@ -21535,7 +21668,7 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 453151520}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &456618727
+--- !u!114 &453319861
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -21545,12 +21678,55 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA25
+  m_Name: HospitalEntrance_LMA28
+  m_EditorClassIdentifier: 
+  resolution: 128
+  bitmask: 1
+  id: 15
+  sortingID: 30
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
+--- !u!114 &454905086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA10
   m_EditorClassIdentifier: 
   resolution: 512
   bitmask: 1
-  id: 1
-  sortingID: 27
+  id: 17
+  sortingID: 12
   isImplicit: 1
   area: 0
   totalVertexCount: 0
@@ -26475,6 +26651,49 @@ Transform:
   m_Father: {fileID: 697691316}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &559075987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA18
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 9
+  sortingID: 20
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &560021399 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 546e5033989b5a44cbf986196830d718,
@@ -26585,49 +26804,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 204b5cf4805589c4a8c3d049d2fd4621, type: 3}
---- !u!114 &577057642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA27
-  m_EditorClassIdentifier: 
-  resolution: 128
-  bitmask: 1
-  id: 14
-  sortingID: 29
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &577545671
 GameObject:
   m_ObjectHideFlags: 0
@@ -27574,6 +27750,49 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 612250539}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &614585221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA14
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 13
+  sortingID: 16
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &620206733
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28470,49 +28689,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 2080952041}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &655777623
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LM0
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 26
-  sortingID: 2
-  isImplicit: 1
-  area: 35757588
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &657930147
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28622,49 +28798,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 657930147}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &671753557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA14
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 12
-  sortingID: 16
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &674944558
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29531,6 +29664,49 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1451436900}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &715255303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA17
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 10
+  sortingID: 19
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &716612342
 GameObject:
   m_ObjectHideFlags: 0
@@ -31202,6 +31378,49 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 770240923}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &770395365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA16
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 11
+  sortingID: 18
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &772209658
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31464,49 +31683,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1974870875}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &781870520
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA16
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 10
-  sortingID: 18
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &782373922
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31933,49 +32109,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 791293652}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &791397941
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA2
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 24
-  sortingID: 4
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &791889825 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3432511030995576547, guid: e604694baeef36541ad46b12e8f17475,
@@ -32381,49 +32514,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2074752449}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &798696631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA4
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 22
-  sortingID: 6
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &799859624
 GameObject:
   m_ObjectHideFlags: 0
@@ -34591,49 +34681,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &855970624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA11
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 15
-  sortingID: 13
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &856013886
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34847,49 +34894,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6d40d87f18cce4341aaa19d7dd70b353, type: 3}
---- !u!114 &865045515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA23
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 3
-  sortingID: 25
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!4 &865994670 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: cf19563cdfc9b1f43a1f9e0ccba62a1b,
@@ -35422,6 +35426,49 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1974870875}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &885825206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA1
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 26
+  sortingID: 3
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &893256932 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 765380cff88169f479c0c6afbd184699,
@@ -36066,6 +36113,49 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 5798487570966423009, guid: d744420d17a2ca745b6e7b21d9f6791d, type: 3}
+--- !u!114 &907553636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA20
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 7
+  sortingID: 22
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &909862832
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36597,49 +36687,6 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 914722851}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &915554797
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA17
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 9
-  sortingID: 19
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &918457413
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36783,6 +36830,49 @@ Transform:
   m_Father: {fileID: 697691316}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &920027294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA22
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 5
+  sortingID: 24
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &923417133
 GameObject:
   m_ObjectHideFlags: 0
@@ -42741,49 +42831,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 5798487570966423009, guid: d744420d17a2ca745b6e7b21d9f6791d, type: 3}
---- !u!114 &947525491
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA6
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 20
-  sortingID: 8
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!4 &954179412 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 238012580638005357, guid: 6d40d87f18cce4341aaa19d7dd70b353,
@@ -44224,6 +44271,49 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 1017189199}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1017228580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA8
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 19
+  sortingID: 10
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!4 &1019030467 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2b9790e88f38950458b818e40d97ec00,
@@ -44236,6 +44326,49 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1974870875}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1023104686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA9
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 18
+  sortingID: 11
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &1023758828 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3367836867318707765, guid: 1d2bdb69b89c31d4990ab0336ede8dbc,
@@ -46537,6 +46670,49 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 5798487570966423009, guid: d744420d17a2ca745b6e7b21d9f6791d, type: 3}
+--- !u!114 &1080362943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA19
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 8
+  sortingID: 21
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!4 &1084151743 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1d2bdb69b89c31d4990ab0336ede8dbc,
@@ -46567,49 +46743,6 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 520159040}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1088060381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA21
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 5
-  sortingID: 23
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &1097339844 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2710d1ee34933444b919c5637f137462,
@@ -55952,92 +56085,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1241561204}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1251362146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA20
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 6
-  sortingID: 22
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
---- !u!114 &1258268035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA12
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 0
-  sortingID: 14
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!4 &1262214026 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b,
@@ -57662,11 +57709,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: b82f9decb20e50042ac3645388db3a48, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 26b0441172729794e889d42c10d2af39,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1544240187}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 26b0441172729794e889d42c10d2af39, type: 3}
 --- !u!1 &1326577272 stripped
@@ -57681,49 +57724,6 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 1326577271}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1329530956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA24
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 2
-  sortingID: 26
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!4 &1331331661 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d62b0cecd9e154d429ede2b00800c917,
@@ -59029,49 +59029,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1385164591}
   m_Mesh: {fileID: 4679390504295679099, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b, type: 3}
---- !u!114 &1389440240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA3
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 23
-  sortingID: 5
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &1390583339
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -60721,49 +60678,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.979609, y: 3.1591358, z: 6.133868}
   m_Center: {x: 0.0000004181765, y: 1.5825363, z: 1.1593022}
---- !u!114 &1450339848
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA19
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 7
-  sortingID: 21
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &1451436900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -62613,7 +62527,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1734950061}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1501678462
+--- !u!114 &1505279639
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -62623,12 +62537,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA8
+  m_Name: HospitalEntrance_LMA12
   m_EditorClassIdentifier: 
   resolution: 512
   bitmask: 1
-  id: 18
-  sortingID: 10
+  id: 28
+  sortingID: 14
   isImplicit: 1
   area: 0
   totalVertexCount: 0
@@ -63146,7 +63060,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1513786706}
   m_Mesh: {fileID: 4679390504295679099, guid: 86db360f1dcd24c4b8e2b7b2bd68a27b, type: 3}
---- !u!114 &1520492305
+--- !u!114 &1519503041
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -63156,12 +63070,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA26
+  m_Name: HospitalEntrance_LMA6
   m_EditorClassIdentifier: 
   resolution: 512
   bitmask: 1
-  id: 27
-  sortingID: 28
+  id: 21
+  sortingID: 8
   isImplicit: 1
   area: 0
   totalVertexCount: 0
@@ -63485,6 +63399,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2065696500}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1537880880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA27
+  m_EditorClassIdentifier: 
+  resolution: 256
+  bitmask: 1
+  id: 14
+  sortingID: 29
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &1538468908
 GameObject:
   m_ObjectHideFlags: 0
@@ -64071,124 +64028,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1544237120}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1544240186
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1544240187}
-  - component: {fileID: 1544240189}
-  - component: {fileID: 1544240188}
-  m_Layer: 0
-  m_Name: Point Light
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1544240187
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1544240186}
-  m_LocalRotation: {x: 0.7071067, y: -0, z: -0.000000029802322, w: 0.70710695}
-  m_LocalPosition: {x: -0.013, y: 12.325, z: 0.632}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 222907041}
-  m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!114 &1544240188
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1544240186}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Version: 3
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
-  m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}
-  m_SoftShadowQuality: 0
---- !u!108 &1544240189
-Light:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1544240186}
-  m_Enabled: 1
-  serializedVersion: 10
-  m_Type: 2
-  m_Shape: 0
-  m_Color: {r: 1, g: 0.04935981, b: 0.0141509175, a: 1}
-  m_Intensity: 0.5
-  m_Range: 8.802123
-  m_SpotAngle: 33.492683
-  m_InnerSpotAngle: 25.289917
-  m_CookieSize: 10
-  m_Shadows:
-    m_Type: 0
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.02
-    m_NormalBias: 0.1
-    m_NearPlane: 0.1
-    m_CullingMatrixOverride:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingLayerMask: 1
-  m_Lightmapping: 4
-  m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_UseBoundingSphereOverride: 0
-  m_UseViewFrustumForShadowCasterCull: 1
-  m_ShadowRadius: 0
-  m_ShadowAngle: 0
 --- !u!1 &1545013037
 GameObject:
   m_ObjectHideFlags: 0
@@ -64508,6 +64347,49 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 1547320831}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1553085598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA24
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 3
+  sortingID: 26
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &1555656775 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d744420d17a2ca745b6e7b21d9f6791d,
@@ -65099,6 +64981,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1569670420}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1573392261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA7
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 20
+  sortingID: 9
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &1574631466
 GameObject:
   m_ObjectHideFlags: 0
@@ -65746,49 +65671,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1590315980}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1592808735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA10
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 16
-  sortingID: 12
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &1594427360 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 958f2f4983a377c4a87e1f9d54333b70,
@@ -68854,49 +68736,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -7844086665144445546, guid: 8f06860d9acd0534cb83eeffc17bfff3, type: 3}
---- !u!114 &1685987130
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA9
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 17
-  sortingID: 11
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1 &1687438251 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8965862208169513009, guid: e604694baeef36541ad46b12e8f17475,
@@ -70515,6 +70354,49 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 1734950061}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1735910075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA4
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 23
+  sortingID: 6
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &1737181467
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -71256,49 +71138,6 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
---- !u!114 &1758248446
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_VLM
-  m_EditorClassIdentifier: 
-  resolution: 16
-  bitmask: 1
-  id: 28
-  sortingID: 1
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 49672
-  vertexCounter: 49672
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: 
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 2
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 3
 --- !u!1 &1759972619 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 765380cff88169f479c0c6afbd184699,
@@ -71332,7 +71171,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.112388, y: 3.1194618, z: 5.1342974}
   m_Center: {x: -0.000003789436, y: 1.5658369, z: 0.07651136}
---- !u!114 &1763551065
+--- !u!114 &1765969896
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -71342,12 +71181,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA1
+  m_Name: HospitalEntrance_LMA23
   m_EditorClassIdentifier: 
   resolution: 512
   bitmask: 1
-  id: 25
-  sortingID: 3
+  id: 4
+  sortingID: 25
   isImplicit: 1
   area: 0
   totalVertexCount: 0
@@ -71979,49 +71818,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 737402412}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1779872397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA22
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 4
-  sortingID: 24
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!4 &1788240018 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 238012580638005357, guid: 6d40d87f18cce4341aaa19d7dd70b353,
@@ -72106,6 +71902,49 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9c3385180a0bfb54f99d0c83c8f0bbb3, type: 3}
+--- !u!114 &1794296991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA2
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 25
+  sortingID: 4
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &1794791378
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -73465,6 +73304,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1122333604}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1823561658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA26
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 1
+  sortingID: 28
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &1831926096
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74194,6 +74076,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1691107791}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1850294151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA11
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 16
+  sortingID: 13
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &1863134113
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -76003,6 +75928,49 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1938341656}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1940781277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA25
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 2
+  sortingID: 27
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1001 &1943985108
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77330,6 +77298,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1304170583}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1988508444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
+  m_Name: HospitalEntrance_LMA5
+  m_EditorClassIdentifier: 
+  resolution: 512
+  bitmask: 1
+  id: 22
+  sortingID: 7
+  isImplicit: 1
+  area: 0
+  totalVertexCount: 0
+  vertexCounter: 0
+  sceneLodLevel: -1
+  autoResolution: 0
+  sceneName: HospitalEntrance
+  tag: -1
+  containsTerrains: 0
+  probes: 0
+  mode: 1
+  renderMode: 1000
+  renderDirMode: 1000
+  atlasPacker: 1000
+  computeSSS: 0
+  sssSamples: 16
+  sssDensity: 10
+  sssColor: {r: 1, g: 1, b: 1, a: 1}
+  sssScale: 1
+  fakeShadowBias: 0
+  transparentSelfShadow: 0
+  flipNormal: 0
+  parentName: 
+  overridePath: 
+  fixPos3D: 0
+  voxelSize: {x: 1, y: 1, z: 1}
+  passedFilter: 0
 --- !u!1 &1991852151
 GameObject:
   m_ObjectHideFlags: 0
@@ -81150,92 +81161,6 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 2108905758}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2109057528
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA15
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 11
-  sortingID: 17
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
---- !u!114 &2109236362
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0b4dd729a12d046982652f834580a2, type: 3}
-  m_Name: HospitalEntrance_LMA13
-  m_EditorClassIdentifier: 
-  resolution: 512
-  bitmask: 1
-  id: 13
-  sortingID: 15
-  isImplicit: 1
-  area: 0
-  totalVertexCount: 0
-  vertexCounter: 0
-  sceneLodLevel: -1
-  autoResolution: 0
-  sceneName: HospitalEntrance
-  tag: -1
-  containsTerrains: 0
-  probes: 0
-  mode: 1
-  renderMode: 1000
-  renderDirMode: 1000
-  atlasPacker: 1000
-  computeSSS: 0
-  sssSamples: 16
-  sssDensity: 10
-  sssColor: {r: 1, g: 1, b: 1, a: 1}
-  sssScale: 1
-  fakeShadowBias: 0
-  transparentSelfShadow: 0
-  flipNormal: 0
-  parentName: 
-  overridePath: 
-  fixPos3D: 0
-  voxelSize: {x: 1, y: 1, z: 1}
-  passedFilter: 0
 --- !u!1001 &2114030754
 PrefabInstance:
   m_ObjectHideFlags: 0
