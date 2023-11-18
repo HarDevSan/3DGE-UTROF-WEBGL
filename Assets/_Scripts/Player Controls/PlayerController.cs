@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     public Transform castRayFrom;
 
     public Camera _mainCamera;
+    public Transform followTarget;
+    public Transform playerMeshTransform;
 
     public static bool isApplyGravity;
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Room;
@@ -57,16 +59,13 @@ public class PlayerController : MonoBehaviour
         SetPlayerToUnplayableState();
     }
 
-    private void FixedUpdate()
+ 
+    void Update()
     {
+
         //Gravity needs to always be applied, even if we have no jumping but maybe some falling
         // if (isApplyGravity)
         ApplyGravity();
-    }
-
-    void Update()
-    {
-        
 
         //Only call Movement related functions if the player does movmeent input
         if (InputManager.CheckIfAnyMovementInput())
@@ -117,7 +116,7 @@ public class PlayerController : MonoBehaviour
 
     void ApplyGravity()
     {
-        //Check if the player is grounded and turn off the gravity in that case
+        ////Check if the player is grounded and turn off the gravity in that case
         if (_characterController.isGrounded)
         {
             _gravity = Vector3.zero;
@@ -140,6 +139,8 @@ public class PlayerController : MonoBehaviour
         //Zero-ed out y of camera forward and right vectors, preventing slow down through y-axis taken into account
         Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.x, 0f, _mainCamera.transform.forward.z).normalized;
         Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.x, 0f, _mainCamera.transform.right.z).normalized;
+
+        Vector3 FollowTargetZeroY =  new Vector3(followTarget.transform.forward.x, 0f, followTarget.transform.forward.z).normalized;
 
         if (InputManager.CheckIfVerticalInput() == true)
         {
@@ -166,9 +167,9 @@ public class PlayerController : MonoBehaviour
             //}
         }
         //Forwards Backwards Movements
-        _characterController.Move(camForwardZeroY * inputVectorWASD.normalized.y * playerstats._walkSpeed * Time.deltaTime);
+        _characterController.Move(/*camForwardZeroY*/ FollowTargetZeroY * inputVectorWASD.normalized.y * playerstats._walkSpeed * Time.deltaTime);
         //Strafing
-        _characterController.Move(camRightZeroY * inputVectorWASD.normalized.x * playerstats._strafeSpeed * Time.deltaTime);
+        _characterController.Move(/*camRightZeroY*/ followTarget.forward  * inputVectorWASD.normalized.x * playerstats._strafeSpeed * Time.deltaTime);
         //Could simply swap x and y here to make a classical "spellbound" like effect on the player when he is hit by some kind of poison or spell
 
     }
@@ -210,18 +211,19 @@ public class PlayerController : MonoBehaviour
         //local varaible to hold the direction vector from screen center into world
         Vector3 direction = directionFromScreen.direction;
 
+
         Quaternion lookRotation = Quaternion.LookRotation(direction);
 
         //Spherical interpolate players y-rotation towards camera forward vector
-        Quaternion from = transform.rotation;
+        Quaternion from = playerMeshTransform.rotation;
         Quaternion to = lookRotation;
         float t = 0f;
         Quaternion lerpValue;
 
         t += playerstats._turnSpeed * Time.deltaTime;
 
-        lerpValue = Quaternion.Slerp(transform.rotation, lookRotation, t);
-        transform.rotation = lerpValue;
+        lerpValue = Quaternion.Slerp(playerMeshTransform.rotation, lookRotation, t);
+        playerMeshTransform.rotation = lerpValue;
 
         //Zero out any rotations on x and z
         var zeroedOutEulers = transform.eulerAngles;
@@ -233,7 +235,7 @@ public class PlayerController : MonoBehaviour
 
     /* A ray is cast continously from the player characters's forward axis. If the ray intersects an object that belongs to an "Interactable" layer,
      * all functions that are subscribed to the events that are fired in this function will get called.
-     */ 
+     */
     void CastRayFromFront()
     {
         RaycastHit hit;
