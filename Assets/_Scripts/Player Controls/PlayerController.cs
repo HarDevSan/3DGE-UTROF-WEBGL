@@ -140,7 +140,9 @@ public class PlayerController : MonoBehaviour
         Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.x, 0f, _mainCamera.transform.forward.z).normalized;
         Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.x, 0f, _mainCamera.transform.right.z).normalized;
 
-        Vector3 FollowTargetZeroY =  new Vector3(followTarget.transform.forward.x, 0f, followTarget.transform.forward.z).normalized;
+        Vector3 followTargetForward =  new Vector3(followTarget.transform.forward.x, 0f, followTarget.transform.forward.z).normalized;
+        Vector3 followTargetRight = new Vector3(followTarget.transform.right.x, 0f, followTarget.transform.right.z).normalized;
+
 
         if (InputManager.CheckIfVerticalInput() == true)
         {
@@ -167,9 +169,9 @@ public class PlayerController : MonoBehaviour
             //}
         }
         //Forwards Backwards Movements
-        _characterController.Move(/*camForwardZeroY*/ FollowTargetZeroY * inputVectorWASD.normalized.y * playerstats._walkSpeed * Time.deltaTime);
+        _characterController.Move(/*camForwardZeroY*/ followTargetForward * inputVectorWASD.normalized.y * playerstats._walkSpeed * Time.deltaTime);
         //Strafing
-        _characterController.Move(/*camRightZeroY*/ followTarget.forward  * inputVectorWASD.normalized.x * playerstats._strafeSpeed * Time.deltaTime);
+        _characterController.Move(/*camRightZeroY*/ followTargetRight * inputVectorWASD.normalized.x * playerstats._strafeSpeed * Time.deltaTime);
         //Could simply swap x and y here to make a classical "spellbound" like effect on the player when he is hit by some kind of poison or spell
 
     }
