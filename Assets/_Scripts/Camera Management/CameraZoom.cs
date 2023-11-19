@@ -22,4 +22,10 @@ public class CameraZoom : MonoBehaviour
     {
         zoomCamFPS.Priority = zoomCamFPS.m_Priority -1;
     }
+
+    private void OnDisable()
+    {
+        InputReceiver.On_Z_Input -= RaiseZoomCamPrio;
+        InputReceiver.On_Z_Input_Up -= LowerZoomCamPrio;
+    }
 }
