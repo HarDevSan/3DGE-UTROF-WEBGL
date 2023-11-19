@@ -113,8 +113,10 @@ public class SceneLoader : MonoBehaviour
         yield return new WaitForSeconds(loadDelay);
         //Re-Tetrahedralize light probes
         LightProbes.Tetrahedralize();
+        Debug.Log("SceneHasLoaded");
         //Broadcast that next scene has finished loading
-        OnScene_Has_Loaded.Invoke();
+        if (OnScene_Has_Loaded != null)
+            OnScene_Has_Loaded.Invoke();
 
     }
 
@@ -132,7 +134,8 @@ public class SceneLoader : MonoBehaviour
 
         }
         //Broadcast that this scene has finished unloading
-        OnScene_Has_UnLoaded.Invoke();
+        if (OnScene_Has_UnLoaded != null)
+            OnScene_Has_UnLoaded.Invoke();
     }
     private void OnDisable()
     {
