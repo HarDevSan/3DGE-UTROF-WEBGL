@@ -246,6 +246,7 @@ public class PlayerController : MonoBehaviour
 
         if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskRoom)) //last param is filtering by layer
         {
+            //The event is needed as one shot notification for UI blend ins
             if (OnPlayerSeesSomethingInteractable_Room != null)
             {
                 OnPlayerSeesSomethingInteractable_Room.Invoke();
