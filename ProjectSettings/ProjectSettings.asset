@@ -269,7 +269,14 @@ PlayerSettings:
   AndroidMinifyDebug: 0
   AndroidValidateAppBundleSize: 1
   AndroidAppBundleSizeToValidate: 100
-  m_BuildTargetIcons: []
+  m_BuildTargetIcons:
+  - m_BuildTarget: 
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 0}
+      m_Width: 128
+      m_Height: 128
+      m_Kind: 0
   m_BuildTargetPlatformIcons: []
   m_BuildTargetBatching:
   - m_BuildTarget: Standalone
@@ -629,7 +636,7 @@ PlayerSettings:
   webGLPowerPreference: 2
   scriptingDefineSymbols:
     Standalone: SUBSTANCE_PLUGIN_ENABLED;TERRAINPACKAGE_EXIST;BAKERYPACKAGE_EXIST;BAKERY_INCLUDED
-    WebGL: BAKERY_INCLUDED
+    WebGL: BAKERY_INCLUDED;NODECANVAS
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -646,7 +653,7 @@ PlayerSettings:
     QNX: 1
     Stadia: 1
     Standalone: 1
-    WebGL: 2
+    WebGL: 1
     Windows Store Apps: 1
     XboxOne: 1
     iPhone: 1
