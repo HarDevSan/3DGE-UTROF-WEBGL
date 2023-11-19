@@ -118,6 +118,31 @@ MonoBehaviour:
   blueOutBlueIn:
     m_OverrideState: 1
     m_Value: 100
+--- !u!114 &-871313357288723560
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29fa0085f50d5e54f8144f766051a691, type: 3}
+  m_Name: FilmGrain
+  m_EditorClassIdentifier: 
+  active: 1
+  type:
+    m_OverrideState: 1
+    m_Value: 9
+  intensity:
+    m_OverrideState: 1
+    m_Value: 0.216
+  response:
+    m_OverrideState: 0
+    m_Value: 0.8
+  texture:
+    m_OverrideState: 0
+    m_Value: {fileID: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,6 +166,9 @@ MonoBehaviour:
   - {fileID: -7759379265948141627}
   - {fileID: 7716957469874111347}
   - {fileID: 2782219380590565164}
+  - {fileID: 6062218474792111595}
+  - {fileID: -871313357288723560}
+  - {fileID: 8796028125752929234}
 --- !u!114 &933539107821551443
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -290,6 +318,28 @@ MonoBehaviour:
   saturation:
     m_OverrideState: 1
     m_Value: -25.5
+--- !u!114 &6062218474792111595
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70afe9e12c7a7ed47911bb608a23a8ff, type: 3}
+  m_Name: SplitToning
+  m_EditorClassIdentifier: 
+  active: 1
+  shadows:
+    m_OverrideState: 1
+    m_Value: {r: 0.4433962, g: 0.4433962, b: 0.4433962, a: 1}
+  highlights:
+    m_OverrideState: 1
+    m_Value: {r: 0.7075472, g: 0.7075472, b: 0.7075472, a: 1}
+  balance:
+    m_OverrideState: 1
+    m_Value: -15.1
 --- !u!114 &6137420632820344453
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -324,10 +374,29 @@ MonoBehaviour:
   active: 1
   lift:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0.008550663}
+    m_Value: {x: 1, y: 0.9896441, z: 0.9850513, w: 0.008550663}
   gamma:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: -0.04275331}
+    m_Value: {x: 0.98019934, y: 1, z: 0.8898637, w: 0.0123051945}
   gain:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: -0.09405728}
+    m_Value: {x: 0.7964234, y: 0.8302715, z: 1, w: 0.03670667}
+--- !u!114 &8796028125752929234
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb60a22f311433c4c962b888d1393f88, type: 3}
+  m_Name: PaniniProjection
+  m_EditorClassIdentifier: 
+  active: 1
+  distance:
+    m_OverrideState: 1
+    m_Value: 0.291
+  cropToFit:
+    m_OverrideState: 1
+    m_Value: 1
