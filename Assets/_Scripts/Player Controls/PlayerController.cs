@@ -225,13 +225,15 @@ public class PlayerController : MonoBehaviour
         t += playerstats._turnSpeed * Time.deltaTime;
 
         lerpValue = Quaternion.Slerp(playerMeshTransform.rotation, lookRotation, t);
+      
         playerMeshTransform.rotation = lerpValue;
-
-        //Zero out any rotations on x and z
-        var zeroedOutEulers = transform.eulerAngles;
+          //Zero out any rotations on x and z
+        var zeroedOutEulers = playerMeshTransform.eulerAngles;
         zeroedOutEulers.x = 0;
         zeroedOutEulers.z = 0;
-        transform.eulerAngles = zeroedOutEulers;
+        playerMeshTransform.eulerAngles = zeroedOutEulers;
+
+   
 
     }
 
