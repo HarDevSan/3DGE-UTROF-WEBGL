@@ -256,7 +256,6 @@ public class PlayerController : MonoBehaviour
         {
             //OnPlayerSeesSomethingInteractable_Item.Invoke();
             isPlayerCanInteractBecauseHeLooksAtSmth_item = true;
-            Debug.Log("LOOKS At Somehting FISHY");
         }
         else if (Physics.Raycast(castRayFrom.position, castRayFrom.forward, out hit, playerstats._LineOfSightDistance, interactionMaskScriptedEvent)) //last param is filtering by layer
         {
@@ -272,8 +271,7 @@ public class PlayerController : MonoBehaviour
             isPlayerCanInteractBecauseHeLooksAtSmth_item = false;
             isPlayerCanInteractBecauseHeLooksAt_ScriptedEvent = false;
         }
-       // Debug.DrawRay(castRayFrom.position, castRayFrom.forward, Color.green);
-
+        Debug.DrawRay(castRayFrom.position, castRayFrom.forward, Color.green);
     }
 
     void ResetPlayer()
