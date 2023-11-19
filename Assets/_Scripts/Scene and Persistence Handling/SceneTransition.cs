@@ -11,8 +11,7 @@ using Cinemachine;
 /* Scene Transition is a binary state switch system similar to a flip flop, but not quite, as there are basically 3 states: A-B-C. It uses Unity internal physics
  * components like a Box Collider, the players proximity to This scene transition visually represented by a door or similar real life objects, can be detected. When the
  * player is not in proximity, it needs to be ensured that there is no trigger active. This is due to the component based architecture used in Unity. Methods will get
- * called on all Game Objectsthat houses THIS script,which would cause multiple scene loading logic to execute simultaniouslysn.
- * 
+ * called on all Game Objectsthat houses THIS script,which would cause multiple scene loading logic to execute simultaneously. 
  * Author: Hardev Sandhu
  */
 public class SceneTransition : MonoBehaviour
@@ -29,9 +28,6 @@ public class SceneTransition : MonoBehaviour
 
     [Header("Scene Name to transition to")]
     public string nextSceneName;
-
-    [Header("FreeLookCam Ref")]
-    public CinemachineFreeLook cam;
 
     [Header("Inventory Ref")]
     public Inventory inventorySO;
@@ -64,9 +60,6 @@ public class SceneTransition : MonoBehaviour
     public delegate void LightWeightDoorClosing();
     public static event LightWeightDoorClosing OnLightWeightDoorClosing;
 
-    [SerializeField]
-    bool isPlayerCanEnterScene;
-
     [Header("Door Type")]
     public DoorEnum.DoorTypesEnum doorType;
 
@@ -85,6 +78,7 @@ public class SceneTransition : MonoBehaviour
     //Fire an event that an audio player can subscribe to and play a sound effect appropriate to the chosen door type
     void InvokeDoorClosingSound()
     {
+
         if (doorType == DoorEnum.DoorTypesEnum.Heavy)
         {
             Debug.Log("Door INVOKDED");
@@ -105,6 +99,7 @@ public class SceneTransition : MonoBehaviour
         Also doing this every frame is mandatory, as the player at any time can approach a door and use it.*/
         if (PlayerController.isPlayerCanInteractBecauseHeLooksAtSmth_Room && InputReceiver.CheckIf_Use_Pressed() && CheckIfDoorUnLocked())
         {
+
             //Send door type to audio manager
             if (doorType == DoorEnum.DoorTypesEnum.Heavy)
             {
