@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SceneTransitionActivator : MonoBehaviour
 {
-
+    //We wanna keep this for later when enemies are running around
     public LayerMask mask;
 
     public Transform childTransform;
