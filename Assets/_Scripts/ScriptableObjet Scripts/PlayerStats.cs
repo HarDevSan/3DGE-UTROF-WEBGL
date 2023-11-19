@@ -30,6 +30,9 @@ public class PlayerStats : ScriptableObject
     public float _toDefaultWalkSpeedLerpTime;
     public float _toDefaultStrafeSpeedLerpTime;
 
+    //CameraRotation Values/MouseSpeed
+    public float mouseSpeed;
+
 
 
 }
