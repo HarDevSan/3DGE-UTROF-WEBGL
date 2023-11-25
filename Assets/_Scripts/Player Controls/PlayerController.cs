@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public Transform followTarget;
     public Transform playerMeshTransform;
 
+
     public static bool isApplyGravity;
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_Room;
     public static bool isPlayerCanInteractBecauseHeLooksAtSmth_item;
@@ -25,6 +26,7 @@ public class PlayerController : MonoBehaviour
     public LayerMask interactionMaskScriptedEvent;
 
     CharacterController _characterController;
+    public CamStateBroadcaster camStateBroadCasterSO;
 
     Vector3 _gravity;
     Vector2 inputVectorWASD;
@@ -59,7 +61,7 @@ public class PlayerController : MonoBehaviour
         SetPlayerToUnplayableState();
     }
 
- 
+
     void Update()
     {
 
@@ -91,7 +93,7 @@ public class PlayerController : MonoBehaviour
         CastRayFromFront();
 
         //TurnPlayerWhilstZooming
-        if (InputReceiver.isZKeyPresssed)
+        if (InputReceiver.isZKeyPresssed || camStateBroadCasterSO.isCinematicState == true)
         {
             TurnPlayer();
         }
@@ -137,24 +139,22 @@ public class PlayerController : MonoBehaviour
     void MovePlayerWASD()
     {
         //Zero-ed out y of camera forward and right vectors, preventing slow down through y-axis taken into account
-        Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.x, 0f, _mainCamera.transform.forward.z).normalized;
-        Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.x, 0f, _mainCamera.transform.right.z).normalized;
-
-        Vector3 followTargetForward =  new Vector3(followTarget.transform.forward.x, 0f, followTarget.transform.forward.z).normalized;
+        //Vector3 camForwardZeroY = new Vector3(_mainCamera.transform.forward.x, 0f, _mainCamera.transform.forward.z).normalized;
+        //Vector3 camRightZeroY = new Vector3(_mainCamera.transform.right.x, 0f, _mainCamera.transform.right.z).normalized;
+        Vector3 followTargetForward = new Vector3(followTarget.transform.forward.x, 0f, followTarget.transform.forward.z).normalized;
         Vector3 followTargetRight = new Vector3(followTarget.transform.right.x, 0f, followTarget.transform.right.z).normalized;
-
 
         if (InputManager.CheckIfVerticalInput() == true)
         {
             if (inputVectorWASD.y < 0)
             {
                 playerstats._walkSpeed = playerstats._walkBackwardsSpeed;
-                
+
             }
             else if (inputVectorWASD.y > 0)
             {
                 playerstats._walkSpeed = playerstats._defaultWalkSpeed;
-               
+
             }
         }
         else
@@ -168,11 +168,14 @@ public class PlayerController : MonoBehaviour
             //    Run();
             //}
         }
+
+
         //Forwards Backwards Movements
         _characterController.Move(/*camForwardZeroY*/ followTargetForward * inputVectorWASD.normalized.y * playerstats._walkSpeed * Time.deltaTime);
         //Strafing
         _characterController.Move(/*camRightZeroY*/ followTargetRight * inputVectorWASD.normalized.x * playerstats._strafeSpeed * Time.deltaTime);
         //Could simply swap x and y here to make a classical "spellbound" like effect on the player when he is hit by some kind of poison or spell
+
 
     }
 
@@ -208,10 +211,18 @@ public class PlayerController : MonoBehaviour
         //Cast Ray from the middle of the screen
         Ray directionFromScreen = _mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
 
-        //Get the direction of the ray to slerp towards, so player will always believebly look forward
+        Vector3 direction;
 
-        //local varaible to hold the direction vector from screen center into world
-        Vector3 direction = directionFromScreen.direction;
+        //Get the direction of the ray to slerp towards, so player will always believebly look forward
+        if (camStateBroadCasterSO.isCinematicState == false)
+        {
+            //local varaible to hold the direction vector from screen center into world
+             direction = directionFromScreen.direction;
+        }
+        else
+        {
+            direction = followTarget.forward;
+        }
 
 
         Quaternion lookRotation = Quaternion.LookRotation(direction);
@@ -225,15 +236,13 @@ public class PlayerController : MonoBehaviour
         t += playerstats._turnSpeed * Time.deltaTime;
 
         lerpValue = Quaternion.Slerp(playerMeshTransform.rotation, lookRotation, t);
-      
+
         playerMeshTransform.rotation = lerpValue;
-          //Zero out any rotations on x and z
+        //Zero out any rotations on x and z
         var zeroedOutEulers = playerMeshTransform.eulerAngles;
         zeroedOutEulers.x = 0;
         zeroedOutEulers.z = 0;
         playerMeshTransform.eulerAngles = zeroedOutEulers;
-
-   
 
     }
 
@@ -266,7 +275,7 @@ public class PlayerController : MonoBehaviour
         {
             ////check if event has subs
             if (OnPlayerDoesNotSeeSomehtingInteractable != null)
-                OnPlayerDoesNotSeeSomehtingInteractable.Invoke(); 
+                OnPlayerDoesNotSeeSomehtingInteractable.Invoke();
 
             isPlayerCanInteractBecauseHeLooksAtSmth_Room = false;
             isPlayerCanInteractBecauseHeLooksAtSmth_item = false;
