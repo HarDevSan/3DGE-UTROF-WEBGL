@@ -46,7 +46,7 @@ public class DetectAndPlayKindOfFootsteps : MonoBehaviour
     }
     void PlayFootSteps()
     {
-        footStepSource.pitch = Random.Range(MinPitch, MaxPitch) ;
+        footStepSource.pitch = Random.Range(MinPitch, MaxPitch);
         footStepSource.Play();
     }
 
