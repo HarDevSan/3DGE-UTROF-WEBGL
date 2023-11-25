@@ -30,7 +30,7 @@ bool checkIfLighterIsInInvenotry()
 
     void EnableLighter()
     {
-        if (CheckIfGameIsPaused() == false && checkIfLighterIsInInvenotry())
+        if (CheckIfGameIsPaused() == false /*&& checkIfLighterIsInInvenotry()*/)
         {
             lighter.SetActive(true);
             if(tempFlame != null)
